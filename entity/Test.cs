@@ -17,7 +17,7 @@ public class Test
     public Class classRef { get; set; }
     
     [ForeignKey("ApplicationUser")]
-    public int UserId { get; set; }
+    public string ApplicationUserId { get; set; }
     public ApplicationUser applicationUser { get; set; }
     
     public  ICollection<Schedule> Schedules { get; set; }

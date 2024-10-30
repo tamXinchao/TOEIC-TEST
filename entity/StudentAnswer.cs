@@ -26,7 +26,7 @@ public class StudentAnswer
     public  Question question { get; set; }
     
     [ForeignKey("ApplicationUser")]
-    public int UserId { get; set; }
+    public string ApplicationUserId { get; set; }
     public  ApplicationUser applicationUser { get; set; }
     
     
