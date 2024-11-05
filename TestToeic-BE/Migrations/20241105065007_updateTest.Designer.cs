@@ -12,8 +12,8 @@ using TestToeic.Db;
 namespace TestToeic.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20241030022649_firstMigrations")]
-    partial class firstMigrations
+    [Migration("20241105065007_updateTest")]
+    partial class updateTest
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -321,6 +321,10 @@ namespace TestToeic.Migrations
                     b.Property<int>("AnswerId")
                         .HasColumnType("integer");
 
+                    b.Property<string>("ApplicationUserId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<DateTime?>("Completion")
                         .HasColumnType("timestamp with time zone");
 
@@ -336,21 +340,15 @@ namespace TestToeic.Migrations
                     b.Property<int>("TestId")
                         .HasColumnType("integer");
 
-                    b.Property<int>("UserId")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("applicationUserId")
-                        .HasColumnType("text");
-
                     b.HasKey("StudentAnswerId");
 
                     b.HasIndex("AnswerId");
 
+                    b.HasIndex("ApplicationUserId");
+
                     b.HasIndex("QuestionId");
 
                     b.HasIndex("TestId");
-
-                    b.HasIndex("applicationUserId");
 
                     b.ToTable("StudentAnswers");
                 });
@@ -363,6 +361,10 @@ namespace TestToeic.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("TestId"));
 
+                    b.Property<string>("ApplicationUserId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<int>("ClassId")
                         .HasColumnType("integer");
 
@@ -372,23 +374,22 @@ namespace TestToeic.Migrations
                     b.Property<float?>("PointOfQuestion")
                         .HasColumnType("real");
 
+                    b.Property<int>("QuestionId")
+                        .HasColumnType("integer");
+
                     b.Property<DateTime?>("TestDateCreated")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<TimeOnly?>("TestTime")
                         .HasColumnType("time without time zone");
 
-                    b.Property<int>("UserId")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("applicationUserId")
-                        .HasColumnType("text");
-
                     b.HasKey("TestId");
+
+                    b.HasIndex("ApplicationUserId");
 
                     b.HasIndex("ClassId");
 
-                    b.HasIndex("applicationUserId");
+                    b.HasIndex("QuestionId");
 
                     b.ToTable("Tests");
                 });
@@ -474,6 +475,12 @@ namespace TestToeic.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("TestToeic.entity.ApplicationUser", "applicationUser")
+                        .WithMany("StudentAnswers")
+                        .HasForeignKey("ApplicationUserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("TestToeic.entity.Question", "question")
                         .WithMany("StudentAnswers")
                         .HasForeignKey("QuestionId")
@@ -486,10 +493,6 @@ namespace TestToeic.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("TestToeic.entity.ApplicationUser", "applicationUser")
-                        .WithMany("StudentAnswers")
-                        .HasForeignKey("applicationUserId");
-
                     b.Navigation("answer");
 
                     b.Navigation("applicationUser");
@@ -501,19 +504,29 @@ namespace TestToeic.Migrations
 
             modelBuilder.Entity("TestToeic.entity.Test", b =>
                 {
+                    b.HasOne("TestToeic.entity.ApplicationUser", "applicationUser")
+                        .WithMany("Tests")
+                        .HasForeignKey("ApplicationUserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("TestToeic.entity.Class", "classRef")
                         .WithMany("Tests")
                         .HasForeignKey("ClassId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("TestToeic.entity.ApplicationUser", "applicationUser")
+                    b.HasOne("TestToeic.entity.Question", "question")
                         .WithMany("Tests")
-                        .HasForeignKey("applicationUserId");
+                        .HasForeignKey("QuestionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("applicationUser");
 
                     b.Navigation("classRef");
+
+                    b.Navigation("question");
                 });
 
             modelBuilder.Entity("TestToeic.entity.Answer", b =>
@@ -538,6 +551,8 @@ namespace TestToeic.Migrations
                     b.Navigation("Answers");
 
                     b.Navigation("StudentAnswers");
+
+                    b.Navigation("Tests");
                 });
 
             modelBuilder.Entity("TestToeic.entity.Test", b =>

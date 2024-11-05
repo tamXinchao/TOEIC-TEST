@@ -30,7 +30,7 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseCors("AllowNuxt");
 app.UseRouting();
-
+app.MapControllers();
 app.UseAuthorization();
 app.MapReverseProxy();
 app.MapRazorPages();

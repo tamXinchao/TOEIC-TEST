@@ -7,7 +7,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace TestToeic.Migrations
 {
     /// <inheritdoc />
-    public partial class firstMigrations : Migration
+    public partial class InitialCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -195,17 +195,17 @@ namespace TestToeic.Migrations
                     Point = table.Column<float>(type: "real", nullable: true),
                     PointOfQuestion = table.Column<float>(type: "real", nullable: true),
                     ClassId = table.Column<int>(type: "integer", nullable: false),
-                    UserId = table.Column<int>(type: "integer", nullable: false),
-                    applicationUserId = table.Column<string>(type: "text", nullable: true)
+                    ApplicationUserId = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Tests", x => x.TestId);
                     table.ForeignKey(
-                        name: "FK_Tests_AspNetUsers_applicationUserId",
-                        column: x => x.applicationUserId,
+                        name: "FK_Tests_AspNetUsers_ApplicationUserId",
+                        column: x => x.ApplicationUserId,
                         principalTable: "AspNetUsers",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_Tests_Classes_ClassId",
                         column: x => x.ClassId,
@@ -269,8 +269,7 @@ namespace TestToeic.Migrations
                     TestId = table.Column<int>(type: "integer", nullable: false),
                     AnswerId = table.Column<int>(type: "integer", nullable: false),
                     QuestionId = table.Column<int>(type: "integer", nullable: false),
-                    UserId = table.Column<int>(type: "integer", nullable: false),
-                    applicationUserId = table.Column<string>(type: "text", nullable: true)
+                    ApplicationUserId = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -282,10 +281,11 @@ namespace TestToeic.Migrations
                         principalColumn: "AnswerId",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_StudentAnswers_AspNetUsers_applicationUserId",
-                        column: x => x.applicationUserId,
+                        name: "FK_StudentAnswers_AspNetUsers_ApplicationUserId",
+                        column: x => x.ApplicationUserId,
                         principalTable: "AspNetUsers",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_StudentAnswers_Questions_QuestionId",
                         column: x => x.QuestionId,
@@ -353,9 +353,9 @@ namespace TestToeic.Migrations
                 column: "AnswerId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_StudentAnswers_applicationUserId",
+                name: "IX_StudentAnswers_ApplicationUserId",
                 table: "StudentAnswers",
-                column: "applicationUserId");
+                column: "ApplicationUserId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_StudentAnswers_QuestionId",
@@ -368,9 +368,9 @@ namespace TestToeic.Migrations
                 column: "TestId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Tests_applicationUserId",
+                name: "IX_Tests_ApplicationUserId",
                 table: "Tests",
-                column: "applicationUserId");
+                column: "ApplicationUserId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Tests_ClassId",

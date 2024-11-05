@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using TestToeic.Db;
@@ -11,9 +12,11 @@ using TestToeic.Db;
 namespace TestToeic.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241105040437_InitialCreate")]
+    partial class InitialCreate
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -263,32 +266,6 @@ namespace TestToeic.Migrations
                     b.ToTable("Classes");
                 });
 
-            modelBuilder.Entity("TestToeic.entity.PointOfQuestion", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<float?>("Point")
-                        .HasColumnType("real");
-
-                    b.Property<int>("QuestionId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("TestId")
-                        .HasColumnType("integer");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("QuestionId");
-
-                    b.HasIndex("TestId");
-
-                    b.ToTable("PointOfQuestion");
-                });
-
             modelBuilder.Entity("TestToeic.entity.Question", b =>
                 {
                     b.Property<int>("QuestionId")
@@ -394,8 +371,8 @@ namespace TestToeic.Migrations
                     b.Property<float?>("Point")
                         .HasColumnType("real");
 
-                    b.Property<int>("QuestionId")
-                        .HasColumnType("integer");
+                    b.Property<float?>("PointOfQuestion")
+                        .HasColumnType("real");
 
                     b.Property<DateTime?>("TestDateCreated")
                         .HasColumnType("timestamp with time zone");
@@ -408,8 +385,6 @@ namespace TestToeic.Migrations
                     b.HasIndex("ApplicationUserId");
 
                     b.HasIndex("ClassId");
-
-                    b.HasIndex("QuestionId");
 
                     b.ToTable("Tests");
                 });
@@ -476,25 +451,6 @@ namespace TestToeic.Migrations
                     b.Navigation("question");
                 });
 
-            modelBuilder.Entity("TestToeic.entity.PointOfQuestion", b =>
-                {
-                    b.HasOne("TestToeic.entity.Question", "question")
-                        .WithMany("PointOfQuestions")
-                        .HasForeignKey("QuestionId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("TestToeic.entity.Test", "test")
-                        .WithMany("PointOfQuestions")
-                        .HasForeignKey("TestId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("question");
-
-                    b.Navigation("test");
-                });
-
             modelBuilder.Entity("TestToeic.entity.Schedule", b =>
                 {
                     b.HasOne("TestToeic.entity.Test", "test")
@@ -555,17 +511,9 @@ namespace TestToeic.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("TestToeic.entity.Question", "question")
-                        .WithMany("Tests")
-                        .HasForeignKey("QuestionId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.Navigation("applicationUser");
 
                     b.Navigation("classRef");
-
-                    b.Navigation("question");
                 });
 
             modelBuilder.Entity("TestToeic.entity.Answer", b =>
@@ -589,17 +537,11 @@ namespace TestToeic.Migrations
                 {
                     b.Navigation("Answers");
 
-                    b.Navigation("PointOfQuestions");
-
                     b.Navigation("StudentAnswers");
-
-                    b.Navigation("Tests");
                 });
 
             modelBuilder.Entity("TestToeic.entity.Test", b =>
                 {
-                    b.Navigation("PointOfQuestions");
-
                     b.Navigation("Schedules");
 
                     b.Navigation("StudentAnswers");

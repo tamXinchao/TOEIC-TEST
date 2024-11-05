@@ -10,7 +10,10 @@ public class Test
     public DateTime? TestDateCreated { get; set; }
     public TimeOnly? TestTime { get; set; }
     public float? Point { get; set; }
-    public float? PointOfQuestion { get; set; }
+    
+    [ForeignKey("Question")]
+    public int QuestionId { get; set; }
+    public Question question { get; set; }
     
     [ForeignKey("Class")]
     public int ClassId { get; set; }
@@ -22,4 +25,5 @@ public class Test
     
     public  ICollection<Schedule> Schedules { get; set; }
     public  ICollection<StudentAnswer> StudentAnswers { get; set; }
+    public ICollection<PointOfQuestion> PointOfQuestions { get; set; }
 }

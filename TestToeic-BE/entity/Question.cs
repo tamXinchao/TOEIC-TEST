@@ -10,5 +10,7 @@ public class Question
     public string? Image { get; set; }
     public  ICollection<Answer> Answers { get; set; }
     public  ICollection<StudentAnswer> StudentAnswers { get; set; }
+    public  ICollection<Test> Tests { get; set; }
+    public  ICollection<PointOfQuestion> PointOfQuestions { get; set; }
 
 }
