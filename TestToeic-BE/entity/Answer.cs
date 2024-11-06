@@ -15,5 +15,5 @@ public class Answer
     public int QuestionId { get; set; }
     public  Question question { get; set; }
 
-    public ICollection<StudentAnswer> StudentAnswers { get; set; }
+    public  ICollection<AnswerOfStudent> AnswerOfStudents { get; set; }
 }

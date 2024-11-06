@@ -1,17 +1,12 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace TestToeic.entity;
 
-public class StudentAnswer
+public class AnswerOfStudent
 {
     [Key]
-    public int StudentAnswerId { get; set; }
-    public float StudentAnswerPoint { get; set; }
-    public DateTime? Completion { get; set; } 
-    public TimeOnly? Duration { get; set; } 
-    
+    public int Id { get; set; }
     
     [ForeignKey("Test")]
     public int TestId { get; set; }
@@ -29,5 +24,6 @@ public class StudentAnswer
     public string ApplicationUserId { get; set; }
     public  ApplicationUser applicationUser { get; set; }
     
-    
+    public float? PointOfAnswer { get; set; }
+
 }

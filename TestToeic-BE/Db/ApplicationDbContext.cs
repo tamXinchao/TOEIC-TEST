@@ -12,8 +12,10 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     public DbSet<Class> Classes  { get; set; }
     public DbSet<Question> Questions { get; set; }
     public DbSet<Schedule> Schedules { get; set; }
-    public DbSet<StudentAnswer> StudentAnswers { get; set; }
+    public DbSet<StudentPoint> StudentPoints { get; set; }
     public DbSet<Test> Tests { get; set; }
+    public DbSet<PointOfQuestion> PointOfQuestions { get; set; }
+    public DbSet<AnswerOfStudent> AnswerOfStudents { get; set; }
 
 
 

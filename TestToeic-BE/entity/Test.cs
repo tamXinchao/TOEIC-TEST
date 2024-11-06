@@ -9,11 +9,7 @@ public class Test
     public int TestId { get; set; }
     public DateTime? TestDateCreated { get; set; }
     public TimeOnly? TestTime { get; set; }
-    public float? Point { get; set; }
-    
-    [ForeignKey("Question")]
-    public int QuestionId { get; set; }
-    public Question question { get; set; }
+    public float? PointOfTest { get; set; }
     
     [ForeignKey("Class")]
     public int ClassId { get; set; }
@@ -23,7 +19,8 @@ public class Test
     public string ApplicationUserId { get; set; }
     public ApplicationUser applicationUser { get; set; }
     
+    
     public  ICollection<Schedule> Schedules { get; set; }
-    public  ICollection<StudentAnswer> StudentAnswers { get; set; }
-    public ICollection<PointOfQuestion> PointOfQuestions { get; set; }
+    public  ICollection<PointOfQuestion> PointOfQuestions { get; set; }
+    public  ICollection<AnswerOfStudent> AnswerOfStudents { get; set; }
 }
