@@ -8,10 +8,6 @@ public class AnswerOfStudent
     [Key]
     public int Id { get; set; }
     
-    [ForeignKey("Test")]
-    public int TestId { get; set; }
-    public Test test { get; set; }
-    
     [ForeignKey("Answer")]
     public int AnswerId { get; set; }
     public Answer answer { get; set; }
@@ -20,10 +16,10 @@ public class AnswerOfStudent
     public int QuestionId { get; set; }
     public  Question question { get; set; }
     
-    [ForeignKey("ApplicationUser")]
-    public string ApplicationUserId { get; set; }
-    public  ApplicationUser applicationUser { get; set; }
+    [ForeignKey("StudentPoint")]
+    public int StudentPointId { get; set; } //Id bài làm
+    public StudentPoint StudentPoints { get; set; }
     
-    public float? PointOfAnswer { get; set; }
+    public float? PointOfAnswer { get; set; } //Điểm của câu học sinh đã làm dựa trên câu đúng và câu sai
 
 }

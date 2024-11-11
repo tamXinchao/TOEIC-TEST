@@ -21,13 +21,16 @@ public class QuestionApi : ControllerBase
         return _context.Questions.ToList();
     }
     
-    [HttpGet("getByQuestion")]
-    public ActionResult<IEnumerable<Question>> getByQuestion()
+    [HttpGet("getByQuestionByTest")]
+    public ActionResult<List<QuestionDto>> GetByQuestion(int? id)
     {
+        // Danh sách câu hỏi với câu trả lời liên quan
         var questions = _context.Questions
             .Include(q => q.Answers)
             .ToList();
-        var questionDto = questions.Select(q => new QuestionDto
+
+        // Chuyển đổi câu hỏi sang DTO
+        var questionDtos = questions.Select(q => new QuestionDto
         {
             QuestionId = q.QuestionId,
             QuestionContent = q.QuestionContent,
@@ -38,7 +41,31 @@ public class QuestionApi : ControllerBase
                 Explain = a.Explain
             }).ToList()
         }).ToList();
-        
-        return Ok(questionDto);
+
+        // Nếu `id` có giá trị, lọc theo `TestId`
+        if (id != null)
+        {
+            var filteredQuestions = _context.PointOfQuestions
+                .Where(q => q.QuestionId == id)  // Lọc câu hỏi theo TestId
+                .Include(q => q.question)    // Bao gồm câu trả lời cho mỗi câu hỏi
+                .ToList();
+
+            questionDtos = filteredQuestions.Select(q => new QuestionDto
+            {
+                QuestionId = q.QuestionId,
+                QuestionContent = q.question.QuestionContent,
+                PointOfQuestion = q.Point,
+                Answers = q.question.Answers.Select(a => new AnswerDto
+                {
+                    AnswerId = a.AnswerId,
+                    AnswerContent = a.AnswerContent,
+                    Explain = a.Explain
+                }).ToList()
+            }).ToList();
+        }
+
+        return Ok(questionDtos);
     }
+
+    
 }

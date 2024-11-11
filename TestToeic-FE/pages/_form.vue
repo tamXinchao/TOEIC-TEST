@@ -1,38 +1,28 @@
 <template>
-  <div class="form-container">
-    <h2 class="text-2xl mb-4">Nhập thông tin thí sinh</h2>
-    <form @submit.prevent="submitForm">
-      <div class="mb-4">
-        <label for="name" class="block text-gray-700 font-bold mb-2"
-          >Tên thí sinh:</label
-        >
-        <input
-          type="text"
-          id="name"
-          v-model="candidateName"
-          class="border rounded py-2 px-3 text-gray-700 w-full"
-          placeholder="Nhập tên thí sinh"
-          required
-        />
+  <div class="form-container" v-for="test in tests" :key="test.id">
+    <div>
+      <div>
+        <NuxtLink :to="`/questions/1`"
+          >Đề thi: {{ test.title }} Số lượng câu hỏi:
+          {{ test.questionDtos.length }}
+          Thời gian làm bài: {{ test.testTimeMinutes }} phút
+        </NuxtLink>
       </div>
-      <NuxtLink to="/questions">
-        <button
-          type="submit"
-          class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-        >
-          Bắt đầu làm bài
-        </button>
-      </NuxtLink>
-    </form>
+    </div>
   </div>
 </template>
 
-<script setup></script>
+<script setup>
+import axios from "axios";
+const { data: tests } = await axios.get(
+  `http://localhost:5082/api/testApi/list`
+);
+</script>
 
 <style scoped>
 .form-container {
   max-width: 400px;
-  margin: 0 auto;
+  margin: 10px auto;
   padding: 20px;
   border: 1px solid #e5e7eb;
   border-radius: 8px;

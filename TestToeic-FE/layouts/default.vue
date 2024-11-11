@@ -3,7 +3,7 @@
     <header class="shadow-sm bg-white">
       <nav class="container mx-auto p-4 flex justify-between">
         <!-- Liên kết đến trang chính -->
-        <NuxtLink to="/" class="font-bond">Thi đầu vào Toeic</NuxtLink>
+        <NuxtLink to="/" class="font-bold">Thi đầu vào Toeic</NuxtLink>
         <ul class="flex gap-4">
           <!-- Liên kết đến trang home -->
           <li><NuxtLink to="/" class="text-blue-500">Home</NuxtLink></li>

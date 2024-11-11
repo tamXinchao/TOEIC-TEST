@@ -8,7 +8,7 @@
     >
       <!-- Link đến trang chi tiết câu hỏi -->
 
-      {{ index }}
+      Câu {{ index }}: {{ questions.questionContent }}
     </div>
   </NuxtLink>
 </template>

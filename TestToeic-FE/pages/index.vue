@@ -1,14 +1,19 @@
 <template>
   <div v-for="test in tests" :key="test.id">
     <h1>{{ test.title }}</h1>
-    <h2>{{ test.testTime }}</h2>
+    <h2>Thời gian làm bài: {{ test.testTimeMinutes }} Phút</h2>
+
     <ul>
       <!-- Lặp qua từng câu hỏi trong mảng questions -->
       <li
-        v-for="(question, questionIndex) in test.questions"
+        v-for="(question, questionIndex) in test.questionDtos"
         :key="question.questionId"
       >
-        <p>{{ question.questionContent }}</p>
+        <p>
+          {{ question.questionContent }} ({{
+            "Điểm của câu hỏi nếu trả lời đúng: " + question.pointOfQuestion
+          }})
+        </p>
         <!-- Lặp qua từng câu trả lời trong mảng answers -->
         <div
           v-for="(answer, answerIndex) in question.answers"
@@ -45,7 +50,7 @@ export default {
   async mounted() {
     try {
       // Gọi API để lấy dữ liệu bài kiểm tra
-      const response = await axios.get(`http://localhost:5082/api/testApi/1`);
+      const response = await axios.get(`http://localhost:5082/api/testApi/2`);
       this.tests = response.data; // Lưu dữ liệu bài kiểm tra vào mảng tests
       console.log(this.tests); // In ra kết quả nhận được từ API
     } catch (error) {

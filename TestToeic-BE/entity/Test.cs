@@ -22,5 +22,5 @@ public class Test
     
     public  ICollection<Schedule> Schedules { get; set; }
     public  ICollection<PointOfQuestion> PointOfQuestions { get; set; }
-    public  ICollection<AnswerOfStudent> AnswerOfStudents { get; set; }
+    public  ICollection<StudentPoint> StudentPoints { get; set; }
 }

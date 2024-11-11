@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using TestToeic.Db;
 using TestToeic.entity;
 using TestToeic.entity.dto;
@@ -32,22 +33,15 @@ public class TestApi : ControllerBase
                 Point = dto.PointOfTest,
                 TestTime = dto.TestTime,
                 UserCreate = dto.applicationUser.UserName,
-                Questions = dto.PointOfQuestions.Select(q => new Question
+                QuestionDtos = dto.PointOfQuestions.Select(q => new QuestionDto
                 {
-                    QuestionId = q.QuestionId,
+                    QuestionId = q.QuestionId,  
                     QuestionContent = q.question.QuestionContent,
-                    PointOfQuestions = new List<PointOfQuestion>
-                    {
-                        new PointOfQuestion
-                        {
-                            Point = q.Point
-                        }
-                    },
+                    PointOfQuestion = q.Point,
                     Image = q.question.Image,
-                    Answers = q.question.Answers.Select(a => new Answer
+                    Answers = q.question.Answers.Select(a => new AnswerDto
                     {
                         AnswerId = a.AnswerId,
-                        QuestionId = a.QuestionId,
                         AnswerContent = a.AnswerContent,
                         Explain = a.Explain,
                         Correct = a.Correct
@@ -56,4 +50,48 @@ public class TestApi : ControllerBase
             });
         return Ok(testDto);
     }
+
+    [HttpGet("list")]
+    public ActionResult<TestDto> GetList(int? id)
+    {
+        if (id != null)
+        {
+            var test = _context.Tests.AsNoTracking()
+                .Where(t => t.TestId == id)
+                .Select(t => new TestDto
+                {
+                    Id = t.TestId,
+                    UserCreate = t.applicationUser.UserName,
+                    Title = t.classRef.ClassName,
+                    TestTime = t.TestTime,
+                    QuestionDtos = t.PointOfQuestions.Select(q => new QuestionDto
+                    {
+                        QuestionId = q.QuestionId,
+                    }).ToList(),
+                }).FirstOrDefault();
+
+            if (test == null)
+            {
+                return NotFound();  // Trả về 404 nếu không tìm thấy Test
+            }
+
+            return Ok(test);
+        }
+
+        // Nếu id == null, trả về tất cả bài kiểm tra
+        var tests = _context.Tests.AsNoTracking().Select(t => new TestDto
+        {
+            Id = t.TestId,
+            UserCreate = t.applicationUser.UserName,
+            Title = t.classRef.ClassName,
+            TestTime = t.TestTime,
+            QuestionDtos = t.PointOfQuestions.Select(q => new QuestionDto
+            {
+                QuestionId = q.QuestionId
+            }).ToList()
+        }).ToList();  // Thêm .ToList() để thực thi truy vấn
+
+        return Ok(tests);  // Trả về danh sách tất cả bài kiểm tra
+    }
+
 }

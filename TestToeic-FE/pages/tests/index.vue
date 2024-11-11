@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="grid grid-cols-3 gap-4">
-      <div v-for="(q, index) in questions">
+      <div v-for="(q, index) in questions" :key="index">
         <!-- Truyền index + 1 vào component con -->
         <QuestionList :questions="q" :index="index + 1" />
       </div>
