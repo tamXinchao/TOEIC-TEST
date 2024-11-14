@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace TestToeic.entity;
 
-public class StudentPoint
+public class StudentPoint : BaseEnity
 {
     [Key]
     public int StudentPointId { get; set; }

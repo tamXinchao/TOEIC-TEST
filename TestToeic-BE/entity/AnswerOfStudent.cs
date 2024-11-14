@@ -3,14 +3,14 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace TestToeic.entity;
 
-public class AnswerOfStudent
+public class AnswerOfStudent : BaseEnity
 {
     [Key]
     public int Id { get; set; }
     
     [ForeignKey("Answer")]
     public int AnswerId { get; set; }
-    public Answer answer { get; set; }
+    public Answer Answer { get; set; }
     
     [ForeignKey("Question")]
     public int QuestionId { get; set; }

@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace TestToeic.entity;
 
-public class PointOfQuestion
+public class PointOfQuestion : BaseEnity
 {
     [Key]
     public int Id { get; set; }

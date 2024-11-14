@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace TestToeic.entity;
 
-public class Test
+public class Test : BaseEnity
 {
     [Key]
     public int TestId { get; set; }

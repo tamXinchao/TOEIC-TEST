@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace TestToeic.entity;
 
-public class Question
+public class Question : BaseEnity
 {
     [Key]
     public int QuestionId { get; set; }

@@ -4,7 +4,7 @@ using System.Runtime.InteropServices.JavaScript;
 
 namespace TestToeic.entity;
 
-public class Schedule
+public class Schedule : BaseEnity
 {
     [Key]
     public int ScheduleId { get; set; }

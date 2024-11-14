@@ -6,5 +6,5 @@ public class QuestionDto
     public string QuestionContent { get; set; }
     public float? PointOfQuestion { get; set; }
     public string? Image { get; set; }
-    public List<AnswerDto> Answers { get; set; }
+    public List<AnswerDto>? Answers { get; set; }
 }
