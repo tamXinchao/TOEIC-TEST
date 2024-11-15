@@ -77,7 +77,14 @@ public class QuestionApi : ControllerBase
     {
         return BadRequest(ModelState);
     }
-
+    float totalPointsOfNewQuestions = 0;
+    var testPoint = _context.Tests.AsNoTracking()
+        .Where(t => t.TestId == testId)
+        .Select(t => t.PointOfTest) 
+        .FirstOrDefault(); 
+    var existingPoints = _context.PointOfQuestions
+        .Where(q => q.TestId == testId)
+        .ToList(); 
     List<PointOfQuestion> listPointToAverage = new List<PointOfQuestion>();
 
     foreach (var questionDto in questionDtos)
@@ -107,15 +114,21 @@ public class QuestionApi : ControllerBase
             };
 
             newQuestion.PointOfQuestions.Add(pointOfQuestion);
+            
             listPointToAverage.Add(pointOfQuestion); 
+            totalPointsOfNewQuestions += questionDto.PointOfQuestion.Value;
+            var totalPointsWithNew = existingPoints.Sum(p => p.Point) + totalPointsOfNewQuestions;
+            if (totalPointsWithNew > testPoint)
+            {
+                return BadRequest("Điểm của các câu hỏi đang nhiều hơn điểm của bài kiểm tra. Vui lòng kiểm tra lại");
+            }
         }
         _context.Questions.Add(newQuestion);
     }
-
-    var testPoint = _context.Tests.AsNoTracking()
-        .Where(t => t.TestId == testId)
-        .Select(t => t.PointOfTest) 
-        .FirstOrDefault(); 
+    foreach (var point in existingPoints)
+    {
+        listPointToAverage.Add(point);
+    }
     var averagePointCalculator = new GetAveragePoint();
     float averagePoint = averagePointCalculator.AveragePointOfQuestion(listPointToAverage, testPoint);
     Console.WriteLine("TB: " + averagePoint);
@@ -126,6 +139,7 @@ public class QuestionApi : ControllerBase
             point.Point = averagePoint;
         }
     }
+    
 
     // Lưu toàn bộ thay đổi vào cơ sở dữ liệu
     _context.SaveChanges();
