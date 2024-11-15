@@ -29,16 +29,17 @@ public class StudentApi : ControllerBase
             .Select(a => new StudentAnswerDto
             {
                 Id = a.StudentPointId,
-                Point = a.PointOfStudent,
+                PointOfStudent = a.PointOfStudent,
+                TestId = a.TestId,
                 Title = a.test.classRef.ClassName,
                 Completion = a.Completion,
                 Duration = a.Duration,
                 StudentName = a.applicationUser.UserName,
                 Questions = a.AnswerOfStudents.Select(q => new QuestionDto
                 {
-                    QuestionId = q.question.QuestionId,
-                    QuestionContent = q.question.QuestionContent,
-                    Image = q.question.Image,
+                    QuestionId = q.Question.QuestionId,
+                    QuestionContent = q.Question.QuestionContent,
+                    Image = q.Question.Image,
                     PointOfQuestion = q.PointOfAnswer,
                     Answers = new List<AnswerDto>
                     {
@@ -51,10 +52,69 @@ public class StudentApi : ControllerBase
                             Correct = q.Answer.Correct
                         }
                     }
-                    
+
                 }).ToList()
             });
         return Ok(studentAnswer);
     }
     
+    [HttpPost]
+    public ActionResult SaveStudentAnswer(StudentPointDto studentPointDto)
+    {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+        float? pointOfStudent = 0;
+        var studentPoint = new StudentPoint
+        {
+            Completion = studentPointDto.Completion?.ToUniversalTime(),
+            Duration = studentPointDto.Duration,
+            TestId = studentPointDto.TestId,
+            ApplicationUserId = studentPointDto.ApplicationUserId, 
+            IsDelete = false,
+            IsActive = true,
+            AnswerOfStudents = new List<AnswerOfStudent>()
+        };
+
+        // Tạo danh sách tạm để chứa các AnswerOfStudentDto mới
+
+        foreach (var questionDto in studentPointDto.AnswerOfStudentDtos)
+        {
+            var answer = _context.Answers.AsNoTracking()
+                .FirstOrDefault(a => a.AnswerId == questionDto.AnswerId);
+            var pointOfQuestion = _context.PointOfQuestions.AsNoTracking()
+                .FirstOrDefault(p => p.QuestionId == questionDto.QuestionId && p.TestId == studentPointDto.TestId);
+
+            var answerOfStudent = new AnswerOfStudent
+            {
+                AnswerId = questionDto.AnswerId,
+                QuestionId = questionDto.QuestionId,
+                StudentPointId = studentPoint.StudentPointId,
+                IsActive = true,
+                IsDelete = false,
+            };
+            if (answer.Correct == false)
+            {
+                questionDto.PointOfAnswer = 0;
+            }
+            else
+            {
+                // Nếu câu trả lời đúng, gán điểm bằng điểm của câu hỏi
+                questionDto.PointOfAnswer = pointOfQuestion.Point;
+            }
+            pointOfStudent += questionDto.PointOfAnswer;
+            answerOfStudent.PointOfAnswer = questionDto.PointOfAnswer;
+            studentPoint.AnswerOfStudents.Add(answerOfStudent);
+        }
+
+        // Cập nhật danh sách AnswerOfStudentDtos trong studentPointDto sau khi vòng lặp kết thúc
+        studentPoint.PointOfStudent = pointOfStudent;
+
+        // Ghi lại thông tin vào cơ sở dữ liệu
+        _context.StudentPoints.Add(studentPoint);
+        _context.SaveChanges();
+
+        return Ok(new {Message = "Lưu thành công"});
+    }
 }

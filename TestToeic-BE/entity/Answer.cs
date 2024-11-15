@@ -8,9 +8,8 @@ public class Answer : BaseEnity
     [Key]
     public int AnswerId { get; set; }
     public Boolean Correct { get; set; }
-    public string AnswerContent { get; set; }
+    public string? AnswerContent { get; set; }
     public string? Explain { get; set; }
-    
     [ForeignKey("Question")]
     public int QuestionId { get; set; }
     public  Question question { get; set; }

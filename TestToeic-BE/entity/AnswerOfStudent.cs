@@ -14,7 +14,7 @@ public class AnswerOfStudent : BaseEnity
     
     [ForeignKey("Question")]
     public int QuestionId { get; set; }
-    public  Question question { get; set; }
+    public  Question Question { get; set; }
     
     [ForeignKey("StudentPoint")]
     public int StudentPointId { get; set; } //Id bài làm
