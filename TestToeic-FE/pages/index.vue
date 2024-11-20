@@ -10,7 +10,7 @@
         :key="question.questionId"
       >
         <p>
-          {{ question.questionContent }} ({{
+          Câu {{ questionIndex + 1 }}: {{ question.questionContent }} ({{
             "Điểm của câu hỏi nếu trả lời đúng: " + question.pointOfQuestion
           }})
         </p>
@@ -27,9 +27,9 @@
             v-model="selectedAnswers[question.questionId]"
           />
           <label :for="'answer-' + question.questionId + '-' + answer.answerId">
-            {{ answerIndex + 1 }}. {{ answer.answerContent }} - ({{
-              answer.correct ? "Đúng" : "Sai"
-            }}) (Giải thích: {{ answer.explain }})
+            {{ String.fromCharCode(65 + answerIndex) }}.
+            {{ answer.answerContent }} - ({{ answer.correct ? "Đúng" : "Sai" }})
+            (Giải thích: {{ answer.explain }})
           </label>
         </div>
       </li>
@@ -50,7 +50,7 @@ export default {
   async mounted() {
     try {
       // Gọi API để lấy dữ liệu bài kiểm tra
-      const response = await axios.get(`http://localhost:5082/api/testApi/2`);
+      const response = await axios.get(`http://localhost:5082/api/testApi/4`);
       this.tests = response.data; // Lưu dữ liệu bài kiểm tra vào mảng tests
       console.log(this.tests); // In ra kết quả nhận được từ API
     } catch (error) {

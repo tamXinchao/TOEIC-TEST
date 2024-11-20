@@ -139,11 +139,8 @@ public class QuestionApi : ControllerBase
             point.Point = averagePoint;
         }
     }
-    
-
     // Lưu toàn bộ thay đổi vào cơ sở dữ liệu
     _context.SaveChanges();
-
     return Ok();
 }
 
@@ -172,8 +169,8 @@ public class QuestionApi : ControllerBase
 
         return Ok();
     }
-
     [HttpDelete("{id}")]
+    
     public IActionResult Delete(int id)
     {
         var existQuestion = _context.Questions.Find(id);
@@ -188,6 +185,4 @@ public class QuestionApi : ControllerBase
     
         return Ok(new { Message = "Đã đánh dấu câu hỏi là đã xóa thành công." });
     }
-
-
 }

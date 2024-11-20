@@ -18,7 +18,7 @@
         />
         <label :for="'answer-' + answer.answerId">
           {{ String.fromCharCode(65 + answerIndex) }}.
-          <span class="ml-2">{{ answer.answerContent }}</span>
+          <span class="ml-2">{{ answer.answerContent }} </span>
         </label>
       </div>
     </div>
@@ -26,20 +26,13 @@
 </template>
 
 <script setup>
-import { defineProps, defineEmits } from "vue";
+import { defineProps } from "vue";
 
 // Nhận câu hỏi và selectedAnswers từ props
-const { question, selectedAnswers } = defineProps([
-  "question",
-  "selectedAnswers",
-]);
-const emit = defineEmits(["update-selected-answer"]);
+const { question } = defineProps(["question"]);
+console.log(question);
 
 // Phát ra sự kiện khi người dùng chọn câu trả lời
-const selectAnswer = (questionId, answerId) => {
-  emit("update-selected-answer", questionId, answerId);
-};
-console.log(selectAnswer);
 </script>
 
 <style scoped></style>

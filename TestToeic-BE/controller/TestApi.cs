@@ -61,12 +61,16 @@ public class TestApi : ControllerBase
                 .Select(t => new TestDto
                 {
                     Id = t.TestId,
+                    Point = t.PointOfTest,
                     UserCreate = t.applicationUser.UserName,
                     Title = t.classRef.ClassName,
                     TestTime = t.TestTime,
+                    DateCreate = t.TestDateCreated,
                     QuestionDtos = t.PointOfQuestions.Select(q => new QuestionDto
                     {
                         QuestionId = q.QuestionId,
+                        QuestionContent = q.question.QuestionContent,
+                        PointOfQuestion = q.Point
                     }).ToList(),
                 }).FirstOrDefault();
 
@@ -85,9 +89,12 @@ public class TestApi : ControllerBase
             UserCreate = t.applicationUser.UserName,
             Title = t.classRef.ClassName,
             TestTime = t.TestTime,
+            DateCreate = t.TestDateCreated,
             QuestionDtos = t.PointOfQuestions.Select(q => new QuestionDto
             {
-                QuestionId = q.QuestionId
+                QuestionId = q.QuestionId,
+                QuestionContent = q.question.QuestionContent,
+                PointOfQuestion = q.Point
             }).ToList()
         }).ToList();  // Thêm .ToList() để thực thi truy vấn
 

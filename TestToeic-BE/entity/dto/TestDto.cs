@@ -32,4 +32,22 @@ public class TestDto
             TestTime = value != null ? TimeOnly.ParseExact(value, "t", CultureInfo.CurrentCulture) : null;
         }
     }
+    public string StringDateCreateTest
+    {
+        get
+        {
+            if (!DateCreate.HasValue)
+            {
+                return null;
+            }
+
+            var day = DateCreate.Value.Day;
+            var month = DateCreate.Value.Month;
+            var year = DateCreate.Value.Year;
+            var hour = DateCreate.Value.Hour;
+            var minutes = DateCreate.Value.Minute;
+            string timeOpen = $"{hour} giờ {minutes} phút, Ngày {day} tháng {month} năm {year}";
+            return timeOpen;
+        }
+    }
 }

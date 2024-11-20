@@ -2,10 +2,11 @@
   <div class="form-container" v-for="test in tests" :key="test.id">
     <div>
       <div>
-        <NuxtLink :to="`/questions/1`"
-          >Đề thi: {{ test.title }} Số lượng câu hỏi:
-          {{ test.questionDtos.length }}
-          Thời gian làm bài: {{ test.testTimeMinutes }} phút
+        <NuxtLink :to="`/questions/1`">
+          <div><span class="font-bold">Đề thi:</span> {{ test.title }}</div>
+          <div>Số lượng câu hỏi: {{ test.questionDtos.length }}</div>
+          Thời gian làm bài:
+          {{ test.testTimeMinutes }} phút
         </NuxtLink>
       </div>
     </div>

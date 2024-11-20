@@ -1,31 +1,34 @@
 <template>
-  <div>
-    <div class="grid grid-cols-3 gap-4">
-      <div v-for="(q, index) in questions" :key="index">
-        <!-- Truyền index + 1 vào component con -->
-        <QuestionList :questions="q" :index="index + 1" />
-      </div>
-    </div>
+  <div class="form-container" v-for="test in tests" :key="test.id">
+    <NuxtLink :to="`/tests/${test.id}`" class="block">
+      <div><span class="font-bold">Đề thi:</span> {{ test.title }}</div>
+      <div>Số lượng câu hỏi: {{ test.questionDtos.length }}</div>
+      <div>Thời gian làm bài: {{ test.testTimeMinutes }} phút</div>
+    </NuxtLink>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
 import axios from "axios";
-// Khởi tạo biến reactive để lưu câu hỏi
-const questions = ref([]);
 
-// Gọi API khi component được mounted
-onMounted(async () => {
-  try {
-    const response = await axios.get(
-      "http://localhost:5082/api/questionApi/getByQuestionByTest"
-    );
-    questions.value = response.data; // Gán dữ liệu API vào biến questions
-  } catch (error) {
-    console.error("Error fetching questions:", error);
-  }
-});
+const { data: tests } = await axios.get(
+  `http://localhost:5082/api/testApi/list`
+);
 </script>
 
-<style scoped></style>
+<style scoped>
+.form-container {
+  max-width: 400px;
+  margin: 10px auto;
+  padding: 20px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background-color: #f9fafb;
+  transition: transform 0.2s ease;
+}
+
+.form-container:hover {
+  transform: scale(1.03);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+</style>
