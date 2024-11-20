@@ -35,6 +35,7 @@ const question = ref(null);
 
 // Lấy ID câu hỏi từ URL params
 const route = useRoute();
+console.log("Route params:", route.params);
 const { questionId } = route.params;
 
 // Lấy dữ liệu câu hỏi từ API khi component được mount

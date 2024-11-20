@@ -11,13 +11,13 @@
         <ul>
           <li v-for="(question, index) in tests.questionDtos" :key="index">
             <NuxtLink
-              :to="`/tests/${tests.id}/question/${question.questionId}`"
-              class="block p-4 mb-2 rounded-lg bg-gray-100 hover:bg-blue-500 hover:text-white transition-all duration-300 transform hover:scale-105 cursor-pointer"
+              :to="{
+                name: 'tests-id-question-questionId',
+                params: { id: tests.id, questionId: question.questionId },
+              }"
+              class="block p-4 mb-2 rounded-lg bg-gray-100 hover:bg-blue-500 hover:text-white transition-all duration-300 transform hover:scale-105"
             >
-              Câu {{ index + 1 }}: {{ question.questionContent }} ({{
-                question.pointOfQuestion
-              }}
-              điểm)
+              Câu {{ index + 1 }}: {{ question.questionContent }}
             </NuxtLink>
           </li>
         </ul>

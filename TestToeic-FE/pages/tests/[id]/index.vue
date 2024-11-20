@@ -1,11 +1,10 @@
 <template>
   <div>
-    <!-- Truyền `tests` xuống TestDetail -->
+    <!-- Truyền dữ liệu xuống TestDetail -->
     <TestDetail :tests="tests" />
-  </div>
-  <div class="container mx-auto p-4">
-    <!-- Dùng slot để hiển thị nội dung của các trang con -->
-    <slot />
+    <!-- Hiển thị nội dung của các trang con -->
+    <div v-if="loading" class="text-center mt-4">Đang tải dữ liệu...</div>
+    <NuxtPage />
   </div>
 </template>
 
@@ -13,11 +12,6 @@
 import axios from "axios";
 import { ref } from "vue";
 import { useRoute } from "vue-router";
-
-definePageMeta({
-  layout: "tests",
-});
-
 const route = useRoute();
 const { id } = route.params;
 
