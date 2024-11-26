@@ -76,7 +76,9 @@ public class StudentApi : ControllerBase
             IsActive = true,
             AnswerOfStudents = new List<AnswerOfStudent>()
         };
-
+        var maxTestPoint = _context.Tests.AsNoTracking()
+            .FirstOrDefault(t => t.TestId == studentPointDto.TestId)?
+            .PointOfTest ?? 10; 
         // Tạo danh sách tạm để chứa các AnswerOfStudentDto mới
 
         foreach (var questionDto in studentPointDto.AnswerOfStudentDtos)
@@ -94,20 +96,33 @@ public class StudentApi : ControllerBase
                 IsActive = true,
                 IsDelete = false,
             };
-            if (answer.Correct == false)
+            if (answer == null || pointOfQuestion == null)
             {
+                // Nếu không tìm thấy câu trả lời hoặc điểm câu hỏi, gán điểm là 0
                 questionDto.PointOfAnswer = 0;
             }
             else
             {
-                // Nếu câu trả lời đúng, gán điểm bằng điểm của câu hỏi
-                questionDto.PointOfAnswer = pointOfQuestion.Point;
+                // Nếu tìm thấy câu trả lời và câu trả lời đúng, tính điểm
+                if (answer.Correct == false)
+                {
+                    questionDto.PointOfAnswer = 0; // Nếu câu trả lời sai, gán điểm là 0
+                }
+                else
+                {
+                    // Nếu câu trả lời đúng, gán điểm bằng điểm của câu hỏi
+                    questionDto.PointOfAnswer = pointOfQuestion.Point;
+                }
             }
             pointOfStudent += questionDto.PointOfAnswer;
             answerOfStudent.PointOfAnswer = questionDto.PointOfAnswer;
             studentPoint.AnswerOfStudents.Add(answerOfStudent);
         }
-
+        pointOfStudent = (float?)Math.Round(pointOfStudent.Value, 2);
+        if (pointOfStudent > maxTestPoint)
+        {
+            pointOfStudent = maxTestPoint;
+        }
         // Cập nhật danh sách AnswerOfStudentDtos trong studentPointDto sau khi vòng lặp kết thúc
         studentPoint.PointOfStudent = pointOfStudent;
 
@@ -115,6 +130,6 @@ public class StudentApi : ControllerBase
         _context.StudentPoints.Add(studentPoint);
         _context.SaveChanges();
 
-        return Ok(new {Message = "Lưu thành công"});
+        return Ok(pointOfStudent);
     }
 }

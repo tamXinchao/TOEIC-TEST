@@ -9,7 +9,7 @@
           <li><NuxtLink to="/" class="text-blue-500">Home</NuxtLink></li>
           <!-- Liên kết đến trang test -->
           <li>
-            <NuxtLink to="/tests">Làm bài thi thử</NuxtLink>
+            <NuxtLink to="/forms">Làm bài thi thử</NuxtLink>
           </li>
         </ul>
       </nav>

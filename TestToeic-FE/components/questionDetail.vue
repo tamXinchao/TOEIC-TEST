@@ -1,38 +1,56 @@
 <template>
   <div>
-    <div v-for="q in question" :key="q.questionId">
+    <div v-if="question">
       <p>
-        <span class="underline">Câu hỏi:</span>
-        <span class="font-bold ml-2">{{ q.questionContent }}</span>
+        Câu hỏi: {{ question.questionContent }} ({{
+          question.pointOfQuestion
+        }}
+        điểm)
       </p>
-
-      <!-- Lặp qua mảng answers và hiển thị answerContent -->
-      <div v-for="(answer, answerIndex) in q.answers" :key="answer.answerId">
-        <input
-          type="radio"
-          :id="'answer-' + answer.answerId"
-          :name="'question-' + q.questionId"
-          :value="answer.answerId"
-          :checked="selectedAnswers[q.questionId] === answer.answerId"
-          @change="selectAnswer(q.questionId, answer.answerId)"
-        />
-        <label :for="'answer-' + answer.answerId">
-          {{ String.fromCharCode(65 + answerIndex) }}.
-          <span class="ml-2">{{ answer.answerContent }} </span>
-        </label>
-      </div>
+      <ul>
+        <li v-for="(answer, index) in question.answers" :key="answer.answerId">
+          <input
+            type="radio"
+            :id="'answer-' + question.questionId + '-' + answer.answerId"
+            :name="'question-' + question.questionId"
+            :value="answer.answerId"
+          />
+          <label :for="'answer-' + question.questionId + '-' + answer.answerId">
+            {{ String.fromCharCode(65 + index) }}. {{ answer.answerContent }}
+          </label>
+        </li>
+      </ul>
+    </div>
+    <div v-else>
+      <p>Đang tải câu hỏi...</p>
     </div>
   </div>
 </template>
 
 <script setup>
-import { defineProps } from "vue";
+import { ref, onMounted } from "vue";
+import { useRoute } from "vue-router";
+import axios from "axios";
 
-// Nhận câu hỏi và selectedAnswers từ props
-const { question } = defineProps(["question"]);
-console.log(question);
+// Khai báo biến phản ứng cho câu hỏi
+const question = ref(null);
 
-// Phát ra sự kiện khi người dùng chọn câu trả lời
+// Lấy ID câu hỏi từ URL params
+const route = useRoute();
+const { questionId } = route.params;
+
+// Lấy dữ liệu câu hỏi từ API khi component được mount
+onMounted(async () => {
+  try {
+    const { data } = await axios.get(
+      `http://localhost:5082/api/questionApi/getQuestion?id=${questionId}`
+    );
+    question.value = data[0];
+    console.log("Câu hỏi nhận được:", question.value);
+  } catch (error) {
+    console.error("Có lỗi khi lấy câu hỏi:", error);
+  }
+});
 </script>
 
 <style scoped></style>

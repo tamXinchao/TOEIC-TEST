@@ -1,6 +1,7 @@
 <template>
+  <div>Form layout</div>
   <div>
-    <NuxtLayout name="default"> <NuxtPage /></NuxtLayout>
+    <slot />
   </div>
 </template>
 

@@ -9,7 +9,7 @@ public class AnswerOfStudent : BaseEnity
     public int Id { get; set; }
     
     [ForeignKey("Answer")]
-    public int AnswerId { get; set; }
+    public int? AnswerId { get; set; }
     public Answer Answer { get; set; }
     
     [ForeignKey("Question")]
