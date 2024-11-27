@@ -6,9 +6,16 @@
 export default {
   data() {
     return {
-      testId: 4, // Dữ liệu testId (có thể lấy từ route params hoặc API)
-      userId: "1a2b3c4d-5678-90ab-cdef-1234567890ab", // Dữ liệu userId
+      testId: this.$route.params.testId, // Lấy testId từ URL
+      userId: this.$route.params.userId, // Lấy userId từ URL
     };
+  },
+  watch: {
+    // Theo dõi sự thay đổi của route params
+    "$route.params": function (newParams) {
+      this.testId = newParams.testId;
+      this.userId = newParams.userId;
+    },
   },
 };
 </script>

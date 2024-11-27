@@ -4,17 +4,20 @@
     v-for="test in tests"
     :key="test.id"
   >
-    <button
-      @click="submitTest"
-      class="px-4 py-2 bg-green-500 text-white font-bold rounded hover:bg-green-600"
-    >
-      Nộp Bài
-    </button>
+    <div class="flex justify-end mt-4">
+      <button
+        @click="submitTest"
+        :disabled="isSubmitted"
+        class="px-4 py-2 bg-green-500 text-white font-bold rounded hover:bg-green-600 disabled:bg-gray-400 disabled:cursor-not-allowed"
+      >
+        Nộp Bài
+      </button>
+    </div>
 
     <!-- Tiêu đề nằm giữa và to -->
     <div class="text-center mb-8">
       <h1 class="font-extrabold text-4xl text-blue-600">{{ test.title }}</h1>
-      <p class="text-gray-500 text-lg">
+      <p v-if="!isSubmitted" class="text-gray-500 text-lg">
         Thời gian còn lại: <span class="text-red-500">{{ formattedTime }}</span>
       </p>
     </div>
@@ -42,8 +45,10 @@
                 :name="'question-' + question.questionId"
                 :value="answer.answerId"
                 v-model="selectedAnswers[question.questionId]"
+                :disabled="isSubmitted"
                 class="form-radio h-5 w-5 text-blue-500"
               />
+
               <span :class="['text-gray-700']">
                 {{ String.fromCharCode(65 + answerIndex) }}.
                 {{ answer.answerContent }}
@@ -70,6 +75,26 @@
         {{ page }}
       </button>
     </div>
+    <div
+      v-if="showSubmittedAnswers"
+      class="bg-white shadow-md p-6 rounded-lg max-w-3xl mx-auto mt-6"
+    >
+      <h2 class="text-xl font-bold text-green-500 mb-4">Kết quả bài thi</h2>
+      <p class="text-gray-800 whitespace-pre-line">
+        {{ showSubmittedAnswers.message }}
+      </p>
+      <p class="text-gray-600 mt-2">
+        Tổng điểm: {{ showSubmittedAnswers.points }}<br />
+        Số câu trả lời đúng: {{ showSubmittedAnswers.correctAnswers }} /
+        {{ showSubmittedAnswers.totalQuestions }}<br />
+        Thời gian làm bài: {{ showSubmittedAnswers.time }}
+        <NuxtLink
+          :to="`/results/${showSubmittedAnswers.detail}`"
+          class="text-blue-500 hover:underline"
+          >Xem chi tiết kết quả</NuxtLink
+        >
+      </p>
+    </div>
   </div>
 </template>
 
@@ -92,10 +117,12 @@ export default {
       tests: [],
       selectedAnswers: {},
       submittedAnswers: [],
+      showSubmittedAnswers: null,
       currentPage: 1,
       itemsPerPage: 1,
       remainingTime: 0,
       timerInterval: null,
+      isSubmitted: false,
     };
   },
   computed: {
@@ -164,12 +191,19 @@ export default {
         ),
         answerOfStudentDtos: questions,
       };
-
+      console.log("requestData", requestData);
       axios
         .post("http://localhost:5082/api/studentApi", requestData)
         .then((response) => {
           console.log("Kết quả nộp bài:", response.data);
-          alert("Điểm của bạn là: " + response.data);
+          this.showSubmittedAnswers = response.data;
+
+          if (this.timerInterval) {
+            clearInterval(this.timerInterval);
+          }
+
+          // Đánh dấu bài kiểm tra đã nộp
+          this.isSubmitted = true;
         })
         .catch((error) => {
           console.error("Có lỗi xảy ra khi nộp bài:", error);

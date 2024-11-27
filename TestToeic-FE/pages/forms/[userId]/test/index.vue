@@ -6,7 +6,7 @@
 import axios from "axios";
 
 const { data: tests } = await axios.get(
-  `http://localhost:5082/api/testApi/list`
+  `http://localhost:5082/api/testApi/listBySchedule`
 );
 </script>
 

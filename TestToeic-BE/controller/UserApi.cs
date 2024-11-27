@@ -22,10 +22,27 @@ public class UserApi : ControllerBase
     {
         return _context.Users.ToList();
     }
+    
+    [HttpGet("getByUsername")]
+    public ActionResult<ApplicationUser> GetByUsername(string username)
+    {
+        var existUser = _context.Users.FirstOrDefault(u => u.UserName == username);
+        if (existUser == null)
+        {
+            return NotFound();
+        }
+
+        return Ok(existUser);
+    }
 
     [HttpPost]
     public ActionResult AddUserAsync(AspNetUserDto userDto)
     {
+        var existUser = _context.Users.FirstOrDefault(u => u.UserName == userDto.UserName);
+        if (existUser != null)
+        {
+            return Ok(existUser.Id);
+        }
         try
         {
             // Tạo đối tượng người dùng mới
@@ -55,15 +72,13 @@ public class UserApi : ControllerBase
             _context.Users.Add(user);
             _context.SaveChanges();
 
-            return Ok(); // Thành công
+            return Ok(user.Id); // Thành công
         }
         catch (Exception ex)
         {
             // Log lỗi nếu cần
             Console.WriteLine($"Error adding user: {ex.Message}");
-            return Ok(); // Thất bại
+            return Ok();
         }
     }
-
-
 }

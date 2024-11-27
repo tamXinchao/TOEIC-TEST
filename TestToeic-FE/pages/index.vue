@@ -1,74 +1,81 @@
 <template>
-  <div
-    class="relative min-h-screen bg-gray-50 p-6"
-    v-for="test in tests"
-    :key="test.id"
-  >
-    <button
-      @click="submitTest"
-      class="px-4 py-2 bg-green-500 text-white font-bold rounded hover:bg-green-600"
-    >
-      Nộp Bài
-    </button>
-    <!-- Tiêu đề nằm giữa và to -->
-    <div class="text-center mb-8">
-      <h1 class="font-extrabold text-4xl text-blue-600">{{ test.title }}</h1>
-      <p class="text-gray-500 text-lg">
-        Thời gian còn lại: <span class="text-red-500">{{ formattedTime }}</span>
-      </p>
-    </div>
+  <div class="max-w-4xl mx-auto bg-white p-6 rounded-lg shadow-lg">
+    <h2 class="text-2xl font-semibold mb-4 text-center">Tìm kiếm thông tin</h2>
 
-    <!-- Hiển thị dữ liệu phân trang -->
-    <div class="bg-white shadow-md p-6 rounded-lg max-w-3xl mx-auto mb-6">
-      <ul>
-        <!-- Hiển thị câu hỏi phân trang -->
-        <li
-          v-for="(question, questionIndex) in paginatedQuestions(test)"
-          :key="question.questionId"
-          class="mb-6"
-        >
-          <p class="font-medium text-lg text-gray-800 mb-2">
-            {{ question.questionContent }}
-          </p>
-          <div
-            v-for="(answer, answerIndex) in question.answers"
-            :key="answer.answerId"
-            class="mb-2"
-          >
-            <label class="flex items-center space-x-3">
+    <form @submit.prevent="submitForm">
+      <table class="min-w-full table-auto">
+        <thead>
+          <tr class="bg-gray-200"></tr>
+        </thead>
+        <tbody>
+          <tr class="border-b">
+            <td class="px-4 py-2">
               <input
-                type="radio"
-                :id="'answer-' + question.questionId + '-' + answer.answerId"
-                :name="'question-' + question.questionId"
-                :value="answer.answerId"
-                v-model="selectedAnswers[question.questionId]"
-                class="form-radio h-5 w-5 text-blue-500"
+                v-model="name"
+                type="text"
+                class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="Tìm theo tài khoản, email hoặc số điện thoại"
               />
-              <span :class="['text-gray-700']">
-                {{ String.fromCharCode(65 + answerIndex) }}.
-                {{ answer.answerContent }}
-              </span>
-            </label>
-          </div>
-        </li>
-      </ul>
-    </div>
+            </td>
+            <td class="px-4 py-2 text-right">
+              <button
+                type="submit"
+                class="px-6 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                Tìm kiếm
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </form>
 
-    <!-- Phân trang -->
-    <div class="flex flex-wrap justify-center gap-3 mt-6 max-w-2xl mx-auto">
-      <button
-        v-for="page in totalPages"
-        :key="page"
-        @click="currentPage = page"
-        :class="[
-          'px-4 py-2 rounded shadow',
-          currentPage === page
-            ? 'bg-blue-500 text-white font-bold'
-            : 'bg-gray-200 hover:bg-gray-300 text-gray-800',
-        ]"
+    <!-- Bảng dữ liệu kết quả tìm kiếm -->
+    <div class="relative overflow-x-auto shadow-md sm:rounded-lg mt-4">
+      <table
+        class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400"
       >
-        {{ page }}
-      </button>
+        <thead
+          class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400"
+        >
+          <tr>
+            <th scope="col" class="px-6 py-3">Tài khoản</th>
+            <th scope="col" class="px-6 py-3">Ngày hoàn thành</th>
+            <th scope="col" class="px-6 py-3">Thời gian hoàn thành</th>
+            <th scope="col" class="px-6 py-3">Bài thi</th>
+            <th scope="col" class="px-6 py-3">Số điểm</th>
+            <th scope="col" class="px-6 py-3">Xem chi tiết</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Lặp qua dữ liệu tìm kiếm để hiển thị -->
+          <tr
+            v-for="(user, index) in users"
+            :key="index"
+            class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600"
+          >
+            <th
+              scope="row"
+              class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white"
+            >
+              {{ user.studentName }}
+            </th>
+            <td class="px-6 py-4">{{ user.completionString }}</td>
+            <td class="px-6 py-4">{{ user.duration }}</td>
+            <td class="px-6 py-4">{{ user.title }}</td>
+            <!-- Ví dụ cho "Bài thi" -->
+            <td class="px-6 py-4">{{ user.pointOfStudent }}</td>
+            <!-- Ví dụ cho "Số điểm" -->
+            <td class="px-6 py-4">
+              <NuxtLink
+                :to="`/results/${user.id}`"
+                class="font-medium text-blue-600 dark:text-blue-500 hover:underline"
+                >Xem chi tiết</NuxtLink
+              >
+            </td>
+          </tr>
+        </tbody>
+      </table>
     </div>
   </div>
 </template>
@@ -79,170 +86,76 @@ import axios from "axios";
 export default {
   data() {
     return {
-      tests: [], // Mảng chứa dữ liệu các bài kiểm tra
-      selectedAnswers: {}, // Đối tượng lưu trữ câu trả lời đã chọn
-      submittedAnswers: [], // Mảng lưu id câu hỏi và câu trả lời đã chọn
-      currentPage: 1, // Trang hiện tại
-      itemsPerPage: 1, // Số câu hỏi mỗi trang
-      remainingTime: 0, // Thời gian còn lại tính bằng giây
-      timerInterval: null, // Biến lưu khoảng thời gian
+      name: "",
+      users: [],
     };
   },
-  computed: {
-    // Tổng số câu hỏi trong tất cả bài kiểm tra
-    totalQuestions() {
-      return this.tests.reduce(
-        (total, test) => total + test.questionDtos.length,
-        0
-      );
-    },
-    // Tổng số trang câu hỏi
-    totalPages() {
-      return Math.ceil(this.totalQuestions / this.itemsPerPage);
-    },
-    // Thời gian định dạng phút:giây
-    formattedTime() {
-      const minutes = Math.floor(this.remainingTime / 60);
-      const seconds = this.remainingTime % 60;
-      return `${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
-    },
+  mounted() {
+    // Gọi API ngay khi component được mount
+    this.fetchData();
   },
   methods: {
-    // Dữ liệu phân trang cho câu hỏi trong mỗi bài kiểm tra
-    paginatedQuestions(test) {
-      const allQuestions = test.questionDtos;
-      const start = (this.currentPage - 1) * this.itemsPerPage;
-      const end = start + this.itemsPerPage;
-      return allQuestions.slice(start, end);
-    },
-    // Khởi động đếm ngược
-    startTimer(durationInMinutes) {
-      this.remainingTime = durationInMinutes * 60;
+    async fetchData() {
+      try {
+        const response = await axios.get(
+          "http://localhost:5082/api/StudentApi/getListStudentPoint"
+        );
+        if (response.status === 200) {
+          this.users = response.data;
 
-      // Đặt khoảng thời gian đếm ngược mỗi giây
-      this.timerInterval = setInterval(() => {
-        if (this.remainingTime > 0) {
-          this.remainingTime -= 1;
+          // Sắp xếp danh sách theo ngày hoàn thành (completion) từ mới nhất đến cũ nhất
+          this.sortUsersByDate();
         } else {
-          clearInterval(this.timerInterval);
-          alert("Hết thời gian làm bài!");
+          alert("Unexpected response: " + response.data);
+          console.log(response.data);
         }
-      }, 1000);
-    },
-    formatDuration(seconds) {
-      const hours = Math.floor(seconds / 3600); // Tính số giờ
-      const minutes = Math.floor((seconds % 3600) / 60); // Tính số phút
-      const remainingSeconds = seconds % 60; // Tính số giây còn lại
-
-      // Đảm bảo định dạng là 2 chữ số cho mỗi phần
-      return `${hours.toString().padStart(2, "0")}:${minutes
-        .toString()
-        .padStart(2, "0")}:${remainingSeconds.toString().padStart(2, "0")}`;
-    },
-    // Phương thức nộp bài
-    submitTest() {
-      const testId = this.tests[0].id;
-
-      // Lấy thời gian hiện tại và chuyển sang dạng ISO với hậu tố Z (UTC)
-      const now = new Date();
-
-      // Lấy thời gian hiện tại theo múi giờ Việt Nam (UTC+7)
-      const vietnamTime = new Date(now.getTime() + 7 * 60 * 60 * 1000);
-
-      // Chuyển sang định dạng ISO mà không có phần microseconds
-      const currentTime = vietnamTime.toISOString().split(".")[0] + "Z";
-
-      console.log(currentTime); // Kết quả sẽ là: "2024-11-25T11:02:29"
-
-      const StudentName = "1a2b3c4d-5678-90ab-cdef-1234567890ab";
-
-      // Tính toán thời gian đã sử dụng làm bài
-      const duration = this.tests[0].testTimeMinutes * 60 - this.remainingTime;
-      const formattedDuration = this.formatDuration(duration); // Giả sử formatDuration đã có sẵn
-
-      // Mảng câu trả lời đã chọn
-      const questions = this.tests[0].questionDtos.map((question) => {
-        const selectedAnswerId =
-          this.selectedAnswers[question.questionId] || null; // Nếu chưa chọn đáp án thì gán là null
-        return {
-          questionId: question.questionId,
-          answerId: selectedAnswerId, // Nếu chưa chọn, sẽ là null
-        };
-      });
-
-      // Cấu trúc dữ liệu gửi lên API
-      const requestData = {
-        testId: testId,
-        applicationUserId: StudentName,
-        completion: currentTime, // Đảm bảo là thời gian ISO với hậu tố Z
-        duration: formattedDuration, // Đảm bảo là định dạng "00:30:00"
-        answerOfStudentDtos: questions, // Câu hỏi và câu trả lời
-      };
-
-      console.log("Các câu trả lời đã chọn:", requestData);
-
-      // Gửi dữ liệu lên API
-      axios
-        .post("http://localhost:5082/api/studentApi", requestData)
-        .then((response) => {
-          console.log("Kết quả nộp bài:", response.data);
-        })
-        .catch((error) => {
-          console.error("Có lỗi xảy ra khi nộp bài:", error);
-        });
-    },
-  },
-  async mounted() {
-    try {
-      // Gọi API để lấy dữ liệu bài kiểm tra
-      const response = await axios.get(`http://localhost:5082/api/testApi/4`);
-
-      // Kiểm tra nếu response.data có tồn tại
-      if (response.data && Array.isArray(response.data)) {
-        this.tests = response.data; // Gán dữ liệu vào this.tests (tất cả bài kiểm tra)
-        console.log("Dữ liệu câu hỏi:", this.tests);
-        // Bắt đầu đồng hồ đếm ngược với thời gian của bài kiểm tra đầu tiên
-        if (this.tests.length > 0) {
-          this.startTimer(this.tests[0].testTimeMinutes);
-        }
-      } else {
-        console.log("Không có dữ liệu câu hỏi trong API response.");
+      } catch (error) {
+        this.handleApiError(error);
       }
-    } catch (error) {
-      console.error("Có lỗi xảy ra khi gọi API:", error); // Xử lý lỗi nếu có
-    }
-  },
-  beforeDestroy() {
-    // Hủy bộ đếm thời gian khi rời khỏi trang
-    if (this.timerInterval) {
-      clearInterval(this.timerInterval);
-    }
+    },
+
+    async submitForm() {
+      try {
+        const response = await axios.get(
+          "http://localhost:5082/api/StudentApi/getListStudentPoint?username=" +
+            this.name
+        );
+        if (response.status === 200) {
+          this.users = response.data;
+
+          // Sắp xếp lại kết quả sau khi tìm kiếm
+          this.sortUsersByDate();
+        } else {
+          alert("Unexpected response: " + response.data);
+          console.log(response.data);
+        }
+      } catch (error) {
+        this.handleApiError(error);
+      }
+    },
+
+    // Phương thức để sắp xếp danh sách theo ngày hoàn thành (completion)
+    sortUsersByDate() {
+      this.users.sort(
+        (a, b) => new Date(b.completion) - new Date(a.completion)
+      );
+    },
+
+    // Phương thức xử lý lỗi API
+    handleApiError(error) {
+      if (error.response) {
+        alert(`${error.response.data.message || error.response.statusText}`);
+        console.error("Error response data:", error.response.data);
+      } else if (error.request) {
+        alert("Error: No response from server. Please try again later.");
+        console.error("Error request:", error.request);
+      } else {
+        alert("Error: " + error.message);
+        console.error("Error message:", error.message);
+      }
+    },
   },
 };
 </script>
 
-<style scoped>
-.pagination {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 10px;
-  margin-top: 20px;
-}
-.btn {
-  padding: 5px 10px;
-  background-color: #007bff;
-  color: #fff;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-}
-.btn.active {
-  background-color: #ed05bb;
-  font-weight: bold;
-}
-.btn:disabled {
-  background-color: #ccc;
-  cursor: not-allowed;
-}
-</style>
+<style lang="scss" scoped></style>

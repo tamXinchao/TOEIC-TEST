@@ -81,7 +81,6 @@ public class TestApi : ControllerBase
 
             return Ok(test);
         }
-
         // Nếu id == null, trả về tất cả bài kiểm tra
         var tests = _context.Tests.AsNoTracking().Select(t => new TestDto
         {
@@ -98,7 +97,73 @@ public class TestApi : ControllerBase
             }).ToList()
         }).ToList();  // Thêm .ToList() để thực thi truy vấn
 
-        return Ok(tests);  // Trả về danh sách tất cả bài kiểm tra
+        return Ok(tests);
     }
+    
+    [HttpGet("listBySchedule")]
+    public ActionResult<TestDto> GetListBySchedule(string? day)
+    {var vietnamTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time"));
+        DateTime utcDateTime;
+        List<int>? schedule;
+        List<TestDto>? testBySchedule;
+        if (day != null)
+        {
+            if (DateTime.TryParse(day, out DateTime parsedDay))
+            {
+                utcDateTime = new DateTime(parsedDay.Year, parsedDay.Month, parsedDay.Day, vietnamTime.Hour, vietnamTime.Minute, vietnamTime.Second, DateTimeKind.Utc);
+                schedule = _context.Schedules.AsNoTracking()
+                    .Where(s => s.DayOpenTest <= utcDateTime && s.DayCloseTest >= utcDateTime)
+                    .Select(s => s.TestId)
+                    .ToList();
+                testBySchedule = _context.Tests.AsNoTracking()
+                    .Where(t => schedule.Contains(t.TestId) && t.IsActive == true && t.IsDelete == false)
+                    .Select(t => new TestDto
+                    {
+                        Id = t.TestId,
+                        Point = t.PointOfTest,
+                        UserCreate = t.applicationUser.UserName,
+                        Title = t.classRef.ClassName,
+                        TestTime = t.TestTime,
+                        DateCreate = t.TestDateCreated,
+                        QuestionDtos = t.PointOfQuestions.Select(q => new QuestionDto
+                        {
+                            QuestionId = q.QuestionId,
+                            QuestionContent = q.question.QuestionContent,
+                            PointOfQuestion = q.Point
+                        }).ToList(),
+                    }).ToList();
 
+                return Ok(testBySchedule); // Return the list of TestDto for all the tests in the schedule
+            }
+            else
+            {
+                return BadRequest("Invalid day format"); // If the date format is invalid
+            }
+        }
+        
+        utcDateTime = new DateTime(vietnamTime.Year, vietnamTime.Month, vietnamTime.Day, vietnamTime.Hour, vietnamTime.Minute, vietnamTime.Second, DateTimeKind.Utc);
+        schedule = _context.Schedules.AsNoTracking()
+            .Where(s => s.DayOpenTest <= utcDateTime && s.DayCloseTest >= utcDateTime)
+            .Select(s => s.TestId)
+            .ToList();
+        testBySchedule = _context.Tests.AsNoTracking()
+            .Where(t => schedule.Contains(t.TestId) && t.IsActive == true && t.IsDelete == false)
+            .Select(t => new TestDto
+            {
+                Id = t.TestId,
+                Point = t.PointOfTest,
+                UserCreate = t.applicationUser.UserName,
+                Title = t.classRef.ClassName,
+                TestTime = t.TestTime,
+                DateCreate = t.TestDateCreated,
+                QuestionDtos = t.PointOfQuestions.Select(q => new QuestionDto
+                {
+                    QuestionId = q.QuestionId,
+                    QuestionContent = q.question.QuestionContent,
+                    PointOfQuestion = q.Point
+                }).ToList(),
+            }).ToList();
+
+        return Ok(testBySchedule);
+    }
 }
