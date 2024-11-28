@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore.Query;
 using TestToeic.Db;
 using TestToeic.entity;
 using TestToeic.entity.dto;
+using TestToeic.utils;
 
 namespace TestToeic.controller;
 
@@ -12,10 +13,12 @@ namespace TestToeic.controller;
 public class StudentApi : ControllerBase
 {
     private readonly ApplicationDbContext _context;
-
-    public StudentApi(ApplicationDbContext context)
+    private readonly ILogger<PdfExport> _logger;
+    public StudentApi(ApplicationDbContext context,ILogger<PdfExport> logger)
     {
         _context = context;
+        _logger = logger;
+
     }
 
     // [HttpGet]
@@ -174,7 +177,6 @@ public class StudentApi : ControllerBase
     [HttpGet("getListStudentPoint")]
     public ActionResult<IEnumerable<StudentAnswerDto>> GetByUsername(string? username)
     {
-        // If username is null or empty, return the full list
         if (string.IsNullOrEmpty(username))
         {
             var allStudentPoints = _context.StudentPoints
@@ -192,21 +194,17 @@ public class StudentApi : ControllerBase
 
             return allStudentPoints;
         }
-
-        // If username is provided, search for the users and then fetch the related StudentPoints
         var existUser = _context.Users
             .Where(u => u.UserName.ToLower().Contains(username.ToLower()) 
                         || u.Email.ToLower() == username.ToLower() 
                         || u.PhoneNumber == username)
             .ToList();
 
-        // If no users are found, return empty list or NotFound message
         if (existUser.Count == 0)
         {
             return NotFound("No users found matching the username.");
         }
 
-        // If users are found, fetch the corresponding StudentPoints
         var poq = _context.StudentPoints
             .AsNoTracking()
             .Where(p => existUser.Select(u => u.Id).Contains(p.ApplicationUserId))
@@ -223,6 +221,8 @@ public class StudentApi : ControllerBase
 
         return poq;
     }
+    
+
 
     
     [HttpPost]
@@ -306,7 +306,6 @@ public class StudentApi : ControllerBase
     {
         message = $@"
 Cảm ơn bạn vì đã hoàn thành bài thi!
-Tổng điểm: {pointOfStudent}
 TOEIC Thầy Khuê rất tiếc vì hiện tại không có lớp TOEIC nào phù hợp với kết quả kiểm tra đầu vào của bạn!
 Chúng tôi xin gợi ý như sau: Bạn có thể tự ôn tập lại nội dung tiếng Anh phổ thông để củng cố kiến thức căn bản.
 Hoặc bạn có thể tham khảo các lớp 'Tiếng Anh dành cho người mới bắt đầu' tại những trung tâm khác trước khi tham gia lớp TOEIC tại TOEIC Thầy Khuê nhé.
@@ -316,7 +315,6 @@ Chúc bạn học tập hiệu quả và sớm đạt được mục tiêu!";
     {
         message = $@"
 Cảm ơn bạn vì đã hoàn thành bài thi!
-Tổng điểm: {pointOfStudent}
 Lớp học phù hợp cho bạn: Lớp TOEIC 0 – Lấy Lại Căn Bản (11 buổi)
 *Lưu ý: Hiện tại, bạn đã quên khá nhiều kiến thức cơ bản. Nếu không dành thời gian ôn tập thêm khi về nhà, bạn có thể sẽ gặp khó khăn trong việc theo kịp chương trình học của lớp TOEIC 0.
 Hãy cố gắng luyện tập đều đặn để cải thiện và nắm vững kiến thức bạn nhé!
@@ -326,7 +324,6 @@ Lịch Khai Giảng TOEIC 0 mới nhất: CLICK HERE";
     {
         message = $@"
 Cảm ơn bạn vì đã hoàn thành bài thi!
-Tổng điểm: {pointOfStudent}
 Lớp học phù hợp cho bạn: Lớp TOEIC 0 – Lấy Lại Căn Bản (11 buổi)
 Lịch Khai Giảng TOEIC 0 mới nhất: CLICK HERE";
     }

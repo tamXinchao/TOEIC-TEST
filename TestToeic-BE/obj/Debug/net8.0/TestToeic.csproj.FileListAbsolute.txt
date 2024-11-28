@@ -234,3 +234,17 @@ C:\DuAnCaNhan\CV\Pmedia\workspace\TestToeic\TestToeic-BE\obj\Debug\net8.0\refint
 C:\DuAnCaNhan\CV\Pmedia\workspace\TestToeic\TestToeic-BE\obj\Debug\net8.0\TestToeic.pdb
 C:\DuAnCaNhan\CV\Pmedia\workspace\TestToeic\TestToeic-BE\obj\Debug\net8.0\TestToeic.genruntimeconfig.cache
 C:\DuAnCaNhan\CV\Pmedia\workspace\TestToeic\TestToeic-BE\obj\Debug\net8.0\ref\TestToeic.dll
+C:\DuAnCaNhan\CV\Pmedia\workspace\TestToeic\TestToeic-BE\bin\Debug\net8.0\itext.barcodes.dll
+C:\DuAnCaNhan\CV\Pmedia\workspace\TestToeic\TestToeic-BE\bin\Debug\net8.0\itext.bouncy-castle-connector.dll
+C:\DuAnCaNhan\CV\Pmedia\workspace\TestToeic\TestToeic-BE\bin\Debug\net8.0\itext.forms.dll
+C:\DuAnCaNhan\CV\Pmedia\workspace\TestToeic\TestToeic-BE\bin\Debug\net8.0\itext.io.dll
+C:\DuAnCaNhan\CV\Pmedia\workspace\TestToeic\TestToeic-BE\bin\Debug\net8.0\itext.kernel.dll
+C:\DuAnCaNhan\CV\Pmedia\workspace\TestToeic\TestToeic-BE\bin\Debug\net8.0\itext.layout.dll
+C:\DuAnCaNhan\CV\Pmedia\workspace\TestToeic\TestToeic-BE\bin\Debug\net8.0\itext.pdfa.dll
+C:\DuAnCaNhan\CV\Pmedia\workspace\TestToeic\TestToeic-BE\bin\Debug\net8.0\itext.pdfua.dll
+C:\DuAnCaNhan\CV\Pmedia\workspace\TestToeic\TestToeic-BE\bin\Debug\net8.0\itext.sign.dll
+C:\DuAnCaNhan\CV\Pmedia\workspace\TestToeic\TestToeic-BE\bin\Debug\net8.0\itext.styledxmlparser.dll
+C:\DuAnCaNhan\CV\Pmedia\workspace\TestToeic\TestToeic-BE\bin\Debug\net8.0\itext.svg.dll
+C:\DuAnCaNhan\CV\Pmedia\workspace\TestToeic\TestToeic-BE\bin\Debug\net8.0\itext.commons.dll
+C:\DuAnCaNhan\CV\Pmedia\workspace\TestToeic\TestToeic-BE\bin\Debug\net8.0\Microsoft.DotNet.PlatformAbstractions.dll
+C:\DuAnCaNhan\CV\Pmedia\workspace\TestToeic\TestToeic-BE\bin\Debug\net8.0\Newtonsoft.Json.dll

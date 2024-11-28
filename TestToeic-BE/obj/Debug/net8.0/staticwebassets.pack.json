@@ -245,6 +245,14 @@
       "PackagePath": "staticwebassets\\lib\\jquery\\dist\\jquery.min.map"
     },
     {
+      "Id": "C:\\DuAnCaNhan\\CV\\Pmedia\\workspace\\TestToeic\\TestToeic-BE\\wwwroot\\resultOfStudent\\Result-student-s.pdf",
+      "PackagePath": "staticwebassets\\resultOfStudent\\Result-student-s.pdf"
+    },
+    {
+      "Id": "C:\\DuAnCaNhan\\CV\\Pmedia\\workspace\\TestToeic\\TestToeic-BE\\wwwroot\\resultOfStudent\\test.txt",
+      "PackagePath": "staticwebassets\\resultOfStudent\\test.txt"
+    },
+    {
       "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.TestToeic.Microsoft.AspNetCore.StaticWebAssets.props",
       "PackagePath": "build\\Microsoft.AspNetCore.StaticWebAssets.props"
     },

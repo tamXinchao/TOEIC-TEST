@@ -21,6 +21,7 @@
                 type="text"
                 class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 placeholder="Nhập họ và tên"
+                required
               />
             </td>
           </tr>
@@ -32,6 +33,7 @@
                 type="email"
                 class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 placeholder="Nhập email"
+                required
               />
             </td>
           </tr>
@@ -43,6 +45,7 @@
                 type="tel"
                 class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 placeholder="Nhập số điện thoại"
+                required
               />
             </td>
           </tr>

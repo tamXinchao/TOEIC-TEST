@@ -9,4 +9,6 @@ public class Class : BaseEnity
     public string ClassName { get; set; }
     
     public  ICollection<Test> Tests { get; set; }
+    public  ICollection<MemberOfClass> StudentOfClasses { get; set; }
+    public  ICollection<TestOfClass> TestOfClasses { get; set; }
 }

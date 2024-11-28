@@ -10,7 +10,9 @@ public class TestDto
     public DateTime? DateCreate { get; set; }       // Test
     public List<QuestionDto> QuestionDtos { get; set; }   //Answer
     public float? Point { get; set; }                //Điểm tổng của bài test - ví dụ 10 điểm
-    public TimeOnly? TestTime { get; set; }         // Thời gian làm bài
+    public TimeOnly? TestTime { get; set; }         
+    public bool? IsDelete { get; set; } 
+    public bool? IsActive { get; set; } 
 
     public string TestTimeMinutes
     {

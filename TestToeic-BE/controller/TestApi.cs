@@ -166,4 +166,53 @@ public class TestApi : ControllerBase
 
         return Ok(testBySchedule);
     }
+
+   [HttpGet("{studentId}/listByClass")]
+public ActionResult Get(string studentId, int id)
+{
+    var student = _context.MemberOfClasses
+        .AsNoTracking()
+        .Include(m => m.applicationUser)
+        .FirstOrDefault(m => m.ApplicationUserId == studentId && m.ClassId == id);
+
+    if (student == null) return Ok(new { Message = "Bạn chưa tham gia lớp này" });
+
+    var tests = _context.TestOfClasses
+        .AsNoTracking()
+        .Where(t => t.ClassId == id && t.IsActive && !t.IsDelete)
+        .Select(t => new TestDto
+        {
+            Id = t.test.TestId,
+            UserCreate = t.test.applicationUser.UserName,
+            Title = t.test.classRef.ClassName,
+            TestTime = t.test.TestTime,
+            IsActive = t.test.IsActive,
+            IsDelete = t.test.IsDelete,
+            QuestionDtos = t.test.PointOfQuestions.Select(q => new QuestionDto
+            {
+                QuestionId = q.QuestionId,
+                QuestionContent = q.question.QuestionContent,
+                PointOfQuestion = q.Point
+            }).ToList(),
+        })
+        .ToList();
+    if (!tests.Any()) return Ok(new { StudentName = student.applicationUser.UserName, Message = "Lớp hiện chưa có bài kiểm tra nào" });
+    var vietnamTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time"));
+    var utcDateTime = new DateTime(vietnamTime.Year, vietnamTime.Month, vietnamTime.Day, vietnamTime.Hour, vietnamTime.Minute, vietnamTime.Second, DateTimeKind.Utc);
+
+    var validTestIds = _context.Schedules
+        .AsNoTracking()
+        .Where(s => s.DayOpenTest <= utcDateTime && s.DayCloseTest >= utcDateTime)
+        .Select(s => s.TestId)
+        .ToList();
+    var scheduledTests = tests.Where(t => validTestIds.Contains(t.Id)).ToList();
+
+    return Ok(new
+    {
+        StudentName = student.applicationUser.UserName,
+        TestOfClasses = scheduledTests.Any() ? scheduledTests : tests
+    });
+}
+
+
 }

@@ -19,10 +19,14 @@ public class ClassApi : ControllerBase
     [HttpGet]
     public ActionResult<IEnumerable<ClassDto>> GetAll()
     {
-        return _context.Classes.Select(a => new ClassDto
+        return _context.Classes.
+            Where(c => c.IsDelete == false)
+            .Select(a => new ClassDto
         {
             ClassId = a.ClassId,
-            ClassName = a.ClassName
+            ClassName = a.ClassName,
+            IsDelete = a.IsDelete,
+            IsActive = a.IsActive
         }).ToList();
     }
 

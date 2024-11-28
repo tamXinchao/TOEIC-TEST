@@ -16,6 +16,8 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     public DbSet<Schedule> Schedules { get; set; }
     public DbSet<StudentPoint> StudentPoints { get; set; }
     public DbSet<Test> Tests { get; set; }
+    public DbSet<MemberOfClass> MemberOfClasses { get; set; }
+    public DbSet<TestOfClass> TestOfClasses { get; set; }
     
 
 

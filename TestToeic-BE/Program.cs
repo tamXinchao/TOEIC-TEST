@@ -17,6 +17,7 @@ builder.Services.AddCors(options =>
 builder.Services.AddReverseProxy()
     .LoadFromConfig(builder.Configuration.GetSection("ReverseProxy"));
 var app = builder.Build();
+builder.Logging.AddConsole();
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())

@@ -23,4 +23,5 @@ public class Test : BaseEnity
     public  ICollection<Schedule> Schedules { get; set; }
     public  ICollection<PointOfQuestion> PointOfQuestions { get; set; }
     public  ICollection<StudentPoint> StudentPoints { get; set; }
+    public ICollection<TestOfClass> TestOfClasses { get; set; }
 }

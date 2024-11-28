@@ -6,6 +6,5 @@ public class ApplicationUser : IdentityUser
 {
     public  ICollection<StudentPoint> StudentPoints { get; set; }
     public  ICollection<Test> Tests { get; set; }
-
-
+    public ICollection<MemberOfClass> StudentOfClasses { get; set; }
 }
