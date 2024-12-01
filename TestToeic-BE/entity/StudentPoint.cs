@@ -9,9 +9,9 @@ public class StudentPoint : BaseEnity
 {
     [Key]
     public int StudentPointId { get; set; }
-    public DateTime? Completion { get; set; }   //Ngày, giờ hàng thành
-    public TimeOnly? Duration { get; set; }     //Thời gian đã dùng để làm bài
-    public float? PointOfStudent { get; set; } //Điểm tổng của học sinh
+    public DateTime? Completion { get; set; }  
+    public TimeOnly? Duration { get; set; }     
+    public float? PointOfStudent { get; set; }
     [ForeignKey("Test")]
     public int TestId { get; set; }
     public Test test { get; set; }
@@ -19,8 +19,6 @@ public class StudentPoint : BaseEnity
     [ForeignKey("ApplicationUser")]
     public string ApplicationUserId { get; set; }
     public  ApplicationUser applicationUser { get; set; }
-    
-    
     public  ICollection<AnswerOfStudent> AnswerOfStudents { get; set; }
     
 }

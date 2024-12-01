@@ -1,6 +1,6 @@
 {
   "Version": 1,
-  "Hash": "rY0szoRGrzvjWHrzHheT2PbWfAMT1M5QV42EYN4K3Vs=",
+  "Hash": "6ZEjNF00WvLxNJyBjLgp4XgaiMgtbG10FzkTOKDdPTc=",
   "Source": "TestToeic",
   "BasePath": "_content/TestToeic",
   "Mode": "Default",
@@ -1195,12 +1195,12 @@
       "OriginalItemSpec": "wwwroot\\lib\\jquery\\LICENSE.txt"
     },
     {
-      "Identity": "C:\\DuAnCaNhan\\CV\\Pmedia\\workspace\\TestToeic\\TestToeic-BE\\wwwroot\\resultOfStudent\\Result-student-s.pdf",
+      "Identity": "C:\\DuAnCaNhan\\CV\\Pmedia\\workspace\\TestToeic\\TestToeic-BE\\wwwroot\\resultOfStudent\\demo.pdf",
       "SourceId": "TestToeic",
       "SourceType": "Discovered",
       "ContentRoot": "C:\\DuAnCaNhan\\CV\\Pmedia\\workspace\\TestToeic\\TestToeic-BE\\wwwroot\\",
       "BasePath": "_content/TestToeic",
-      "RelativePath": "resultOfStudent/Result-student-s.pdf",
+      "RelativePath": "resultOfStudent/demo.pdf",
       "AssetKind": "All",
       "AssetMode": "All",
       "AssetRole": "Primary",
@@ -1211,26 +1211,7 @@
       "AssetTraitValue": "",
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
-      "OriginalItemSpec": "wwwroot\\resultOfStudent\\Result-student-s.pdf"
-    },
-    {
-      "Identity": "C:\\DuAnCaNhan\\CV\\Pmedia\\workspace\\TestToeic\\TestToeic-BE\\wwwroot\\resultOfStudent\\test.txt",
-      "SourceId": "TestToeic",
-      "SourceType": "Discovered",
-      "ContentRoot": "C:\\DuAnCaNhan\\CV\\Pmedia\\workspace\\TestToeic\\TestToeic-BE\\wwwroot\\",
-      "BasePath": "_content/TestToeic",
-      "RelativePath": "resultOfStudent/test.txt",
-      "AssetKind": "All",
-      "AssetMode": "All",
-      "AssetRole": "Primary",
-      "AssetMergeBehavior": "PreferTarget",
-      "AssetMergeSource": "",
-      "RelatedAsset": "",
-      "AssetTraitName": "",
-      "AssetTraitValue": "",
-      "CopyToOutputDirectory": "Never",
-      "CopyToPublishDirectory": "PreserveNewest",
-      "OriginalItemSpec": "wwwroot\\resultOfStudent\\test.txt"
+      "OriginalItemSpec": "wwwroot\\resultOfStudent\\demo.pdf"
     }
   ]
 }

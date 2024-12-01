@@ -19,8 +19,12 @@ public class GetAveragePoint
 
         foreach (var pointOfQuestion in pointOfQuestions)
         {
+            if (pointOfQuestion.question.Primary)
+            {
+                continue;
+            }
             if (pointOfQuestion.Point != 0)
-            {  
+            {
                 questionNoNeedAverage++;
                 sumPoint += (float)pointOfQuestion.Point;
             }

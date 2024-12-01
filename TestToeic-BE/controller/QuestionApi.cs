@@ -93,6 +93,9 @@ public class QuestionApi : ControllerBase
         {
             Image = questionDto.Image,
             QuestionContent = questionDto.QuestionContent,
+            MultipleAnswer = questionDto.MultipleAnswer,
+            Primary = questionDto.Primary,
+            ParentQuestionId = questionDto.ParentQuestionId,
             IsDelete = false,
             IsActive = true,
             Answers = questionDto.Answers.Select(answer => new Answer
@@ -103,7 +106,10 @@ public class QuestionApi : ControllerBase
             }).ToList(),
             PointOfQuestions = new List<PointOfQuestion>()
         };
-
+        if (questionDto.Primary == false)
+        {
+            newQuestion.ParentQuestionId = null;
+        }
         if (questionDto.PointOfQuestion.HasValue)
         {
             var pointOfQuestion = new PointOfQuestion

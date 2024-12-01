@@ -8,7 +8,7 @@
       :key="classs.id"
     >
       <NuxtLink
-        :to="`/classes/${classs.classId}`"
+        :to="generateLink(classs.classId)"
         class="block text-gray-800 hover:text-blue-600"
       >
         <div class="text-lg font-semibold mb-2">
@@ -16,10 +16,9 @@
         </div>
         <div class="text-xs mt-3 italic text-right">
           <span>Trạng thái: </span>
-          <span
-            :class="classes.isActive ? 'text-red-600' : '  text-green-500'"
-            >{{ classs.isActive ? "Đang mở" : "Đã đóng" }}</span
-          >
+          <span :class="classs.isActive ? 'text-green-600' : 'text-red-500'">
+            {{ classs.isActive ? "Đang mở" : "Đã đóng" }}
+          </span>
         </div>
       </NuxtLink>
     </div>
@@ -27,8 +26,18 @@
 </template>
 
 <script setup>
+import { useRoute } from "vue-router";
+
+const route = useRoute();
 const { classes } = defineProps(["classes"]);
-console.log(classes);
+
+const generateLink = (classId) => {
+  // Kiểm tra xem đường dẫn hiện tại có chứa '/admin'
+  if (route.path.includes("/admin")) {
+    return `/admin/class/${classId}`;
+  }
+  return `/classes/${classId}`;
+};
 </script>
 
 <style scoped>

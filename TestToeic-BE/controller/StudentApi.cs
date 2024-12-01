@@ -1,3 +1,6 @@
+using iText.Kernel.Pdf;
+using iText.Layout;
+using iText.Layout.Element;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Query;
@@ -124,54 +127,62 @@ public class StudentApi : ControllerBase
         {
             return NotFound();
         }
-        
         var studentAnswer = _context.StudentPoints.AsNoTracking()
-            .Where(u => u.ApplicationUserId == existUser.ApplicationUserId && u.StudentPointId == studentPointId)
-            .Include(s => s.AnswerOfStudents)
-            .ThenInclude(ans => ans.Answer)
-            .ThenInclude(q => q.question)
-            .ThenInclude(poq => poq.PointOfQuestions)
-            .Select(a => new StudentAnswerDto
+    .Where(u => u.ApplicationUserId == existUser.ApplicationUserId && u.StudentPointId == studentPointId)
+    .Include(s => s.AnswerOfStudents)
+    .ThenInclude(ans => ans.Answer)
+    .ThenInclude(q => q.question)
+    .ThenInclude(poq => poq.PointOfQuestions)
+    .Select(a => new StudentAnswerDto
+    {
+        Id = a.StudentPointId,
+        PointOfStudent = a.PointOfStudent,
+        TestId = a.TestId,
+        Title = a.test.classRef.ClassName,
+        Completion = a.Completion,
+        Duration = a.Duration,
+        StudentName = a.applicationUser.UserName,
+        Questions = a.AnswerOfStudents
+            .GroupBy(q => q.QuestionId) // Nhóm theo QuestionId
+            .Select(group => new QuestionDto
             {
-                Id = a.StudentPointId,
-                PointOfStudent = a.PointOfStudent,
-                TestId = a.TestId,
-                Title = a.test.classRef.ClassName,
-                Completion = a.Completion,
-                Duration = a.Duration,
-                StudentName = a.applicationUser.UserName,
-                Questions = a.AnswerOfStudents.Select(q => new QuestionDto
-                {
-                    QuestionId = q.Question.QuestionId,
-                    QuestionContent = q.Question.QuestionContent,
-                    Image = q.Question.Image,
-                    PointOfQuestion = q.PointOfAnswer,
-                    Answers = q.Answer != null
-                        ? new List<AnswerDto>
-                        {
-                            new AnswerDto
-                            {
-                                QuestionId = q.Answer.QuestionId, 
-                                AnswerContent = q.Answer.AnswerContent ,
-                                AnswerId = q.Answer.AnswerId,
-                                Explain = q.Answer.Explain ,
-                                Correct = q.Answer.Correct 
-                            }
-                        }
-                        : new List<AnswerDto> 
-                        { 
-                            new AnswerDto 
-                            {
-                                AnswerId = -1,  // Giá trị mặc định nếu không có câu trả lời
-                                AnswerContent = "Bỏ trống",  // Tùy chỉnh nội dung nếu không có câu trả lời
-                                QuestionId = q.Question.QuestionId,
-                                Explain = "",
-                                Correct = false
-                            }
-                        }  // Nếu `Answer` null, trả về danh sách trống
-                }).ToList()
-            });
+                QuestionId = group.Key, 
+                QuestionContent = group.First().Question.QuestionContent, 
+                Image = group.First().Question.Image, 
+                PointOfQuestion = group.First().PointOfAnswer,
+                Answers = group.Select(q => q.Answer != null
+                    ? new AnswerDto
+                    {
+                        QuestionId = q.Answer.QuestionId,
+                        AnswerContent = q.Answer.AnswerContent,
+                        AnswerId = q.Answer.AnswerId,
+                        Explain = q.Answer.Explain,
+                        Correct = q.Answer.Correct
+                    }
+                    : new AnswerDto
+                    {
+                        AnswerId = -1,  // Giá trị mặc định nếu không có câu trả lời
+                        AnswerContent = "Bỏ trống",  // Tùy chỉnh nội dung nếu không có câu trả lời
+                        QuestionId = q.Question.QuestionId,
+                        Explain = "",
+                        Correct = false
+                    }).ToList() // Duyệt qua từng phần tử trong nhóm
+            }).ToList()
+    }).FirstOrDefault();
+
         return Ok(studentAnswer);
+    }
+
+    [HttpGet("export")]
+    public ActionResult exoprt()
+    {
+        string path = @"C:\DuAnCaNhan\CV\Pmedia\workspace\TestToeic\TestToeic-BE\wwwroot\resultOfStudent\demo.pdf";
+        PdfWriter writer = new PdfWriter(path);
+        PdfDocument pdf = new PdfDocument(writer);
+        Document document = new Document(pdf);
+        document.Add(new Paragraph("Super hello"));
+        document.Close();
+        return Ok();
     }
     
     [HttpGet("getListStudentPoint")]
@@ -222,86 +233,100 @@ public class StudentApi : ControllerBase
         return poq;
     }
     
-
-
-    
     [HttpPost]
-    public ActionResult SaveStudentAnswer(StudentPointDto studentPointDto)
+public ActionResult SaveStudentAnswer(StudentPointDto studentPointDto)
+{
+    if (!ModelState.IsValid)
     {
-        if (!ModelState.IsValid)
+        return BadRequest(ModelState);
+    }
+
+    int correctAnswer = 0; 
+    float? pointOfStudent = 0; 
+    int totalQuestions = 0; 
+
+    // Tạo thực thể StudentPoint
+    var studentPoint = new StudentPoint
+    {
+        Completion = studentPointDto.Completion?.ToUniversalTime(),
+        Duration = studentPointDto.Duration,
+        TestId = studentPointDto.TestId,
+        ApplicationUserId = studentPointDto.ApplicationUserId,
+        IsDelete = false,
+        IsActive = true,
+        AnswerOfStudents = new List<AnswerOfStudent>()
+    };
+    totalQuestions = _context.PointOfQuestions
+        .AsNoTracking()
+        .Where(a => a.question.Primary == false)
+        .Count(p => p.TestId == studentPointDto.TestId );
+    var maxTestPoint = _context.Tests.AsNoTracking()
+        .FirstOrDefault(t => t.TestId == studentPointDto.TestId)?
+        .PointOfTest ?? 10; 
+    foreach (var questionDto in studentPointDto.AnswerOfStudentDtos.GroupBy(q => q.QuestionId))
+    {
+        var questionId = questionDto.Key;
+        var questionInDb = _context.Questions
+            .AsNoTracking()
+            .FirstOrDefault(q => q.QuestionId == questionId);
+
+        // Nếu câu hỏi có primary = true, bỏ qua và không lưu câu trả lời
+        if (questionInDb != null && questionInDb.Primary)
         {
-            return BadRequest(ModelState);
+            continue;
+        }
+        var answersForQuestion = questionDto.ToList(); 
+        var correctAnswersInDb = _context.Answers
+            .AsNoTracking()
+            .Where(a => a.QuestionId == questionId && a.Correct == true)
+            .ToList();
+
+        var pointOfQuestion = _context.PointOfQuestions.AsNoTracking()
+            .FirstOrDefault(p => p.QuestionId == questionId && p.TestId == studentPointDto.TestId);
+
+        bool allAnswersCorrect = answersForQuestion.All(a =>
+            correctAnswersInDb.Any(dbAnswer => dbAnswer.AnswerId == a.AnswerId));
+
+        float point = 0;
+
+        if (pointOfQuestion == null)
+        {
+            point = 0;
+        }
+        else if (allAnswersCorrect)
+        {
+            point = (float)pointOfQuestion.Point;
+            correctAnswer++; 
         }
 
-        int correctAnswer = 0;
-        float? pointOfStudent = 0;
-        int totalQuestions = 0;
-        var studentPoint = new StudentPoint
+        foreach (var answerDto in answersForQuestion)
         {
-            Completion = studentPointDto.Completion?.ToUniversalTime(),
-            Duration = studentPointDto.Duration,
-            TestId = studentPointDto.TestId,
-            ApplicationUserId = studentPointDto.ApplicationUserId, 
-            IsDelete = false,
-            IsActive = true,
-            AnswerOfStudents = new List<AnswerOfStudent>()
-        };
-        totalQuestions = _context.PointOfQuestions
-            .AsNoTracking()
-            .Count(p => p.TestId == studentPointDto.TestId);
-        var maxTestPoint = _context.Tests.AsNoTracking()
-            .FirstOrDefault(t => t.TestId == studentPointDto.TestId)?
-            .PointOfTest ?? 10; 
-        // Tạo danh sách tạm để chứa các AnswerOfStudentDto mới
-
-        foreach (var questionDto in studentPointDto.AnswerOfStudentDtos)
-        {
-            var answer = _context.Answers.AsNoTracking()
-                .FirstOrDefault(a => a.AnswerId == questionDto.AnswerId);
-            var pointOfQuestion = _context.PointOfQuestions.AsNoTracking()
-                .FirstOrDefault(p => p.QuestionId == questionDto.QuestionId && p.TestId == studentPointDto.TestId);
-
             var answerOfStudent = new AnswerOfStudent
             {
-                AnswerId = questionDto.AnswerId,
-                QuestionId = questionDto.QuestionId,
+                AnswerId = answerDto.AnswerId,
+                QuestionId = questionId,
                 StudentPointId = studentPoint.StudentPointId,
                 IsActive = true,
                 IsDelete = false,
+                PointOfAnswer = point 
             };
-            if (answer == null || pointOfQuestion == null)
-            {
-                // Nếu không tìm thấy câu trả lời hoặc điểm câu hỏi, gán điểm là 0
-                questionDto.PointOfAnswer = 0;
-            }
-            else
-            {
-                // Nếu tìm thấy câu trả lời và câu trả lời đúng, tính điểm
-                if (answer.Correct == false)
-                {
-                    questionDto.PointOfAnswer = 0; // Nếu câu trả lời sai, gán điểm là 0
-                }
-                else
-                {
-                    // Nếu câu trả lời đúng, gán điểm bằng điểm của câu hỏi
-                    questionDto.PointOfAnswer = pointOfQuestion.Point;
-                    correctAnswer++;
-                }
-            }
-            pointOfStudent += questionDto.PointOfAnswer;
-            answerOfStudent.PointOfAnswer = questionDto.PointOfAnswer;
             studentPoint.AnswerOfStudents.Add(answerOfStudent);
         }
-        pointOfStudent = (float?)Math.Round(pointOfStudent.Value, 2);
-        if (pointOfStudent > maxTestPoint)
-        {
-            pointOfStudent = maxTestPoint;
-        }
-        // Cập nhật danh sách AnswerOfStudentDtos trong studentPointDto sau khi vòng lặp kết thúc
-        studentPoint.PointOfStudent = pointOfStudent;
-        _context.StudentPoints.Add(studentPoint);
-        _context.SaveChanges();
-        string message;
+
+        pointOfStudent += point;
+    }
+    pointOfStudent = (float?)Math.Round(pointOfStudent.Value, 2);
+    if (pointOfStudent > maxTestPoint)
+    {
+        pointOfStudent = maxTestPoint;
+    }
+
+    studentPoint.PointOfStudent = pointOfStudent;
+
+    _context.StudentPoints.Add(studentPoint);
+    _context.SaveChanges();
+
+    string message;
     if (correctAnswer >= 0 && correctAnswer <= 9)
     {
         message = $@"
@@ -330,15 +355,14 @@ Lịch Khai Giảng TOEIC 0 mới nhất: CLICK HERE";
     else if (correctAnswer >= 21 && correctAnswer <= 30)
     {
         message = $@"
-Cảm ơn bạn vì đã hoàn thành bài thi!
-Tổng điểm: {pointOfStudent}";
+Cảm ơn bạn vì đã hoàn thành bài thi!";
     }
     else
     {
         message = "Không có thông báo phù hợp!";
     }
 
-    // Trả về thông báo
+    // Trả về kết quả
     return Ok(new
     {
         CorrectAnswers = correctAnswer,
@@ -348,5 +372,6 @@ Tổng điểm: {pointOfStudent}";
         Detail = studentPoint.StudentPointId,
         Message = message
     });
-    }
+}
+
 }

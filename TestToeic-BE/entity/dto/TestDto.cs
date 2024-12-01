@@ -1,20 +1,28 @@
 using System.Globalization;
+using System.Text.Json.Serialization;
 
 namespace TestToeic.entity.dto;
 
 public class TestDto
 {
     public int Id { get; set; }
-    public string? UserCreate { get; set; }          //TestId -> Username 
-    public string Title { get; set; }               //Class name
-    public DateTime? DateCreate { get; set; }       // Test
-    public List<QuestionDto> QuestionDtos { get; set; }   //Answer
-    public float? Point { get; set; }                //Điểm tổng của bài test - ví dụ 10 điểm
-    public TimeOnly? TestTime { get; set; }         
+    public string UserCreate { get; set; }          
+    public string? Title { get; set; }
+    
+    public int ClassId { get; set; }
+    public DateTime? DateCreate { get; set; }     
+
+    public List<QuestionDto> QuestionDtos { get; set; } = new List<QuestionDto>(); // Khởi tạo mặc định là danh sách rỗng
+
+    public float? Point { get; set; }             
+    public TimeOnly? TestTime { get; set; }     
+
+    public List<StickerDto> Stickers { get; set; } = new List<StickerDto>(); // Khởi tạo mặc định là danh sách rỗng
+
     public bool? IsDelete { get; set; } 
     public bool? IsActive { get; set; } 
 
-    public string TestTimeMinutes
+    public string? TestTimeMinutes
     {
         get
         {
@@ -34,7 +42,8 @@ public class TestDto
             TestTime = value != null ? TimeOnly.ParseExact(value, "t", CultureInfo.CurrentCulture) : null;
         }
     }
-    public string StringDateCreateTest
+
+    public string? StringDateCreateTest
     {
         get
         {

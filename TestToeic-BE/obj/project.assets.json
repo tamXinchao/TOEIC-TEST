@@ -2,6 +2,19 @@
   "version": 3,
   "targets": {
     "net8.0": {
+      "BouncyCastle.Cryptography/2.4.0": {
+        "type": "package",
+        "compile": {
+          "lib/net6.0/BouncyCastle.Cryptography.dll": {
+            "related": ".xml"
+          }
+        },
+        "runtime": {
+          "lib/net6.0/BouncyCastle.Cryptography.dll": {
+            "related": ".xml"
+          }
+        }
+      },
       "Humanizer.Core/2.14.1": {
         "type": "package",
         "compile": {
@@ -105,6 +118,23 @@
           }
         }
       },
+      "itext.bouncy-castle-adapter/9.0.0": {
+        "type": "package",
+        "dependencies": {
+          "BouncyCastle.Cryptography": "2.4.0",
+          "itext.commons": "9.0.0"
+        },
+        "compile": {
+          "lib/netstandard2.0/itext.bouncy-castle-adapter.dll": {
+            "related": ".xml"
+          }
+        },
+        "runtime": {
+          "lib/netstandard2.0/itext.bouncy-castle-adapter.dll": {
+            "related": ".xml"
+          }
+        }
+      },
       "itext.commons/9.0.0": {
         "type": "package",
         "dependencies": {
@@ -122,10 +152,38 @@
           }
         }
       },
+      "itext.pdfhtml/6.0.0": {
+        "type": "package",
+        "dependencies": {
+          "itext": "9.0.0"
+        },
+        "compile": {
+          "lib/netstandard2.0/itext.html2pdf.dll": {
+            "related": ".xml"
+          }
+        },
+        "runtime": {
+          "lib/netstandard2.0/itext.html2pdf.dll": {
+            "related": ".xml"
+          }
+        }
+      },
       "itext7/9.0.0": {
         "type": "package",
         "dependencies": {
           "itext": "9.0.0"
+        }
+      },
+      "itext7.bouncy-castle-adapter/9.0.0": {
+        "type": "package",
+        "dependencies": {
+          "itext.bouncy-castle-adapter": "9.0.0"
+        }
+      },
+      "itext7.pdfhtml/6.0.0": {
+        "type": "package",
+        "dependencies": {
+          "itext.pdfhtml": "6.0.0"
         }
       },
       "Microsoft.AspNetCore.Cryptography.Internal/8.0.10": {
@@ -2025,6 +2083,26 @@
     }
   },
   "libraries": {
+    "BouncyCastle.Cryptography/2.4.0": {
+      "sha512": "SwXsAV3sMvAU/Nn31pbjhWurYSjJ+/giI/0n6tCrYoupEK34iIHCuk3STAd9fx8yudM85KkLSVdn951vTng/vQ==",
+      "type": "package",
+      "path": "bouncycastle.cryptography/2.4.0",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "LICENSE.md",
+        "README.md",
+        "bouncycastle.cryptography.2.4.0.nupkg.sha512",
+        "bouncycastle.cryptography.nuspec",
+        "lib/net461/BouncyCastle.Cryptography.dll",
+        "lib/net461/BouncyCastle.Cryptography.xml",
+        "lib/net6.0/BouncyCastle.Cryptography.dll",
+        "lib/net6.0/BouncyCastle.Cryptography.xml",
+        "lib/netstandard2.0/BouncyCastle.Cryptography.dll",
+        "lib/netstandard2.0/BouncyCastle.Cryptography.xml",
+        "packageIcon.png"
+      ]
+    },
     "Humanizer.Core/2.14.1": {
       "sha512": "lQKvtaTDOXnoVJ20ibTuSIOf2i0uO0MPbDhd1jm238I+U/2ZnRENj0cktKZhtchBMtCUSRQ5v4xBCUbKNmyVMw==",
       "type": "package",
@@ -2101,6 +2179,22 @@
         "lib/netstandard2.0/itext.svg.xml"
       ]
     },
+    "itext.bouncy-castle-adapter/9.0.0": {
+      "sha512": "2IcE6/X6YMBr9dgxsSK+934zXqi7UcdsYHapaa+aD7LLHgcbEABzyVNzsTrVEcNO4XJAMLVtqk4MP8dcVNiyQw==",
+      "type": "package",
+      "path": "itext.bouncy-castle-adapter/9.0.0",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "ITSC-avatar.png",
+        "itext.bouncy-castle-adapter.9.0.0.nupkg.sha512",
+        "itext.bouncy-castle-adapter.nuspec",
+        "lib/net461/itext.bouncy-castle-adapter.dll",
+        "lib/net461/itext.bouncy-castle-adapter.xml",
+        "lib/netstandard2.0/itext.bouncy-castle-adapter.dll",
+        "lib/netstandard2.0/itext.bouncy-castle-adapter.xml"
+      ]
+    },
     "itext.commons/9.0.0": {
       "sha512": "mfQuZz4beW2GOHMrtGay5iowg6WINBkHMm7hj38el3eDvWY3yLVZGrVxdWVRhEXJIdsXsBa3lPywxspsqi3rxg==",
       "type": "package",
@@ -2117,6 +2211,25 @@
         "lib/netstandard2.0/itext.commons.xml"
       ]
     },
+    "itext.pdfhtml/6.0.0": {
+      "sha512": "NcmUDoSsus9u4x91nL9OBAGpwqJOFM9xk4SX82pNrl3jS0kpi+UnH9WgAB79E/gZujCEtBxmLPY0Hl8jhhE1fw==",
+      "type": "package",
+      "path": "itext.pdfhtml/6.0.0",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "ITSC-avatar.png",
+        "LICENSE.md",
+        "NOTICE.txt",
+        "gnu-agpl-v3.0.md",
+        "itext.pdfhtml.6.0.0.nupkg.sha512",
+        "itext.pdfhtml.nuspec",
+        "lib/net461/itext.html2pdf.dll",
+        "lib/net461/itext.html2pdf.xml",
+        "lib/netstandard2.0/itext.html2pdf.dll",
+        "lib/netstandard2.0/itext.html2pdf.xml"
+      ]
+    },
     "itext7/9.0.0": {
       "sha512": "WcRaL2xYhRWJrNXHlfWi9Cr/YApvFtDSEMvJlnbbSEUyYzYcwk52QJL/IAiP4T/O5U+rkzn6dIIwbeITUzsBLA==",
       "type": "package",
@@ -2129,6 +2242,35 @@
         "gnu-agpl-v3.0.md",
         "itext7.9.0.0.nupkg.sha512",
         "itext7.nuspec"
+      ]
+    },
+    "itext7.bouncy-castle-adapter/9.0.0": {
+      "sha512": "JJccn14lsKhhyevA1rXwahZVtFjkmrB0JybNgxeAenRxkv8fxGX2ToC1BD5Il4vCIU5m2QN/n1LGJ7dehWqc1A==",
+      "type": "package",
+      "path": "itext7.bouncy-castle-adapter/9.0.0",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "ITSC-avatar.png",
+        "LICENSE.md",
+        "gnu-agpl-v3.0.md",
+        "itext7.bouncy-castle-adapter.9.0.0.nupkg.sha512",
+        "itext7.bouncy-castle-adapter.nuspec"
+      ]
+    },
+    "itext7.pdfhtml/6.0.0": {
+      "sha512": "9X2DM9l2Ao9BaYbyXaIq1hRDiH494qU+kYBjkiulv0bQmOumxVj5LQrUcmbfB3tUv1kuGmGnTXb6HRMplWi2rw==",
+      "type": "package",
+      "path": "itext7.pdfhtml/6.0.0",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "ITSC-avatar.png",
+        "LICENSE.md",
+        "NOTICE.txt",
+        "gnu-agpl-v3.0.md",
+        "itext7.pdfhtml.6.0.0.nupkg.sha512",
+        "itext7.pdfhtml.nuspec"
       ]
     },
     "Microsoft.AspNetCore.Cryptography.Internal/8.0.10": {
@@ -6172,7 +6314,9 @@
       "Microsoft.EntityFrameworkCore.Tools >= 8.0.10",
       "Npgsql.EntityFrameworkCore.PostgreSQL >= 8.0.10",
       "Yarp.ReverseProxy >= 2.2.0",
-      "itext7 >= 9.0.0"
+      "itext7 >= 9.0.0",
+      "itext7.bouncy-castle-adapter >= 9.0.0",
+      "itext7.pdfhtml >= 6.0.0"
     ]
   },
   "packageFolders": {
@@ -6239,6 +6383,14 @@
           "itext7": {
             "target": "Package",
             "version": "[9.0.0, )"
+          },
+          "itext7.bouncy-castle-adapter": {
+            "target": "Package",
+            "version": "[9.0.0, )"
+          },
+          "itext7.pdfhtml": {
+            "target": "Package",
+            "version": "[6.0.0, )"
           }
         },
         "imports": [

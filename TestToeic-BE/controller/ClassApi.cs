@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using TestToeic.Db;
 using TestToeic.entity;
 using TestToeic.entity.dto;

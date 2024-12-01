@@ -248,3 +248,6 @@ C:\DuAnCaNhan\CV\Pmedia\workspace\TestToeic\TestToeic-BE\bin\Debug\net8.0\itext.
 C:\DuAnCaNhan\CV\Pmedia\workspace\TestToeic\TestToeic-BE\bin\Debug\net8.0\itext.commons.dll
 C:\DuAnCaNhan\CV\Pmedia\workspace\TestToeic\TestToeic-BE\bin\Debug\net8.0\Microsoft.DotNet.PlatformAbstractions.dll
 C:\DuAnCaNhan\CV\Pmedia\workspace\TestToeic\TestToeic-BE\bin\Debug\net8.0\Newtonsoft.Json.dll
+C:\DuAnCaNhan\CV\Pmedia\workspace\TestToeic\TestToeic-BE\bin\Debug\net8.0\BouncyCastle.Cryptography.dll
+C:\DuAnCaNhan\CV\Pmedia\workspace\TestToeic\TestToeic-BE\bin\Debug\net8.0\itext.bouncy-castle-adapter.dll
+C:\DuAnCaNhan\CV\Pmedia\workspace\TestToeic\TestToeic-BE\bin\Debug\net8.0\itext.html2pdf.dll

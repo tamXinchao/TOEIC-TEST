@@ -18,6 +18,8 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     public DbSet<Test> Tests { get; set; }
     public DbSet<MemberOfClass> MemberOfClasses { get; set; }
     public DbSet<TestOfClass> TestOfClasses { get; set; }
+    public DbSet<Sticker> Stickers { get; set; }
+    public DbSet<StickerOfTest> StickerOfTests { get; set; }
     
 
 

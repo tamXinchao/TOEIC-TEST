@@ -13,10 +13,20 @@
           "Microsoft.EntityFrameworkCore.Tools": "8.0.10",
           "Npgsql.EntityFrameworkCore.PostgreSQL": "8.0.10",
           "Yarp.ReverseProxy": "2.2.0",
-          "itext7": "9.0.0"
+          "itext7": "9.0.0",
+          "itext7.bouncy-castle-adapter": "9.0.0",
+          "itext7.pdfhtml": "6.0.0"
         },
         "runtime": {
           "TestToeic.dll": {}
+        }
+      },
+      "BouncyCastle.Cryptography/2.4.0": {
+        "runtime": {
+          "lib/net6.0/BouncyCastle.Cryptography.dll": {
+            "assemblyVersion": "2.0.0.0",
+            "fileVersion": "2.4.0.33771"
+          }
         }
       },
       "Humanizer.Core/2.14.1": {
@@ -92,6 +102,18 @@
           }
         }
       },
+      "itext.bouncy-castle-adapter/9.0.0": {
+        "dependencies": {
+          "BouncyCastle.Cryptography": "2.4.0",
+          "itext.commons": "9.0.0"
+        },
+        "runtime": {
+          "lib/netstandard2.0/itext.bouncy-castle-adapter.dll": {
+            "assemblyVersion": "9.0.0.0",
+            "fileVersion": "9.0.0.0"
+          }
+        }
+      },
       "itext.commons/9.0.0": {
         "dependencies": {
           "Microsoft.Extensions.Logging": "8.0.1",
@@ -104,9 +126,30 @@
           }
         }
       },
+      "itext.pdfhtml/6.0.0": {
+        "dependencies": {
+          "itext": "9.0.0"
+        },
+        "runtime": {
+          "lib/netstandard2.0/itext.html2pdf.dll": {
+            "assemblyVersion": "6.0.0.0",
+            "fileVersion": "6.0.0.0"
+          }
+        }
+      },
       "itext7/9.0.0": {
         "dependencies": {
           "itext": "9.0.0"
+        }
+      },
+      "itext7.bouncy-castle-adapter/9.0.0": {
+        "dependencies": {
+          "itext.bouncy-castle-adapter": "9.0.0"
+        }
+      },
+      "itext7.pdfhtml/6.0.0": {
+        "dependencies": {
+          "itext.pdfhtml": "6.0.0"
         }
       },
       "Microsoft.AspNetCore.Cryptography.Internal/8.0.10": {
@@ -1146,6 +1189,13 @@
       "serviceable": false,
       "sha512": ""
     },
+    "BouncyCastle.Cryptography/2.4.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-SwXsAV3sMvAU/Nn31pbjhWurYSjJ+/giI/0n6tCrYoupEK34iIHCuk3STAd9fx8yudM85KkLSVdn951vTng/vQ==",
+      "path": "bouncycastle.cryptography/2.4.0",
+      "hashPath": "bouncycastle.cryptography.2.4.0.nupkg.sha512"
+    },
     "Humanizer.Core/2.14.1": {
       "type": "package",
       "serviceable": true,
@@ -1160,6 +1210,13 @@
       "path": "itext/9.0.0",
       "hashPath": "itext.9.0.0.nupkg.sha512"
     },
+    "itext.bouncy-castle-adapter/9.0.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-2IcE6/X6YMBr9dgxsSK+934zXqi7UcdsYHapaa+aD7LLHgcbEABzyVNzsTrVEcNO4XJAMLVtqk4MP8dcVNiyQw==",
+      "path": "itext.bouncy-castle-adapter/9.0.0",
+      "hashPath": "itext.bouncy-castle-adapter.9.0.0.nupkg.sha512"
+    },
     "itext.commons/9.0.0": {
       "type": "package",
       "serviceable": true,
@@ -1167,12 +1224,33 @@
       "path": "itext.commons/9.0.0",
       "hashPath": "itext.commons.9.0.0.nupkg.sha512"
     },
+    "itext.pdfhtml/6.0.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-NcmUDoSsus9u4x91nL9OBAGpwqJOFM9xk4SX82pNrl3jS0kpi+UnH9WgAB79E/gZujCEtBxmLPY0Hl8jhhE1fw==",
+      "path": "itext.pdfhtml/6.0.0",
+      "hashPath": "itext.pdfhtml.6.0.0.nupkg.sha512"
+    },
     "itext7/9.0.0": {
       "type": "package",
       "serviceable": true,
       "sha512": "sha512-WcRaL2xYhRWJrNXHlfWi9Cr/YApvFtDSEMvJlnbbSEUyYzYcwk52QJL/IAiP4T/O5U+rkzn6dIIwbeITUzsBLA==",
       "path": "itext7/9.0.0",
       "hashPath": "itext7.9.0.0.nupkg.sha512"
+    },
+    "itext7.bouncy-castle-adapter/9.0.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-JJccn14lsKhhyevA1rXwahZVtFjkmrB0JybNgxeAenRxkv8fxGX2ToC1BD5Il4vCIU5m2QN/n1LGJ7dehWqc1A==",
+      "path": "itext7.bouncy-castle-adapter/9.0.0",
+      "hashPath": "itext7.bouncy-castle-adapter.9.0.0.nupkg.sha512"
+    },
+    "itext7.pdfhtml/6.0.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-9X2DM9l2Ao9BaYbyXaIq1hRDiH494qU+kYBjkiulv0bQmOumxVj5LQrUcmbfB3tUv1kuGmGnTXb6HRMplWi2rw==",
+      "path": "itext7.pdfhtml/6.0.0",
+      "hashPath": "itext7.pdfhtml.6.0.0.nupkg.sha512"
     },
     "Microsoft.AspNetCore.Cryptography.Internal/8.0.10": {
       "type": "package",

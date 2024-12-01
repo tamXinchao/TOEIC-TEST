@@ -19,8 +19,17 @@
         <div
           v-for="test in classes.testOfClasses"
           :key="test.testOfClassId"
-          class="bg-gray-100 p-4 rounded-lg shadow-sm hover:bg-gray-200 transition"
+          class="relative bg-gray-100 p-4 rounded-lg shadow-sm hover:bg-gray-200 transition"
         >
+          <!-- Nút sao chép, chỉ hiển thị nếu là /admin -->
+          <button
+            v-if="isAdminPath"
+            @click="copyTestLink(test.id, test.classId)"
+            class="absolute top-2 right-2 bg-blue-500 text-white text-sm px-2 py-1 rounded hover:bg-blue-600"
+          >
+            Sao chép
+          </button>
+
           <h3 class="text-lg font-semibold text-gray-800">
             {{ test.title || "Chưa có tiêu đề" }}
           </h3>
@@ -44,6 +53,26 @@
               }}
             </span>
           </p>
+
+          <!-- Display sticker if available -->
+          <div v-if="test.stickers && test.stickers.length > 0" class="mt-4">
+            <div class="flex flex-wrap space-x-2">
+              <div
+                v-for="sticker in test.stickers"
+                :key="sticker.stickerId"
+                class="flex items-center"
+              >
+                <NuxtLink :to="'#'">
+                  <p
+                    class="text-sm text-gray-600 bg-gray-200 my-1 px-3 py-1 rounded-full inline-flex items-center transition-all duration-300 ease-in-out hover:bg-blue-200 hover:text-white"
+                  >
+                    <span class="font-semibold text-gray-700">#</span>
+                    {{ sticker.stickerName }}
+                  </p>
+                </NuxtLink>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -51,9 +80,50 @@
 </template>
 
 <script setup>
+import { useRoute } from "vue-router";
+import axios from "axios";
+
 const { classes } = defineProps(["classes"]);
+console.log(classes);
+const route = useRoute();
+
+// Xác định nếu đường dẫn hiện tại là /admin
+const isAdminPath = route.path.startsWith("/admin");
+
+// Hàm gửi yêu cầu POST để sao chép bài kiểm tra
+const copyTestLink = async (testId, classId) => {
+  try {
+    // Định nghĩa payload
+    const clone = {
+      Id: testId,
+      UserCreate: "5a8f41cb-b4f4-435a-6991-63e7be71b6d4", // Thay bằng ID người dùng thật nếu cần
+      ClassId: classId,
+    };
+
+    // Gửi yêu cầu POST tới API và chờ phản hồi
+    const response = await axios.post(
+      `http://localhost:5082/api/TestApi`,
+      clone
+    );
+
+    // Xử lý kết quả từ API
+    if (response.status === 200) {
+      const { message } = response.data; // Lấy message từ API
+      alert(message || "Đã sao chép liên kết bài kiểm tra thành công!");
+      window.location.reload();
+    } else {
+      alert("Đã xảy ra lỗi khi sao chép liên kết!");
+    }
+  } catch (error) {
+    console.error("Lỗi khi gửi yêu cầu sao chép liên kết:", error);
+    alert("Không thể sao chép liên kết. Vui lòng thử lại!");
+  }
+};
 </script>
 
 <style scoped>
 /* Scoped styling if needed */
+button {
+  transition: all 0.3s ease;
+}
 </style>

@@ -18,10 +18,9 @@ public class Test : BaseEnity
     [ForeignKey("ApplicationUser")]
     public string ApplicationUserId { get; set; }
     public ApplicationUser applicationUser { get; set; }
-    
-    
     public  ICollection<Schedule> Schedules { get; set; }
     public  ICollection<PointOfQuestion> PointOfQuestions { get; set; }
     public  ICollection<StudentPoint> StudentPoints { get; set; }
     public ICollection<TestOfClass> TestOfClasses { get; set; }
+    public ICollection<StickerOfTest> StickerOfTests { get; set; }
 }

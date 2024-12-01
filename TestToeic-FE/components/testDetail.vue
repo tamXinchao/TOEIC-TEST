@@ -22,6 +22,29 @@
       </p>
     </div>
 
+    <!-- Hiển thị các câu hỏi Primary = true trong các thẻ div riêng biệt -->
+    <div class="bg-white shadow-md rounded-lg max-w-3xl mx-auto mb-6">
+      <ul>
+        <li
+          v-for="(primaryQuestion, index) in relatedQuestionsForCurrentPage()"
+          :key="primaryQuestion.questionId"
+          class="mb-6"
+        >
+          <div class="border p-4 mb-2">
+            <p class="font-medium text-lg text-gray-800 mx-4 my-5">
+              {{ primaryQuestion.questionContent }}
+            </p>
+          </div>
+        </li>
+      </ul>
+      <p
+        v-if="relatedQuestionsForCurrentPage().length === 0"
+        class="text-gray-500"
+      >
+        Không có câu hỏi đặc biệt nào.
+      </p>
+    </div>
+
     <!-- Hiển thị dữ liệu phân trang -->
     <div class="bg-white shadow-md p-6 rounded-lg max-w-3xl mx-auto mb-6">
       <ul>
@@ -48,7 +71,6 @@
                 :disabled="isSubmitted"
                 class="form-radio h-5 w-5 text-blue-500"
               />
-
               <span :class="['text-gray-700']">
                 {{ String.fromCharCode(65 + answerIndex) }}.
                 {{ answer.answerContent }}
@@ -64,7 +86,7 @@
       <button
         v-for="page in totalPages"
         :key="page"
-        @click="currentPage = page"
+        @click="changePage(page)"
         :class="[
           'px-4 py-2 rounded shadow',
           currentPage === page
@@ -75,6 +97,7 @@
         {{ page }}
       </button>
     </div>
+
     <div
       v-if="showSubmittedAnswers"
       class="bg-white shadow-md p-6 rounded-lg max-w-3xl mx-auto mt-6"
@@ -128,7 +151,8 @@ export default {
   computed: {
     totalQuestions() {
       return this.tests.reduce(
-        (total, test) => total + test.questionDtos.length,
+        (total, test) =>
+          total + test.questionDtos.filter((q) => !q.primary).length,
         0
       );
     },
@@ -141,13 +165,70 @@ export default {
       return `${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
     },
   },
+
   methods: {
-    paginatedQuestions(test) {
-      const allQuestions = test.questionDtos;
+    formatDuration(seconds) {
+      const hours = Math.floor(seconds / 3600);
+      const minutes = Math.floor((seconds % 3600) / 60);
+      const remainingSeconds = seconds % 60;
+      return `${hours.toString().padStart(2, "0")}:${minutes
+        .toString()
+        .padStart(2, "0")}:${remainingSeconds.toString().padStart(2, "0")}`;
+    },
+    // Hàm thay đổi trang
+    changePage(page) {
+      this.currentPage = page;
+      const questionId = this.getCurrentQuestionId();
+      console.log("ID của câu hỏi trên trang hiện tại:", questionId);
+    },
+
+    // Hàm lấy ID câu hỏi trên trang hiện tại
+    getCurrentQuestionId() {
+      const test = this.tests[0]; // Chỉ có một bài kiểm tra
+      const nonPrimaryQuestions = test.questionDtos.filter(
+        (question) => !question.primary
+      );
+
       const start = (this.currentPage - 1) * this.itemsPerPage;
       const end = start + this.itemsPerPage;
-      return allQuestions.slice(start, end);
+
+      const currentQuestions = nonPrimaryQuestions.slice(start, end);
+
+      if (currentQuestions.length > 0) {
+        return currentQuestions[0].parentQuestionId;
+      }
+
+      return null;
     },
+    relatedQuestionsForCurrentPage() {
+      const parentQuestionId = this.getCurrentQuestionId();
+      if (!parentQuestionId) {
+        return []; // Trả về mảng rỗng nếu không có ID câu hỏi
+      }
+
+      const test = this.tests[0];
+      // console.log(
+      //   "Câu hỏi cha:",
+      //   test.questionDtos.find((q) => q.questionId === parentQuestionId)
+      // );
+      const relatedQuestions = test.questionDtos.filter(
+        (question) =>
+          question.questionId === parentQuestionId && question.primary
+      );
+
+      return relatedQuestions;
+    },
+    paginatedQuestions(test) {
+      const nonPrimaryQuestions = test.questionDtos.filter(
+        (question) => !question.primary
+      );
+
+      const start = (this.currentPage - 1) * this.itemsPerPage;
+      const end = start + this.itemsPerPage;
+
+      return nonPrimaryQuestions.slice(start, end);
+    },
+
     startTimer(durationInMinutes) {
       this.remainingTime = durationInMinutes * 60;
       this.timerInterval = setInterval(() => {
@@ -159,14 +240,7 @@ export default {
         }
       }, 1000);
     },
-    formatDuration(seconds) {
-      const hours = Math.floor(seconds / 3600);
-      const minutes = Math.floor((seconds % 3600) / 60);
-      const remainingSeconds = seconds % 60;
-      return `${hours.toString().padStart(2, "0")}:${minutes
-        .toString()
-        .padStart(2, "0")}:${remainingSeconds.toString().padStart(2, "0")}`;
-    },
+
     submitTest() {
       const testId = this.testId;
       const now = new Date();
@@ -202,7 +276,6 @@ export default {
             clearInterval(this.timerInterval);
           }
 
-          // Đánh dấu bài kiểm tra đã nộp
           this.isSubmitted = true;
         })
         .catch((error) => {
@@ -217,6 +290,7 @@ export default {
       );
       if (response.data && Array.isArray(response.data)) {
         this.tests = response.data;
+        console.log("Dữ liệu bài kiểm tra:", this.tests);
         if (this.tests.length > 0) {
           this.startTimer(this.tests[0].testTimeMinutes);
         }

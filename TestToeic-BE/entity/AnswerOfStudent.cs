@@ -17,9 +17,10 @@ public class AnswerOfStudent : BaseEnity
     public  Question Question { get; set; }
     
     [ForeignKey("StudentPoint")]
-    public int StudentPointId { get; set; } //Id bài làm
+    public int StudentPointId { get; set; }
     public StudentPoint StudentPoints { get; set; }
     
-    public float? PointOfAnswer { get; set; } //Điểm của câu học sinh đã làm dựa trên câu đúng và câu sai
-
+    public float? PointOfAnswer { get; set; } 
+    public string? AnswerContent { get; set; }
+    public string? Note { get; set; }
 }

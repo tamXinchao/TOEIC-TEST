@@ -5,6 +5,7 @@
         <NuxtLink to="/" class="font-bold">Thi đầu vào Toeic</NuxtLink>
         <ul class="flex gap-4">
           <li><NuxtLink to="/" class="text-blue-500">Home</NuxtLink></li>
+          <li><NuxtLink to="/admin">Admin</NuxtLink></li>
           <li>
             <NuxtLink to="/classes">Lớp dành cho học viên</NuxtLink>
           </li>

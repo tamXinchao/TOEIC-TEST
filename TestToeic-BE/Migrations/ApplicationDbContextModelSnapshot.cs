@@ -195,6 +195,9 @@ namespace TestToeic.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("AnswerContent")
+                        .HasColumnType("text");
+
                     b.Property<int?>("AnswerId")
                         .HasColumnType("integer");
 
@@ -203,6 +206,9 @@ namespace TestToeic.Migrations
 
                     b.Property<bool>("IsDelete")
                         .HasColumnType("boolean");
+
+                    b.Property<string>("Note")
+                        .HasColumnType("text");
 
                     b.Property<float?>("PointOfAnswer")
                         .HasColumnType("real");
@@ -390,11 +396,22 @@ namespace TestToeic.Migrations
                     b.Property<bool>("IsDelete")
                         .HasColumnType("boolean");
 
+                    b.Property<bool>("MultipleAnswer")
+                        .HasColumnType("boolean");
+
+                    b.Property<int?>("ParentQuestionId")
+                        .HasColumnType("integer");
+
+                    b.Property<bool>("Primary")
+                        .HasColumnType("boolean");
+
                     b.Property<string>("QuestionContent")
                         .IsRequired()
                         .HasColumnType("text");
 
                     b.HasKey("QuestionId");
+
+                    b.HasIndex("ParentQuestionId");
 
                     b.ToTable("Questions");
                 });
@@ -427,6 +444,61 @@ namespace TestToeic.Migrations
                     b.HasIndex("TestId");
 
                     b.ToTable("Schedules");
+                });
+
+            modelBuilder.Entity("TestToeic.entity.Sticker", b =>
+                {
+                    b.Property<int>("StickerId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("StickerId"));
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsDelete")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Note")
+                        .HasColumnType("text");
+
+                    b.Property<string>("StickerName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("StickerId");
+
+                    b.ToTable("Stickers");
+                });
+
+            modelBuilder.Entity("TestToeic.entity.StickerOfTest", b =>
+                {
+                    b.Property<int>("StickerOfTestId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("StickerOfTestId"));
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsDelete")
+                        .HasColumnType("boolean");
+
+                    b.Property<int>("StickerId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("TestId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("StickerOfTestId");
+
+                    b.HasIndex("StickerId");
+
+                    b.HasIndex("TestId");
+
+                    b.ToTable("StickerOfTests");
                 });
 
             modelBuilder.Entity("TestToeic.entity.StudentPoint", b =>
@@ -661,6 +733,15 @@ namespace TestToeic.Migrations
                     b.Navigation("test");
                 });
 
+            modelBuilder.Entity("TestToeic.entity.Question", b =>
+                {
+                    b.HasOne("TestToeic.entity.Question", "ParentQuestion")
+                        .WithMany("SubQuestions")
+                        .HasForeignKey("ParentQuestionId");
+
+                    b.Navigation("ParentQuestion");
+                });
+
             modelBuilder.Entity("TestToeic.entity.Schedule", b =>
                 {
                     b.HasOne("TestToeic.entity.Test", "test")
@@ -668,6 +749,25 @@ namespace TestToeic.Migrations
                         .HasForeignKey("TestId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("test");
+                });
+
+            modelBuilder.Entity("TestToeic.entity.StickerOfTest", b =>
+                {
+                    b.HasOne("TestToeic.entity.Sticker", "sticker")
+                        .WithMany("StickerOfTests")
+                        .HasForeignKey("StickerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("TestToeic.entity.Test", "test")
+                        .WithMany("StickerOfTests")
+                        .HasForeignKey("TestId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("sticker");
 
                     b.Navigation("test");
                 });
@@ -759,6 +859,13 @@ namespace TestToeic.Migrations
                     b.Navigation("Answers");
 
                     b.Navigation("PointOfQuestions");
+
+                    b.Navigation("SubQuestions");
+                });
+
+            modelBuilder.Entity("TestToeic.entity.Sticker", b =>
+                {
+                    b.Navigation("StickerOfTests");
                 });
 
             modelBuilder.Entity("TestToeic.entity.StudentPoint", b =>
@@ -771,6 +878,8 @@ namespace TestToeic.Migrations
                     b.Navigation("PointOfQuestions");
 
                     b.Navigation("Schedules");
+
+                    b.Navigation("StickerOfTests");
 
                     b.Navigation("StudentPoints");
 
