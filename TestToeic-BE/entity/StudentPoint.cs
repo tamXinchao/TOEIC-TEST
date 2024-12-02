@@ -18,7 +18,7 @@ public class StudentPoint : BaseEnity
     
     [ForeignKey("ApplicationUser")]
     public string ApplicationUserId { get; set; }
-    public  ApplicationUser applicationUser { get; set; }
+    public  ApplicationUser? applicationUser { get; set; }
     public  ICollection<AnswerOfStudent> AnswerOfStudents { get; set; }
     
 }

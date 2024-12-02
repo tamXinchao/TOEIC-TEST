@@ -23,4 +23,5 @@ public class Test : BaseEnity
     public  ICollection<StudentPoint> StudentPoints { get; set; }
     public ICollection<TestOfClass> TestOfClasses { get; set; }
     public ICollection<StickerOfTest> StickerOfTests { get; set; }
+    public ICollection<Notice> Notices { get; set; }
 }

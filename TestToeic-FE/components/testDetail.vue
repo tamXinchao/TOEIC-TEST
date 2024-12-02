@@ -103,9 +103,15 @@
       class="bg-white shadow-md p-6 rounded-lg max-w-3xl mx-auto mt-6"
     >
       <h2 class="text-xl font-bold text-green-500 mb-4">Kết quả bài thi</h2>
-      <p class="text-gray-800 whitespace-pre-line">
-        {{ showSubmittedAnswers.message }}
-      </p>
+      <p
+        v-html="showSubmittedAnswers.message"
+        class="text-gray-800 whitespace-pre-line"
+      ></p>
+      <NuxtLink
+        :to="`/classes/${showSubmittedAnswers.classSuggestId}`"
+        class="text-blue-500 hover:underline"
+        >Xem lớp của bạn</NuxtLink
+      >
       <p class="text-gray-600 mt-2">
         Tổng điểm: {{ showSubmittedAnswers.points }}<br />
         Số câu trả lời đúng: {{ showSubmittedAnswers.correctAnswers }} /

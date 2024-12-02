@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("TestToeic")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+f73e045f29437d762e921113c51a8cb764500ae4")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+384a6d3ac63794aab0dff16df163ac1ed63adabd")]
 [assembly: System.Reflection.AssemblyProductAttribute("TestToeic")]
 [assembly: System.Reflection.AssemblyTitleAttribute("TestToeic")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

@@ -256,6 +256,8 @@ public ActionResult SaveStudentAnswer(StudentPointDto studentPointDto)
         IsActive = true,
         AnswerOfStudents = new List<AnswerOfStudent>()
     };
+    studentPoint.applicationUser = _context.Users
+        .FirstOrDefault(u => u.Id == studentPointDto.ApplicationUserId);
     totalQuestions = _context.PointOfQuestions
         .AsNoTracking()
         .Where(a => a.question.Primary == false)
@@ -325,42 +327,20 @@ public ActionResult SaveStudentAnswer(StudentPointDto studentPointDto)
 
     _context.StudentPoints.Add(studentPoint);
     _context.SaveChanges();
+    var notice = _context.Notices  
+        .Include(n => n.classes) 
+        .FirstOrDefault(n => n.TestId == studentPointDto.TestId && correctAnswer >= n.ScoreMin && correctAnswer <= n.ScoreMax);
 
-    string message;
-    if (correctAnswer >= 0 && correctAnswer <= 9)
+    string message = "Chưa có thông tin cụ thể";  // Giá trị mặc định nếu không tìm thấy notice
+
+    if (notice != null)
     {
-        message = $@"
-Cảm ơn bạn vì đã hoàn thành bài thi!
-TOEIC Thầy Khuê rất tiếc vì hiện tại không có lớp TOEIC nào phù hợp với kết quả kiểm tra đầu vào của bạn!
-Chúng tôi xin gợi ý như sau: Bạn có thể tự ôn tập lại nội dung tiếng Anh phổ thông để củng cố kiến thức căn bản.
-Hoặc bạn có thể tham khảo các lớp 'Tiếng Anh dành cho người mới bắt đầu' tại những trung tâm khác trước khi tham gia lớp TOEIC tại TOEIC Thầy Khuê nhé.
-Chúc bạn học tập hiệu quả và sớm đạt được mục tiêu!";
+        // Kiểm tra các đối tượng trong notice có thể là null
+        message = notice.Message
+            .Replace("[username]", studentPoint.applicationUser?.UserName ?? "Unknown")  // Nếu UserName là null, dùng "Unknown"
+            .Replace("[class]", notice.classes?.ClassName ?? "Unknown");  // Nếu ClassName là null, dùng "Unknown"
     }
-    else if (correctAnswer >= 10 && correctAnswer <= 12)
-    {
-        message = $@"
-Cảm ơn bạn vì đã hoàn thành bài thi!
-Lớp học phù hợp cho bạn: Lớp TOEIC 0 – Lấy Lại Căn Bản (11 buổi)
-*Lưu ý: Hiện tại, bạn đã quên khá nhiều kiến thức cơ bản. Nếu không dành thời gian ôn tập thêm khi về nhà, bạn có thể sẽ gặp khó khăn trong việc theo kịp chương trình học của lớp TOEIC 0.
-Hãy cố gắng luyện tập đều đặn để cải thiện và nắm vững kiến thức bạn nhé!
-Lịch Khai Giảng TOEIC 0 mới nhất: CLICK HERE";
-    }
-    else if (correctAnswer >= 13 && correctAnswer <= 20)
-    {
-        message = $@"
-Cảm ơn bạn vì đã hoàn thành bài thi!
-Lớp học phù hợp cho bạn: Lớp TOEIC 0 – Lấy Lại Căn Bản (11 buổi)
-Lịch Khai Giảng TOEIC 0 mới nhất: CLICK HERE";
-    }
-    else if (correctAnswer >= 21 && correctAnswer <= 30)
-    {
-        message = $@"
-Cảm ơn bạn vì đã hoàn thành bài thi!";
-    }
-    else
-    {
-        message = "Không có thông báo phù hợp!";
-    }
+    
 
     // Trả về kết quả
     return Ok(new
@@ -370,6 +350,7 @@ Cảm ơn bạn vì đã hoàn thành bài thi!";
         Time = studentPoint.Duration,
         Points = pointOfStudent,
         Detail = studentPoint.StudentPointId,
+        ClassSuggestId= notice.ClassId,
         Message = message
     });
 }

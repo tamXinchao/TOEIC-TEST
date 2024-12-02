@@ -14,6 +14,12 @@
         <div class="text-lg font-semibold mb-2">
           <span class="font-bold"></span> {{ classs.className }}
         </div>
+        <div class="text-xs mt-3 italic">
+          <span>
+            {{ classs.memberCount }}
+          </span>
+          <span> Học viên</span>
+        </div>
         <div class="text-xs mt-3 italic text-right">
           <span>Trạng thái: </span>
           <span :class="classs.isActive ? 'text-green-600' : 'text-red-500'">
