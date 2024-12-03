@@ -11,9 +11,11 @@ public class Question : BaseEnity
     public string? Image { get; set; }
     public bool MultipleAnswer { get; set; }
     public bool Primary { get; set; }
+    public string LabelOfPrimary { get; set; } = "Phần";
     public int? ParentQuestionId { get; set; }
     [ForeignKey("ParentQuestionId")]
     public Question ParentQuestion { get; set; }
+    
     public  ICollection<Answer> Answers { get; set; }
     public  ICollection<PointOfQuestion> PointOfQuestions { get; set; }
     public  ICollection<AnswerOfStudent> AnswerOfStudents { get; set; }

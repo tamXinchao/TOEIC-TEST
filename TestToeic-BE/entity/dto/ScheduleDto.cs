@@ -6,6 +6,9 @@ public class ScheduleDto
     public DateTime? DayCloseTest {get;set;}
     public int  TestId { get; set; }
 
+    public string TestName { get; set; }
+    public string? ClassName { get; set; } = "Chưa có lớp";
+
     public string StringDayOpenTest
     {
         get
@@ -41,6 +44,27 @@ public class ScheduleDto
             var minutes = DayCloseTest.Value.Minute;
             string timeClose = $"{hour} giờ {minutes} phút, Ngày {day} tháng {month} năm {year}";
             return timeClose;
+        }
+    }
+    public string TimeRemaining
+    {
+        get
+        {
+            if (!DayCloseTest.HasValue)
+            {
+                return "Ngày kết thúc chưa được đặt";
+            }
+
+            var now = DateTime.Now;
+            var closeDate = DayCloseTest.Value;
+
+            if (now > closeDate)
+            {
+                return "Đã kết thúc";
+            }
+
+            var timeSpan = closeDate - now;
+            return $"{timeSpan.Days} ngày, {timeSpan.Hours} giờ, {timeSpan.Minutes} phút";
         }
     }
 }

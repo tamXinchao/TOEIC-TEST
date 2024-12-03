@@ -174,13 +174,17 @@ public class TestApi : ControllerBase
     [HttpGet("{studentId}/listByClass")]
     public ActionResult Get(string studentId, int id)
     {
+        
         var student = _context.MemberOfClasses
             .AsNoTracking()
             .Include(m => m.applicationUser)
             .FirstOrDefault(m => m.ApplicationUserId == studentId && m.ClassId == id);
-
-        if (student == null) return Ok(new { Message = "Bạn chưa tham gia lớp này" });
-
+        var nameofClass = _context.Classes.FirstOrDefault(c => c.ClassId == id);
+        if (student == null) return Ok(new { Message = "Bạn chưa tham gia lớp này", HasJoin = false,NameofClass = nameofClass.ClassName,IdOfClass = id });
+        if (student.IsActive == false)
+        {
+            return Ok(new { Message = "Bạn đã gửi yêu cầu tham gia vui lòng đợi", HasJoin = false,NameofClass = nameofClass.ClassName,IdOfClass = id });
+        }
         var tests = _context.TestOfClasses
             .AsNoTracking()
             .Where(t => t.ClassId == id && t.IsActive && !t.IsDelete)
@@ -212,7 +216,7 @@ public class TestApi : ControllerBase
             .ToList();
         if (!tests.Any())
             return Ok(new
-                { StudentName = student.applicationUser.UserName, Message = "Lớp hiện chưa có bài kiểm tra nào" });
+                { StudentName = student.applicationUser.UserName, Message = "Lớp hiện chưa có bài kiểm tra nào" , HasJoin = true ,NameofClass = nameofClass.ClassName,IdOfClass = id});
         var vietnamTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow,
             TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time"));
         var utcDateTime = new DateTime(vietnamTime.Year, vietnamTime.Month, vietnamTime.Day, vietnamTime.Hour,
@@ -227,8 +231,54 @@ public class TestApi : ControllerBase
 
         return Ok(new
         {
+            NameofClass = nameofClass.ClassName,
+            IdOfClass = id,
             StudentName = student.applicationUser.UserName,
+            HasJoin = true,
             TestOfClasses = scheduledTests.Any() ? scheduledTests : tests
+        });
+    }
+    
+     [HttpGet("listByClass")]
+    public ActionResult GetByAdmin( int id)
+    {
+        var nameofClass = _context.Classes.FirstOrDefault(c => c.ClassId == id);
+        var tests = _context.TestOfClasses
+            .AsNoTracking()
+            .Where(t => t.ClassId == id && !t.IsDelete)
+            .Include(s => s.test.StickerOfTests)
+            .Select(t => new TestDto
+            {
+                Id = t.test.TestId,
+                ClassId = t.test.ClassId,
+                UserCreate = t.test.applicationUser.UserName,
+                Title = t.test.classRef.ClassName,
+                TestTime = t.test.TestTime,
+                Stickers = t.test.StickerOfTests
+                    .Where(sticker => sticker.IsActive && !sticker.IsDelete)
+                    .Select(sticker => new StickerDto
+                    {
+                        StickerId = sticker.sticker.StickerId,
+                        StickerName = sticker.sticker.StickerName,
+                        Note = sticker.sticker.Note
+                    }).ToList(),
+                IsActive = t.test.IsActive,
+                IsDelete = t.test.IsDelete,
+                QuestionDtos = t.test.PointOfQuestions.Select(q => new QuestionDto
+                {
+                    QuestionId = q.QuestionId,
+                    QuestionContent = q.question.QuestionContent,
+                    PointOfQuestion = q.Point
+                }).ToList()
+            })
+            .ToList();
+
+        return Ok(new
+        {
+            NameofClass = nameofClass.ClassName,
+            IdOfClass = id,
+            HasJoin = true,
+            TestOfClasses =  tests
         });
     }
 

@@ -1,6 +1,35 @@
 <template>
   <div class="max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-md">
-    <h1 class="text-3xl font-semibold text-gray-800 mb-4">Bài kiểm tra</h1>
+    <h1
+      class="text-3xl font-semibold text-gray-800 mb-4 flex justify-between items-center"
+    >
+      {{ classes.nameofClass || "Chưa có tên lớp" }}
+      <button
+        v-if="
+          !isAdminPath &&
+          !classes.hasJoin &&
+          classes.message !== 'Bạn đã gửi yêu cầu tham gia vui lòng đợi'
+        "
+        @click="joinClass(classes.idOfClass)"
+        class="bg-green-500 text-white text-sm px-4 py-2 rounded hover:bg-green-600"
+      >
+        Tham gia lớp
+      </button>
+      <span
+        v-if="classes.message == 'Bạn đã gửi yêu cầu tham gia vui lòng đợi'"
+        class="bg-yellow-500 text-white text-sm px-4 py-2 rounded hover:bg-yellow-600"
+      >
+        Vui lòng đợi
+      </span>
+
+      <button
+        v-if="!isAdminPath && classes.hasJoin"
+        @click="leaveClass(classes.idOfClass)"
+        class="bg-red-500 text-white text-sm px-4 py-2 rounded hover:bg-red-600"
+      >
+        Rời lớp
+      </button>
+    </h1>
 
     <!-- Check if classes and the Message are defined -->
     <div
@@ -117,6 +146,59 @@ const copyTestLink = async (testId, classId) => {
   } catch (error) {
     console.error("Lỗi khi gửi yêu cầu sao chép liên kết:", error);
     alert("Không thể sao chép liên kết. Vui lòng thử lại!");
+  }
+};
+const joinClass = async (classId) => {
+  try {
+    // Định nghĩa payload
+    const memberInfo = {
+      MemberId: "1a2b3c4d-5678-90ab-cdef-1334567890ab",
+      ClassId: classId,
+    };
+
+    // Gửi yêu cầu POST tới API và chờ phản hồi
+    const response = await axios.post(
+      `http://localhost:5082/api/MemberOfClassApi/joinClass`,
+      memberInfo
+    );
+
+    // Xử lý kết quả từ API
+    if (response.status === 200) {
+      const { message } = response.data; // Lấy message từ API
+      alert(message || "Bạn đã gửi yêu cầu tham gia. Vui lòng đợi duyệt!");
+      window.location.reload();
+    } else {
+      alert("Đã xảy ra lỗi khi gửi yêu cầu!");
+    }
+  } catch (error) {
+    console.error("Lỗi khi gửi yêu cầu:", error);
+    alert("Không thể gửi yêu cầu. Vui lòng thử lại!");
+  }
+};
+const leaveClass = async (classId) => {
+  try {
+    // Định nghĩa payload
+    const memberInfo = {
+      MemberId: "1a2b3c4d-5678-90ab-cdef-1334567890ab",
+      ClassId: classId,
+    };
+
+    // Gửi yêu cầu POST tới API và chờ phản hồi
+    const response = await axios.delete(
+      `http://localhost:5082/api/MemberOfClassApi/leaveClass/${memberInfo.MemberId}?classId=${memberInfo.ClassId}` // Thay thế classId theo đúng logic,
+    );
+
+    // Xử lý kết quả từ API
+    if (response.status === 200) {
+      const { message } = response.data; // Lấy message từ API
+      alert(message || "Bạn đã rời lớp thành công!");
+      window.location.reload();
+    } else {
+      alert("Đã xảy ra lỗi khi bạn đang cố rời lớp!");
+    }
+  } catch (error) {
+    console.error("Lỗi khi rời lớp:", error);
+    alert("Không thể rời lớp. Vui lòng thử lại!");
   }
 };
 </script>

@@ -19,7 +19,25 @@
             {{ classs.memberCount }}
           </span>
           <span> Học viên</span>
+
+          <!-- Hiển thị số yêu cầu chỉ khi đường dẫn là /admin -->
+          <span v-if="route.path.includes('/admin') && classs.memberRequest > 0"
+            >,
+          </span>
+          <span
+            v-if="route.path.includes('/admin') && classs.memberRequest > 0"
+            class="text-yellow-500"
+          >
+            {{ classs.memberRequest }}
+          </span>
+          <span
+            v-if="route.path.includes('/admin') && classs.memberRequest > 0"
+            class="text-yellow-500"
+          >
+            yêu cầu
+          </span>
         </div>
+
         <div class="text-xs mt-3 italic text-right">
           <span>Trạng thái: </span>
           <span :class="classs.isActive ? 'text-green-600' : 'text-red-500'">

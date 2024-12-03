@@ -29,7 +29,11 @@ public class ClassApi : ControllerBase
             IsDelete = a.IsDelete,
             IsActive = a.IsActive,
             MemberCount = _context.MemberOfClasses
-                .Count(m => m.ClassId == a.ClassId)
+                .Where(a => a.IsActive == true && a.IsDelete == false)
+                .Count(m => m.ClassId == a.ClassId),
+            MemberRequest = _context.MemberOfClasses
+                .Where(a => a.IsActive == false && a.IsDelete == false)
+                .Count(m => m.ClassId == a.ClassId )
         }).ToList();
     }
 

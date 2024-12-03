@@ -21,12 +21,29 @@
         Thời gian còn lại: <span class="text-red-500">{{ formattedTime }}</span>
       </p>
     </div>
-
+    <!-- Phân trang -->
+    <div class="flex flex-wrap justify-center gap-3 my-6 max-w-2xl mx-auto">
+      <button
+        v-for="page in totalPagesParent"
+        :key="page"
+        @click="changePageParent(page)"
+        :class="[
+          'px-4 py-2 rounded shadow',
+          currentPagePrimary === page
+            ? 'bg-blue-500 text-white font-bold'
+            : 'bg-gray-200 hover:bg-gray-300 text-gray-800',
+        ]"
+      >
+        {{ page }}
+      </button>
+    </div>
     <!-- Hiển thị các câu hỏi Primary = true trong các thẻ div riêng biệt -->
     <div class="bg-white shadow-md rounded-lg max-w-3xl mx-auto mb-6">
       <ul>
         <li
-          v-for="(primaryQuestion, index) in relatedQuestionsForCurrentPage()"
+          v-for="(primaryQuestion, index) in relatedQuestionsForCurrentPage(
+            test
+          )"
           :key="primaryQuestion.questionId"
           class="mb-6"
         >
@@ -38,7 +55,7 @@
         </li>
       </ul>
       <p
-        v-if="relatedQuestionsForCurrentPage().length === 0"
+        v-if="relatedQuestionsForCurrentPage(test).length === 0"
         class="text-gray-500"
       >
         Không có câu hỏi đặc biệt nào.
@@ -84,7 +101,7 @@
     <!-- Phân trang -->
     <div class="flex flex-wrap justify-center gap-3 mt-6 max-w-2xl mx-auto">
       <button
-        v-for="page in totalPages"
+        v-for="page in totalPagesChild"
         :key="page"
         @click="changePage(page)"
         :class="[
@@ -147,14 +164,19 @@ export default {
       selectedAnswers: {},
       submittedAnswers: [],
       showSubmittedAnswers: null,
-      currentPage: 1,
-      itemsPerPage: 1,
+      currentPage: 1, // Trang hiện tại của non-primary questions
+      currentPagePrimary: 1, // Trang hiện tại của primary questions
+      itemsPerPage: 1, // Số câu hỏi non-primary hiển thị mỗi trang
+      itemsPerPagePrimary: 1,
       remainingTime: 0,
       timerInterval: null,
       isSubmitted: false,
     };
   },
   computed: {
+    primaryQuestions() {
+      return this.tests[0]?.questionDtos.filter((q) => q.primary).length || [];
+    },
     totalQuestions() {
       return this.tests.reduce(
         (total, test) =>
@@ -162,8 +184,20 @@ export default {
         0
       );
     },
-    totalPages() {
-      return Math.ceil(this.totalQuestions / this.itemsPerPage);
+    totalPagesChild() {
+      const parentQuestionIds = this.getCurrentQuestionIds();
+      const nonPrimaryQuestions = this.tests[0]?.questionDtos.filter(
+        (question) => !question.primary
+      );
+
+      const filteredQuestions = nonPrimaryQuestions.filter((question) =>
+        parentQuestionIds.includes(question.parentQuestionId)
+      );
+
+      return Math.ceil(filteredQuestions.length / this.itemsPerPage);
+    },
+    totalPagesParent() {
+      return Math.ceil(this.primaryQuestions / this.itemsPerPage);
     },
     formattedTime() {
       const minutes = Math.floor(this.remainingTime / 60);
@@ -184,57 +218,47 @@ export default {
     // Hàm thay đổi trang
     changePage(page) {
       this.currentPage = page;
-      const questionId = this.getCurrentQuestionId();
-      console.log("ID của câu hỏi trên trang hiện tại:", questionId);
+    },
+    changePageParent(page) {
+      this.currentPagePrimary = page;
+      this.currentPage = 1;
     },
 
     // Hàm lấy ID câu hỏi trên trang hiện tại
-    getCurrentQuestionId() {
+    getCurrentQuestionIds() {
       const test = this.tests[0]; // Chỉ có một bài kiểm tra
-      const nonPrimaryQuestions = test.questionDtos.filter(
-        (question) => !question.primary
+      if (!test || !test.questionDtos) return [];
+
+      const primaryQuestions = test.questionDtos.filter(
+        (question) => question.primary
       );
+      const start = (this.currentPagePrimary - 1) * this.itemsPerPagePrimary;
+      const end = start + this.itemsPerPagePrimary;
+      const currentPrimaryQuestions = primaryQuestions.slice(start, end);
 
-      const start = (this.currentPage - 1) * this.itemsPerPage;
-      const end = start + this.itemsPerPage;
-
-      const currentQuestions = nonPrimaryQuestions.slice(start, end);
-
-      if (currentQuestions.length > 0) {
-        return currentQuestions[0].parentQuestionId;
-      }
-
-      return null;
+      return currentPrimaryQuestions.map((question) => question.questionId);
     },
-    relatedQuestionsForCurrentPage() {
-      const parentQuestionId = this.getCurrentQuestionId();
-      if (!parentQuestionId) {
-        return []; // Trả về mảng rỗng nếu không có ID câu hỏi
-      }
-
-      const test = this.tests[0];
-      // console.log(
-      //   "Câu hỏi cha:",
-      //   test.questionDtos.find((q) => q.questionId === parentQuestionId)
-      // );
-      const relatedQuestions = test.questionDtos.filter(
-        (question) =>
-          question.questionId === parentQuestionId && question.primary
+    relatedQuestionsForCurrentPage(test) {
+      const PrimaryQuestions = test.questionDtos.filter(
+        (question) => question.primary
       );
-
-      return relatedQuestions;
+      const start = (this.currentPagePrimary - 1) * this.itemsPerPagePrimary;
+      const end = start + this.itemsPerPagePrimary;
+      return PrimaryQuestions.slice(start, end);
     },
     paginatedQuestions(test) {
+      if (!test || !test.questionDtos) return [];
+
+      const parentQuestionIds = this.getCurrentQuestionIds();
+
       const nonPrimaryQuestions = test.questionDtos.filter(
-        (question) => !question.primary
+        (question) =>
+          !question.primary &&
+          parentQuestionIds.includes(question.parentQuestionId)
       );
-
       const start = (this.currentPage - 1) * this.itemsPerPage;
-      const end = start + this.itemsPerPage;
-
-      return nonPrimaryQuestions.slice(start, end);
+      return nonPrimaryQuestions.slice(start, start + this.itemsPerPage);
     },
-
     startTimer(durationInMinutes) {
       this.remainingTime = durationInMinutes * 60;
       this.timerInterval = setInterval(() => {

@@ -6,6 +6,7 @@ public class ClassDto
     public string ClassName { get; set; }
     public string StickerName { get; set; }
     public int MemberCount { get; set; }
+    public int MemberRequest { get; set; }
     public bool? IsDelete { get; set; } 
     public bool? IsActive { get; set; } 
 }

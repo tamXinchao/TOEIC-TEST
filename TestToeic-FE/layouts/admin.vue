@@ -5,7 +5,10 @@
         <NuxtLink to="/" class="font-bold">Thi đầu vào Toeic</NuxtLink>
         <ul class="flex gap-4">
           <li>
-            <NuxtLink to="/admin" class="text-blue-500">Class</NuxtLink>
+            <NuxtLink to="/admin" class="text-blue-500">Admin</NuxtLink>
+          </li>
+          <li>
+            <NuxtLink to="/admin/class">Class</NuxtLink>
           </li>
           <li>
             <NuxtLink to="/admin/schedule">Schedules</NuxtLink>

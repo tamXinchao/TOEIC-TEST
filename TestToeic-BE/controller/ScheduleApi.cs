@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using TestToeic.Db;
 using TestToeic.entity;
 using TestToeic.entity.dto;
@@ -19,12 +20,20 @@ public class ScheduleApi : ControllerBase
     [HttpGet]
     public ActionResult<IEnumerable<ScheduleDto>> Get()
     {
-        return _context.Schedules.Select(s => new ScheduleDto
+        var scheduleDtos = _context.Schedules
+            .Include(s => s.test.TestOfClasses)
+            .Select(s => new ScheduleDto
         {
-            TestId = s.test.TestId,
+            TestId = s.test.TestId, // Lấy ID bài test
+            TestName = s.test.classRef.ClassName, 
+            ClassName = _context.TestOfClasses
+                .Where(tc => tc.TestId == s.test.TestId)
+                .Select(tc => tc.classRef.ClassName)
+                .FirstOrDefault() ?? "Chưa có lớp",
             DayCloseTest = s.DayCloseTest,
-            DayOpenTest = s.DayOpenTest
+            DayOpenTest = s.DayOpenTest 
         }).ToList();
+        return Ok(scheduleDtos);
     }
 
     [HttpPost]

@@ -1,5 +1,14 @@
 <template>
-  <div><ClassDetail :classes="classes" /></div>
+  <div class="flex">
+    <!-- Component MemberList nằm bên trái -->
+    <div class="flex-1 p-4">
+      <MemberList :members="members" />
+    </div>
+    <!-- Component ClassDetail nằm bên phải -->
+    <div class="flex-2 p-4">
+      <ClassDetail :classes="classes" />
+    </div>
+  </div>
 </template>
 
 <script setup>
@@ -7,24 +16,43 @@ definePageMeta({ layout: "admin" });
 import { ref, onMounted } from "vue";
 import axios from "axios";
 
-const classes = ref({
-  testOfClasses: [], // Initializing as an empty array to avoid undefined errors
-});
+const classes = ref({});
+const members = ref([]);
 
 const route = useRoute();
 const classId = route.params.classId;
 
 onMounted(async () => {
   try {
+    // Lấy thông tin lớp
     const { data } = await axios.get(
-      `http://localhost:5082/api/TestApi/1a2b3c4d-5678-90ab-cdef-1334567890ab/listByClass?id=${classId}`
+      `http://localhost:5082/api/TestApi/listByClass?id=${classId}`
     );
-    classes.value = data; // Populate classes with the API response
-    console.log(classes);
+    classes.value = data;
+
+    // Lấy danh sách thành viên
+    const { data: memberData } = await axios.get(
+      `http://localhost:5082/api/MemberOfClassApi/getByClass?classId=${classId}`
+    );
+    members.value = memberData; // Gán dữ liệu cho members
   } catch (error) {
     console.error("Error fetching data:", error);
   }
 });
 </script>
 
-<style scoped></style>
+<style scoped>
+/* Đảm bảo rằng các component con sẽ căn lề và có đủ không gian */
+.flex {
+  display: flex;
+  gap: 10px; /* Khoảng cách giữa MemberList và ClassDetail */
+}
+
+.flex-1 {
+  flex: 1; /* Điều chỉnh tỷ lệ không gian cho phần tử bên trái */
+}
+
+.flex-2 {
+  flex: 2; /* Điều chỉnh tỷ lệ không gian cho phần tử bên phải */
+}
+</style>

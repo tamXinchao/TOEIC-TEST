@@ -15,4 +15,5 @@ public class MemberOfClass : BaseEnity
     [ForeignKey("Class")]
     public int ClassId { get; set; }
     public Class classRef { get; set; }
+    public DateTime JoinDate { get; set; } = DateTime.Now;
 }
