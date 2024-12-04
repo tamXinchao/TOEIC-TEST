@@ -331,18 +331,15 @@ public ActionResult SaveStudentAnswer(StudentPointDto studentPointDto)
         .Include(n => n.classes) 
         .FirstOrDefault(n => n.TestId == studentPointDto.TestId && correctAnswer >= n.ScoreMin && correctAnswer <= n.ScoreMax);
 
-    string message = "Chưa có thông tin cụ thể";  // Giá trị mặc định nếu không tìm thấy notice
+    string message = "Chưa có lớp hiện tại nào dành cho bạn!";
 
     if (notice != null)
     {
         // Kiểm tra các đối tượng trong notice có thể là null
         message = notice.Message
-            .Replace("[username]", studentPoint.applicationUser?.UserName ?? "Unknown")  // Nếu UserName là null, dùng "Unknown"
-            .Replace("[class]", notice.classes?.ClassName ?? "Unknown");  // Nếu ClassName là null, dùng "Unknown"
+            .Replace("[username]", studentPoint.applicationUser?.UserName ?? "Unknown") 
+            .Replace("[class]", notice.classes?.ClassName ?? "Unknown");  
     }
-    
-
-    // Trả về kết quả
     return Ok(new
     {
         CorrectAnswers = correctAnswer,
@@ -350,7 +347,7 @@ public ActionResult SaveStudentAnswer(StudentPointDto studentPointDto)
         Time = studentPoint.Duration,
         Points = pointOfStudent,
         Detail = studentPoint.StudentPointId,
-        ClassSuggestId= notice.ClassId,
+        ClassSuggestId= notice?.ClassId,
         Message = message
     });
 }
