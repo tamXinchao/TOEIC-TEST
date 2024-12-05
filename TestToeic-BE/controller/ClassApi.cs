@@ -33,6 +33,9 @@ public class ClassApi : ControllerBase
                 .Count(m => m.ClassId == a.ClassId),
             MemberRequest = _context.MemberOfClasses
                 .Where(a => a.IsActive == false && a.IsDelete == false)
+                .Count(m => m.ClassId == a.ClassId ),
+            TestCount = _context.TestOfClasses
+                .Where(a => a.IsActive == true && a.IsDelete == false)
                 .Count(m => m.ClassId == a.ClassId )
         }).ToList();
     }

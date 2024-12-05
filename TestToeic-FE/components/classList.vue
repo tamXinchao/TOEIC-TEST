@@ -71,14 +71,26 @@
           </div>
 
           <div class="text-xs mt-3 italic">
-            <span>{{ classs.memberCount }}</span> Học viên
+            <!-- Học viên -->
+            <span class="font-semibold text-gray-800">{{
+              classs.memberCount
+            }}</span>
+            Học viên
             <span
               v-if="route.path.includes('/admin') && classs.memberRequest > 0"
+              class="text-sm text-yellow-500 font-medium"
             >
-              , <span class="text-yellow-500">{{ classs.memberRequest }}</span>
-              yêu cầu
+              , {{ classs.memberRequest }} yêu cầu
             </span>
           </div>
+
+          <div
+            v-if="route.path.includes('/admin') && classs.testCount > 0"
+            class="text-xs mt-1 italic text-gray-500"
+          >
+            <span>{{ classs.testCount }}</span> bài kiểm tra
+          </div>
+
           <div class="text-xs mt-3 italic text-right">
             Trạng thái:
             <span :class="classs.isActive ? 'text-green-600' : 'text-red-500'">

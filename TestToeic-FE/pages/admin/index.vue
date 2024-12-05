@@ -39,11 +39,12 @@
           class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400"
         >
           <tr>
-            <th scope="col" class="px-6 py-3">Tài khoản</th>
-            <th scope="col" class="px-6 py-3">Ngày hoàn thành</th>
-            <th scope="col" class="px-6 py-3">Thời gian hoàn thành</th>
+            <th scope="col" class="px-6 py-3">#</th>
+            <th scope="col" class="px-6 py-3">Người tạo</th>
+            <th scope="col" class="px-6 py-3">Ngày tạo</th>
+            <th scope="col" class="px-6 py-3">Thời gian</th>
             <th scope="col" class="px-6 py-3">Bài thi</th>
-            <th scope="col" class="px-6 py-3">Số điểm</th>
+            <th scope="col" class="px-6 py-3">Điểm bài thi</th>
             <th scope="col" class="px-6 py-3">Xem chi tiết</th>
           </tr>
         </thead>
@@ -54,17 +55,19 @@
             :key="index"
             class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600"
           >
+            <td class="px-6 py-4">1</td>
             <th
               scope="row"
               class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white"
             >
-              {{ user.studentName }}
+              {{ user.userCreate }}
             </th>
-            <td class="px-6 py-4">{{ user.completionString }}</td>
-            <td class="px-6 py-4">{{ user.duration }}</td>
+
+            <td class="px-6 py-4">{{ user.stringDateCreateTest }}</td>
+            <td class="px-6 py-4">{{ user.testTimeMinutes }} phút</td>
             <td class="px-6 py-4">{{ user.title }}</td>
             <!-- Ví dụ cho "Bài thi" -->
-            <td class="px-6 py-4">{{ user.pointOfStudent }}</td>
+            <td class="px-6 py-4">{{ user.point }}</td>
             <!-- Ví dụ cho "Số điểm" -->
             <td class="px-6 py-4">
               <NuxtLink
@@ -100,13 +103,14 @@ export default {
     async fetchData() {
       try {
         const response = await axios.get(
-          "http://localhost:5082/api/StudentApi/getListStudentPoint"
+          `http://localhost:5082/api/testApi/list`
         );
         if (response.status === 200) {
           this.users = response.data;
 
           // Sắp xếp danh sách theo ngày hoàn thành (completion) từ mới nhất đến cũ nhất
           this.sortUsersByDate();
+          console.log(this.users);
         } else {
           alert("Unexpected response: " + response.data);
           console.log(response.data);
@@ -118,13 +122,13 @@ export default {
 
     async submitForm() {
       try {
+        console.log("Searching for:", this.name);
         const response = await axios.get(
-          "http://localhost:5082/api/StudentApi/getListStudentPoint?username=" +
-            this.name
+          "http://localhost:5082/api/testApi/list?id=" + this.name
         );
         if (response.status === 200) {
           this.users = response.data;
-
+          console.log(this.users);
           // Sắp xếp lại kết quả sau khi tìm kiếm
           this.sortUsersByDate();
         } else {
@@ -139,7 +143,7 @@ export default {
     // Phương thức để sắp xếp danh sách theo ngày hoàn thành (completion)
     sortUsersByDate() {
       this.users.sort(
-        (a, b) => new Date(b.completion) - new Date(a.completion)
+        (a, b) => new Date(b.dateCreate) - new Date(a.dateCreate)
       );
     },
 

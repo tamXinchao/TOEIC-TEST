@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using TestToeic.Db;
@@ -11,9 +12,11 @@ using TestToeic.Db;
 namespace TestToeic.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241205160303_RemoveClassIdFromTest")]
+    partial class RemoveClassIdFromTest
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -598,6 +601,9 @@ namespace TestToeic.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<int?>("ClassId")
+                        .HasColumnType("integer");
+
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean");
 
@@ -620,6 +626,8 @@ namespace TestToeic.Migrations
                     b.HasKey("TestId");
 
                     b.HasIndex("ApplicationUserId");
+
+                    b.HasIndex("ClassId");
 
                     b.ToTable("Tests");
                 });
@@ -863,6 +871,10 @@ namespace TestToeic.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("TestToeic.entity.Class", null)
+                        .WithMany("Tests")
+                        .HasForeignKey("ClassId");
+
                     b.Navigation("applicationUser");
                 });
 
@@ -906,6 +918,8 @@ namespace TestToeic.Migrations
                     b.Navigation("StudentOfClasses");
 
                     b.Navigation("TestOfClasses");
+
+                    b.Navigation("Tests");
                 });
 
             modelBuilder.Entity("TestToeic.entity.Question", b =>

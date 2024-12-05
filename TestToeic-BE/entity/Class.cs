@@ -8,7 +8,6 @@ public class Class : BaseEnity
     public int ClassId { get; set; }
     public string ClassName { get; set; }
     
-    public  ICollection<Test> Tests { get; set; }
     public  ICollection<MemberOfClass> StudentOfClasses { get; set; }
     public  ICollection<TestOfClass> TestOfClasses { get; set; }
     public  ICollection<Notice> Notices { get; set; }

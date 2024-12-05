@@ -58,12 +58,25 @@ public class TestApi : ControllerBase
     }
 
     [HttpGet("list")]
-    public ActionResult<TestDto> GetList(int? id)
+    public ActionResult<TestDto> GetList(string? id)
     {
+        int.TryParse(id, out int parsedId);
+        
+        
+
         if (id != null)
         {
+            var existUser = _context.Tests.AsNoTracking()
+                .Where(u => u.TestId == parsedId || u.TestName.ToLower().Contains(id.ToLower())|| u.applicationUser.UserName.ToLower() .Contains(id.ToLower())
+                )
+                .ToList();
+
+            if (existUser.Count == 0)
+            {
+                return NotFound($"Không tìm thấy người dùng {id}");
+            }
             var test = _context.Tests.AsNoTracking()
-                .Where(t => t.TestId == id)
+                .Where(t => existUser.Select(u => u.TestId).Contains(t.TestId) && t.IsDelete == false)
                 .Select(t => new TestDto
                 {
                     Id = t.TestId,
@@ -72,13 +85,15 @@ public class TestApi : ControllerBase
                     Title = t.TestName,
                     TestTime = t.TestTime,
                     DateCreate = t.TestDateCreated,
+                    IsDelete = t.IsDelete,
+                    IsActive = t.IsActive,
                     QuestionDtos = t.PointOfQuestions.Select(q => new QuestionDto
                     {
                         QuestionId = q.QuestionId,
                         QuestionContent = q.question.QuestionContent,
                         PointOfQuestion = q.Point
                     }).ToList()
-                }).FirstOrDefault();
+                }).ToList();
 
             if (test == null) return NotFound();
 
@@ -92,6 +107,9 @@ public class TestApi : ControllerBase
             Title = t.TestName,
             TestTime = t.TestTime,
             DateCreate = t.TestDateCreated,
+            IsDelete = t.IsDelete,
+            IsActive = t.IsActive,
+            Point = t.PointOfTest,
             QuestionDtos = t.PointOfQuestions.Select(q => new QuestionDto
             {
                 QuestionId = q.QuestionId,

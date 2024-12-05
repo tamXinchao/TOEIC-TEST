@@ -122,7 +122,7 @@ export default {
         );
         if (response.status === 200) {
           this.users = response.data;
-
+          console.log(this.users);
           // Sắp xếp lại kết quả sau khi tìm kiếm
           this.sortUsersByDate();
         } else {

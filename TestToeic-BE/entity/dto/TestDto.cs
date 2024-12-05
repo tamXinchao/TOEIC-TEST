@@ -9,9 +9,9 @@ public class TestDto
     public string UserCreate { get; set; }          
     public string? Title { get; set; }
     
-    public int ClassId { get; set; }
     public string TestName { get; set; }
-    public DateTime? DateCreate { get; set; }     
+    public DateTime? DateCreate { get; set; }    
+    
 
     public List<QuestionDto> QuestionDtos { get; set; } = new List<QuestionDto>(); // Khởi tạo mặc định là danh sách rỗng
 
@@ -21,7 +21,9 @@ public class TestDto
     public List<StickerDto> Stickers { get; set; } = new List<StickerDto>(); // Khởi tạo mặc định là danh sách rỗng
 
     public bool? IsDelete { get; set; } 
-    public bool? IsActive { get; set; } 
+    public bool? IsActive { get; set; }
+
+    public List<TestOfClassDto> TestOfClasss { get; set; } = new List<TestOfClassDto>();
 
     public string? TestTimeMinutes
     {

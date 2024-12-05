@@ -29,7 +29,7 @@ onMounted(async () => {
       `http://localhost:5082/api/TestApi/listByClass?id=${classId}`
     );
     classes.value = data;
-
+    console.log(data);
     // Lấy danh sách thành viên
     const { data: memberData } = await axios.get(
       `http://localhost:5082/api/MemberOfClassApi/getByClass?classId=${classId}`
