@@ -8,6 +8,7 @@ public class ScheduleDto
 
     public string TestName { get; set; }
     public string? ClassName { get; set; } = "Chưa có lớp";
+    public int ClassId { get; set; }
 
     public string StringDayOpenTest
     {

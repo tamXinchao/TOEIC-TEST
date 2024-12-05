@@ -150,7 +150,7 @@ import axios from "axios";
 export default {
   props: {
     testId: {
-      type: Number,
+      type: [Number, String],
       required: true,
     },
     userId: {

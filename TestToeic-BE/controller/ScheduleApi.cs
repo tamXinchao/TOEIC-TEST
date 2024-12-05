@@ -25,11 +25,15 @@ public class ScheduleApi : ControllerBase
             .Select(s => new ScheduleDto
         {
             TestId = s.test.TestId, // Lấy ID bài test
-            TestName = s.test.classRef.ClassName, 
+            TestName = s.test.TestName,
             ClassName = _context.TestOfClasses
                 .Where(tc => tc.TestId == s.test.TestId)
                 .Select(tc => tc.classRef.ClassName)
                 .FirstOrDefault() ?? "Chưa có lớp",
+            ClassId = _context.TestOfClasses
+                .Where(tc => tc.TestId == s.test.TestId)
+                .Select(tc => tc.classRef.ClassId)
+                .FirstOrDefault(),
             DayCloseTest = s.DayCloseTest,
             DayOpenTest = s.DayOpenTest 
         }).ToList();

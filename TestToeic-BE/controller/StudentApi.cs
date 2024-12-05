@@ -138,7 +138,7 @@ public class StudentApi : ControllerBase
         Id = a.StudentPointId,
         PointOfStudent = a.PointOfStudent,
         TestId = a.TestId,
-        Title = a.test.classRef.ClassName,
+        Title = a.test.TestName,
         Completion = a.Completion,
         Duration = a.Duration,
         StudentName = a.applicationUser.UserName,
@@ -195,7 +195,7 @@ public class StudentApi : ControllerBase
                 .Select(p => new StudentAnswerDto
                 {
                     Id = p.StudentPointId,
-                    Title = p.test.classRef.ClassName, // Ensure classRef is not null
+                    Title = p.test.TestName,
                     StudentName = p.applicationUser.UserName,
                     Completion = p.Completion,
                     Duration = p.Duration,
@@ -213,7 +213,7 @@ public class StudentApi : ControllerBase
 
         if (existUser.Count == 0)
         {
-            return NotFound("No users found matching the username.");
+            return NotFound($"Không tìm thấy người dùng {username}");
         }
 
         var poq = _context.StudentPoints
@@ -222,7 +222,7 @@ public class StudentApi : ControllerBase
             .Select(p => new StudentAnswerDto
             {
                 Id = p.StudentPointId,
-                Title = p.test.classRef.ClassName, // Ensure classRef is not null
+                Title = p.test.TestName,
                 StudentName = p.applicationUser.UserName,
                 Completion = p.Completion,
                 Duration = p.Duration,

@@ -30,7 +30,7 @@ public class TestApi : ControllerBase
             .Select(dto => new TestDto
             {
                 Id = dto.TestId,
-                Title = dto.classRef.ClassName,
+                Title = dto.TestName,
                 DateCreate = dto.TestDateCreated,
                 Point = dto.PointOfTest,
                 TestTime = dto.TestTime,
@@ -40,6 +40,7 @@ public class TestApi : ControllerBase
                     QuestionId = q.QuestionId,
                     Primary = q.question.Primary,
                     ParentQuestionId = q.question.ParentQuestionId,
+                    LabelOfPrimaryQuestion = q.question.LabelOfPrimaryQuestion,
                     MultipleAnswer = q.question.MultipleAnswer,
                     QuestionContent = q.question.QuestionContent,
                     PointOfQuestion = q.Point,
@@ -68,7 +69,7 @@ public class TestApi : ControllerBase
                     Id = t.TestId,
                     Point = t.PointOfTest,
                     UserCreate = t.applicationUser.UserName,
-                    Title = t.classRef.ClassName,
+                    Title = t.TestName,
                     TestTime = t.TestTime,
                     DateCreate = t.TestDateCreated,
                     QuestionDtos = t.PointOfQuestions.Select(q => new QuestionDto
@@ -88,7 +89,7 @@ public class TestApi : ControllerBase
         {
             Id = t.TestId,
             UserCreate = t.applicationUser.UserName,
-            Title = t.classRef.ClassName,
+            Title = t.TestName,
             TestTime = t.TestTime,
             DateCreate = t.TestDateCreated,
             QuestionDtos = t.PointOfQuestions.Select(q => new QuestionDto
@@ -127,7 +128,7 @@ public class TestApi : ControllerBase
                         Id = t.TestId,
                         Point = t.PointOfTest,
                         UserCreate = t.applicationUser.UserName,
-                        Title = t.classRef.ClassName,
+                        Title = t.TestName,
                         TestTime = t.TestTime,
                         DateCreate = t.TestDateCreated,
                         QuestionDtos = t.PointOfQuestions.Select(q => new QuestionDto
@@ -157,7 +158,7 @@ public class TestApi : ControllerBase
                 Id = t.TestId,
                 Point = t.PointOfTest,
                 UserCreate = t.applicationUser.UserName,
-                Title = t.classRef.ClassName,
+                Title = t.TestName,
                 TestTime = t.TestTime,
                 DateCreate = t.TestDateCreated,
                 QuestionDtos = t.PointOfQuestions.Select(q => new QuestionDto
@@ -192,9 +193,8 @@ public class TestApi : ControllerBase
             .Select(t => new TestDto
             {
                 Id = t.test.TestId,
-                ClassId = t.test.ClassId,
                 UserCreate = t.test.applicationUser.UserName,
-                Title = t.test.classRef.ClassName,
+                Title = t.test.TestName,
                 TestTime = t.test.TestTime,
                 Stickers = t.test.StickerOfTests
                     .Where(sticker => sticker.IsActive && !sticker.IsDelete)
@@ -250,9 +250,8 @@ public class TestApi : ControllerBase
             .Select(t => new TestDto
             {
                 Id = t.test.TestId,
-                ClassId = t.test.ClassId,
                 UserCreate = t.test.applicationUser.UserName,
-                Title = t.test.classRef.ClassName,
+                Title = t.test.TestName,
                 TestTime = t.test.TestTime,
                 Stickers = t.test.StickerOfTests
                     .Where(sticker => sticker.IsActive && !sticker.IsDelete)
@@ -311,7 +310,7 @@ public class TestApi : ControllerBase
         {
             ApplicationUserId = testDto.UserCreate,
             TestDateCreated = DateTime.Now.ToUniversalTime(),
-            ClassId = testDto.ClassId,
+            TestName = testDto.TestName,
             PointOfTest = existTest.PointOfTest,
             TestTime = existTest.TestTime,
             TestOfClasses = new List<TestOfClass>(),

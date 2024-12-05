@@ -52,19 +52,21 @@ public class ClassApi : ControllerBase
         
         var newClass = new Class
         {
-            ClassName = classDto.ClassName
+            ClassName = classDto.ClassName,
+            IsDelete = false,
+            IsActive = classDto.IsActive
         };
         
         _context.Classes.Add(newClass);
         _context.SaveChanges();
         
-        return Ok(new { Message = "Thêm lớp thành công" });
+        return Ok(new { Message = "Thêm lớp thành công" , NewClass = newClass});
     }
 
     [HttpPut]
     public IActionResult Put(int id ,ClassDto classDto)
     {
-        var existClass = _context.Classes.Find(id);
+        var existClass = _context.Classes.FirstOrDefault(c => c.ClassId == id);
         if (existClass == null)
         {
             return NotFound(new { Message = "Không tìm thấy dữ liệu của lớp !" });
@@ -76,15 +78,16 @@ public class ClassApi : ControllerBase
                 { Message = "Vui lòng điền đầy đủ thông tin" });
         }
         existClass.ClassName = classDto.ClassName;
+        existClass.IsActive = classDto.IsActive;
         _context.Classes.Update(existClass);
         _context.SaveChanges();
         return Ok(new { Message = "Cập nhật lớp thành công" });
     }
 
     [HttpDelete]
-    public IActionResult Delete(int id)
+    public IActionResult DeleteClass(int id)
     {
-        var existClass = _context.Classes.Find(id);
+        var existClass = _context.Classes.FirstOrDefault(c => c.ClassId == id);
         if (existClass == null)
         {
             return NotFound(new { Message = "Không tìm thấy 'Lớp' cần xóa" });

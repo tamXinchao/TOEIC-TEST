@@ -10,10 +10,7 @@ public class Test : BaseEnity
     public DateTime? TestDateCreated { get; set; }
     public TimeOnly? TestTime { get; set; }
     public float? PointOfTest { get; set; }
-    
-    [ForeignKey("Class")]
-    public int ClassId { get; set; }
-    public Class classRef { get; set; }
+    public string TestName { get; set; }
     
     [ForeignKey("ApplicationUser")]
     public string ApplicationUserId { get; set; }

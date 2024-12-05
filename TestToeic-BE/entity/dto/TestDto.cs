@@ -10,6 +10,7 @@ public class TestDto
     public string? Title { get; set; }
     
     public int ClassId { get; set; }
+    public string TestName { get; set; }
     public DateTime? DateCreate { get; set; }     
 
     public List<QuestionDto> QuestionDtos { get; set; } = new List<QuestionDto>(); // Khởi tạo mặc định là danh sách rỗng
