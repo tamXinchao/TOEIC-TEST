@@ -2,11 +2,12 @@ namespace TestToeic.entity.dto;
 
 public class ScheduleDto
 {
+    public int ScheduleId { get; set; }
     public DateTime? DayOpenTest { get; set; }
     public DateTime? DayCloseTest {get;set;}
     public int  TestId { get; set; }
 
-    public string TestName { get; set; }
+    public string? TestName { get; set; }
     public string? ClassName { get; set; } = "Chưa có lớp";
     public int ClassId { get; set; }
 

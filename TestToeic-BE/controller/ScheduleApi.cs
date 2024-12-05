@@ -22,8 +22,10 @@ public class ScheduleApi : ControllerBase
     {
         var scheduleDtos = _context.Schedules
             .Include(s => s.test.TestOfClasses)
+            .Where(a => a.IsActive == true && a.IsDelete == false)
             .Select(s => new ScheduleDto
         {
+            ScheduleId = s.ScheduleId,
             TestId = s.test.TestId, // Lấy ID bài test
             TestName = s.test.TestName,
             ClassName = _context.TestOfClasses
@@ -52,17 +54,39 @@ public class ScheduleApi : ControllerBase
         {
             DayOpenTest = scheduleDto.DayOpenTest,
             DayCloseTest = scheduleDto.DayCloseTest,
-            TestId = scheduleDto.TestId
+            TestId = scheduleDto.TestId,
+            IsDelete = false,
+            IsActive = true
         };
+        
         _context.Schedules.Add(newSchedule);
         _context.SaveChanges();
-        return Ok(new { Message = "Thêm lịch thành công" });
+        var scheduleDtoResponse = new ScheduleDto
+        {
+            ScheduleId = newSchedule.ScheduleId,
+            TestId = newSchedule.TestId, // Lấy ID bài test
+            TestName = _context.Tests
+                .Where(t => t.TestId == newSchedule.TestId)
+                .Select(t => t.TestName)
+                .FirstOrDefault(),
+            ClassName = _context.TestOfClasses
+                .Where(tc => tc.TestId == newSchedule.TestId)
+                .Select(tc => tc.classRef.ClassName)
+                .FirstOrDefault() ?? "Chưa có lớp",
+            ClassId = _context.TestOfClasses
+                .Where(tc => tc.TestId == newSchedule.TestId)
+                .Select(tc => tc.classRef.ClassId)
+                .FirstOrDefault(),
+            DayCloseTest = newSchedule.DayCloseTest,
+            DayOpenTest = newSchedule.DayOpenTest
+        };
+        return Ok(new { Message = "Thêm lịch thành công" , NewSchedule = scheduleDtoResponse});
     }
 
     [HttpPut]
     public IActionResult Put(int id, ScheduleDto scheduleDto)
     {
-        var existSchedule = _context.Schedules.Find(id);
+        var existSchedule = _context.Schedules.FirstOrDefault(s => s.ScheduleId == id);
         if (existSchedule == null)
         {
             return NotFound(new{Message ="Không tìm thấy lịch"});

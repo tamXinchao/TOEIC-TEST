@@ -1,6 +1,6 @@
 <template>
   <div>
-    <Schedule :schedules="schedules" :index="index"></Schedule>
+    <Schedule :schedules="schedules" :tests="tests"></Schedule>
   </div>
 </template>
 
@@ -11,6 +11,9 @@ definePageMeta({
 });
 const { data: schedules } = await axios.get(
   "http://localhost:5082/api/ScheduleApi"
+);
+const { data: tests } = await axios.get(
+  "http://localhost:5082/api/testApi/list"
 );
 </script>
 

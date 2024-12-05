@@ -113,20 +113,20 @@
                   {{ Schedule.timeRemaining }}
                 </td>
                 <td class="px-4 py-3 text-xs border">
-                  <button @click="openModal(classs)">
+                  <button @click="openModal(Schedule)">
                     <span
                       class="mx-2 px-2 py-1 font-semibold leading-tight text-green-700 bg-green-100 rounded-sm"
                     >
                       Chỉnh sửa
                     </span>
                   </button>
-                  <NuxtLink :to="'#'">
+                  <button @click="deleteSchedule(Schedule.scheduleId)">
                     <span
                       class="px-2 py-1 font-semibold leading-tight text-yellow-700 bg-green-100 rounded-sm"
                     >
                       Xóa
                     </span>
-                  </NuxtLink>
+                  </button>
                 </td>
               </tr>
             </tbody>
@@ -134,15 +134,13 @@
         </div>
       </div>
     </section>
-    <!-- Main modal -->
+    <!-- Modal content -->
     <div
       v-if="isModalOpen"
       class="fixed inset-0 bg-gray-500 bg-opacity-75 z-50 flex justify-center items-center w-full h-full"
     >
       <div class="relative p-4 w-full max-w-md max-h-full">
-        <!-- Modal content -->
         <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
-          <!-- Modal header -->
           <div
             class="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-gray-600"
           >
@@ -169,63 +167,49 @@
                   d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
                 />
               </svg>
-              <span class="sr-only">Close modal</span>
             </button>
           </div>
 
-          <!-- Modal body -->
           <form class="p-4 md:p-5">
             <div class="grid gap-4 mb-4 grid-cols-2">
               <div class="col-span-2">
                 <div class="flex items-center justify-between">
                   <label
-                    for="name"
+                    for="TestName"
                     class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
                   >
-                    Tên lớp
+                    Tên bài kiểm tra
                   </label>
-                  <span class="text-sm text-gray-400 ml-2"
-                    >#{{ classIdInput }}</span
+                  <span
+                    v-if="selectedTestId"
+                    class="text-gray-400 italic text-xs"
                   >
-                  <span v-if="isEditMode" class="text-sm text-gray-400 ml-2"
-                    >#{{ classIdInput }}</span
-                  >
+                    {{ selectedTestId }}
+                  </span>
                 </div>
-                <input
-                  type="text"
-                  name="ClassName"
-                  id="ClassName"
-                  class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                  placeholder="Chọn lớp..."
-                  required=""
-                  v-model="classNameInput"
-                />
-              </div>
-
-              <div class="col-span-2">
-                <div class="flex items-center justify-between">
-                  <label
-                    for="name"
-                    class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-                  >
-                    Tên lớp
-                  </label>
-                  <span class="text-sm text-gray-400 ml-2"
-                    >#{{ classIdInput }}</span
-                  >
-                </div>
+                <input type="hidden" v-model="scheduleId" />
                 <input
                   type="text"
                   name="TestName"
                   id="TestName"
+                  list="testNamesList"
                   class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
                   placeholder="Chọn bài kiểm tra..."
-                  required=""
+                  required
                   v-model="testNameInput"
+                  @input="updateSelectedTestId"
+                  :disabled="isEditMode"
                 />
+                <datalist id="testNamesList">
+                  <option
+                    v-for="test in testNames"
+                    :key="test.testId"
+                    :value="`${test.testName} (#${test.testId})`"
+                    :data-id="test.testId"
+                  ></option>
+                </datalist>
               </div>
 
-              <!-- Thêm bảng chọn ngày và giờ -->
               <div class="col-span-2">
                 <label
                   for="DayOpenTest"
@@ -235,11 +219,12 @@
                 <input
                   type="datetime-local"
                   id="DayOpenTest"
-                  v-model="classTimeInput"
+                  v-model="dayOpenTest"
                   class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
                   required
                 />
               </div>
+
               <div class="col-span-2">
                 <label
                   for="DayCloseTest"
@@ -249,7 +234,7 @@
                 <input
                   type="datetime-local"
                   id="DayCloseTest"
-                  v-model="classTimeInput"
+                  v-model="dayCloseTest"
                   class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
                   required
                 />
@@ -273,7 +258,7 @@
                   clip-rule="evenodd"
                 ></path>
               </svg>
-              Thêm lịch
+              Thêm lớp mới
             </button>
 
             <button
@@ -281,7 +266,19 @@
               @click.prevent="edit"
               class="text-white inline-flex items-center bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
             >
-              Lưu chỉnh sửa
+              <svg
+                class="me-1 -ms-1 w-5 h-5"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  fill-rule="evenodd"
+                  d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"
+                  clip-rule="evenodd"
+                ></path>
+              </svg>
+              Sửa lịch
             </button>
           </form>
         </div>
@@ -291,31 +288,99 @@
 </template>
 
 <script setup>
-const { schedules, index } = defineProps(["schedules", "index"]);
+import { ref, computed } from "vue";
+const { schedules, tests } = defineProps(["schedules", "tests"]);
 const searchQuery = ref("");
 const isModalOpen = ref(false);
-const openModal = (classToEdit = null) => {
+const isEditMode = ref(false);
+const testNameInput = ref("");
+const dayOpenTest = ref("");
+const dayCloseTest = ref("");
+const localSchedules = ref([...schedules]);
+const scheduleId = ref("");
+const testNames = ref([]);
+const selectedTestId = ref("");
+import axios from "axios";
+
+// Hàm để cập nhật selectedTestId khi testNameInput thay đổi
+
+const getTestNames = () => {
+  return tests.map((test) => ({
+    testId: test.id,
+    testName: test.title,
+  }));
+};
+console.log(tests);
+testNames.value = getTestNames();
+const updateSelectedTestId = () => {
+  // Lấy giá trị nhập vào và loại bỏ dấu ngoặc và #Id
+  const cleanInput = testNameInput.value
+    .trim()
+    .replace(/#\d+|\(|\)/g, "")
+    .trim();
+
+  // Tìm các bài kiểm tra có testName khớp với giá trị người dùng nhập
+  const matchingTests = testNames.value.filter(
+    (test) => test.testName === cleanInput
+  );
+
+  // Kiểm tra nếu có các bài kiểm tra trùng tên
+  if (matchingTests.length > 0) {
+    // Lấy ID từ phần nhập vào
+    const testIdMatch = testNameInput.value.match(/#(\d+)/);
+    if (testIdMatch) {
+      // Tìm bài kiểm tra có testId khớp
+      const selectedTest = matchingTests.find(
+        (test) => test.testId === parseInt(testIdMatch[1])
+      );
+
+      if (selectedTest) {
+        // Gán selectedTestId nếu tên và ID đều khớp
+        selectedTestId.value = "#" + selectedTest.testId;
+        testNameInput.value = cleanInput;
+      } else {
+        // Nếu không tìm thấy bài kiểm tra có ID khớp, xóa selectedTestId
+        selectedTestId.value = "Không tìm thấy bài kiểm tra";
+      }
+    } else {
+      // Nếu không tìm thấy #ID trong input, xóa selectedTestId
+      selectedTestId.value = "Không tìm thấy bài kiểm tra";
+    }
+  } else {
+    // Nếu không tìm thấy bài kiểm tra nào trùng tên, xóa selectedTestId
+    selectedTestId.value = "Không tìm thấy bài kiểm tra";
+  }
+};
+
+console.log(testNames);
+const openModal = (scheduleToEdit = null) => {
   isModalOpen.value = true;
-  if (classToEdit) {
+  if (scheduleToEdit) {
     isEditMode.value = true;
-    classIdInput.value = classToEdit.classId;
-    classNameInput.value = classToEdit.className;
-    isActiveInput.value = classToEdit.isActive;
+    testNameInput.value = scheduleToEdit.testName;
+    selectedTestId.value = "#" + scheduleToEdit.testId;
+    dayOpenTest.value = scheduleToEdit.dayOpenTest.slice(0, 16);
+    dayCloseTest.value = scheduleToEdit.dayCloseTest.slice(0, 16);
+    scheduleId.value = scheduleToEdit.scheduleId;
   } else {
     isEditMode.value = false;
+    dayOpenTest.value = new Date(new Date().getTime() + 7 * 60 * 60 * 1000)
+      .toISOString()
+      .slice(0, 16);
   }
 };
 
 const closeModal = () => {
   isModalOpen.value = false;
   isEditMode.value = false;
-  classNameInput.value = "";
-  isActiveInput.value = true;
+  testNameInput.value = "";
+  dayOpenTest.value = "";
+  dayCloseTest.value = "";
 };
 console.log(schedules);
 const filteredClasses = computed(() => {
   if (!searchQuery.value) {
-    return schedules;
+    return localSchedules.value;
   }
   const query = searchQuery.value.toLowerCase();
   return schedules.filter(
@@ -324,6 +389,176 @@ const filteredClasses = computed(() => {
       schedule.testId.toString().toLowerCase().includes(query)
   );
 });
+const add = async () => {
+  try {
+    // Kiểm tra xem selectedTestId có giá trị hợp lệ không
+    if (!selectedTestId.value || typeof selectedTestId.value !== "string") {
+      alert("Bài kiểm tra không hợp lệ");
+      return;
+    }
+
+    // Loại bỏ dấu "#" nếu có trong selectedTestId
+    selectedTestId.value = selectedTestId.value.replace("#", "");
+
+    // Kiểm tra ngày mở bài kiểm tra
+    if (!dayOpenTest.value) {
+      alert("Ngày mở bài kiểm tra không hợp lệ");
+      return;
+    }
+    const dayOpenTestVietnamTime = new Date(
+      new Date(dayOpenTest.value).getTime() + 7 * 60 * 60 * 1000
+    );
+    const currentTimeForDayOpenTest =
+      dayOpenTestVietnamTime.toISOString().split(".")[0] + "Z";
+
+    // Kiểm tra ngày đóng bài kiểm tra
+    if (!dayCloseTest.value) {
+      alert("Ngày đóng bài kiểm tra không hợp lệ");
+      return;
+    }
+    const dayCloseTestVietnamTime = new Date(
+      new Date(dayCloseTest.value).getTime() + 7 * 60 * 60 * 1000
+    );
+    const currentTimeForDayCloseTest =
+      dayCloseTestVietnamTime.toISOString().split(".")[0] + "Z";
+
+    // Kiểm tra nếu ngày đóng bài kiểm tra phải sau ngày mở
+    if (
+      new Date(currentTimeForDayCloseTest) <=
+      new Date(currentTimeForDayOpenTest)
+    ) {
+      alert("Ngày đóng bài kiểm tra phải sau ngày mở");
+      return;
+    }
+
+    // Tạo request
+    const request = {
+      TestId: selectedTestId.value,
+      DayOpenTest: currentTimeForDayOpenTest,
+      DayCloseTest: currentTimeForDayCloseTest,
+    };
+    const response = await axios.post(
+      `http://localhost:5082/api/scheduleApi`,
+      request
+    );
+    if (response.status === 200) {
+      const { message, newSchedule } = response.data;
+      alert(message || "Đã lịch mới thành công!");
+      localSchedules.value.push(newSchedule);
+      closeModal();
+    } else {
+      alert("Đã xảy ra lỗi thêm lịch mới!");
+    }
+
+    console.log(request);
+  } catch (error) {
+    // Bắt lỗi và hiển thị thông báo
+    alert(`Lỗi: ${error.response ? error.response.data : error.message}`);
+  }
+};
+const edit = async () => {
+  try {
+    // Kiểm tra xem selectedTestId có giá trị hợp lệ không
+    if (!selectedTestId.value || typeof selectedTestId.value !== "string") {
+      alert("Bài kiểm tra không hợp lệ");
+      return;
+    }
+
+    // Loại bỏ dấu "#" nếu có trong selectedTestId
+    selectedTestId.value = selectedTestId.value.replace("#", "");
+
+    // Kiểm tra ngày mở bài kiểm tra
+    if (!dayOpenTest.value) {
+      alert("Ngày mở bài kiểm tra không hợp lệ");
+      return;
+    }
+    const dayOpenTestVietnamTime = new Date(
+      new Date(dayOpenTest.value).getTime() + 7 * 60 * 60 * 1000
+    );
+    const currentTimeForDayOpenTest =
+      dayOpenTestVietnamTime.toISOString().split(".")[0] + "Z";
+
+    // Kiểm tra ngày đóng bài kiểm tra
+    if (!dayCloseTest.value) {
+      alert("Ngày đóng bài kiểm tra không hợp lệ");
+      return;
+    }
+    const dayCloseTestVietnamTime = new Date(
+      new Date(dayCloseTest.value).getTime() + 7 * 60 * 60 * 1000
+    );
+    const currentTimeForDayCloseTest =
+      dayCloseTestVietnamTime.toISOString().split(".")[0] + "Z";
+
+    // Kiểm tra nếu ngày đóng bài kiểm tra phải sau ngày mở
+    if (
+      new Date(currentTimeForDayCloseTest) <=
+      new Date(currentTimeForDayOpenTest)
+    ) {
+      alert("Ngày đóng bài kiểm tra phải sau ngày mở");
+      return;
+    }
+
+    // Tạo request
+    const request = {
+      TestId: selectedTestId.value,
+      DayOpenTest: currentTimeForDayOpenTest,
+      DayCloseTest: currentTimeForDayCloseTest,
+    };
+    console.log(request);
+    const response = await axios.put(
+      `http://localhost:5082/api/scheduleApi?id=${scheduleId.value}`,
+      request
+    );
+    console.log(request);
+    if (response.status === 200) {
+      const { message } = response.data;
+      alert(message || "Đã sửa lịch thành công!");
+      window.location.reload();
+    } else {
+      alert(`Đã xảy ra lỗi chỉnh sửa lịch !`);
+    }
+  } catch (error) {
+    // Bắt lỗi và hiển thị thông báo
+    alert(`Lỗi: ${error.response ? error.response.data : error.message}`);
+  }
+};
+const deleteSchedule = async (scheduleIdDelete) => {
+  // Sử dụng setTimeout để không chặn luồng chính
+  setTimeout(async () => {
+    const isConfirmed = confirm("Bạn có chắc chắn muốn xóa lịch này?");
+    if (!isConfirmed) {
+      return; // Người dùng hủy, dừng xử lý
+    }
+
+    try {
+      console.log("Class id: " + scheduleIdDelete);
+
+      // Gửi yêu cầu DELETE đến API
+      const response = await axios.delete(
+        `http://localhost:5082/api/scheduleApi?id=${scheduleIdDelete}`
+      );
+
+      // Kiểm tra phản hồi từ API
+      if (response.status === 200) {
+        const { message } = response.data;
+        alert(message || "Đã xóa lịch thành công!");
+
+        // Cập nhật danh sách localSchedules
+        localSchedules.value = localSchedules.value.filter(
+          (scheduleItem) => scheduleItem.scheduleId !== scheduleIdDelete
+        );
+      } else {
+        alert("Đã xảy ra lỗi khi xóa lịch!");
+      }
+    } catch (error) {
+      const errorMessage =
+        error.response?.data ||
+        error.message ||
+        "Đã xảy ra lỗi không xác định.";
+      alert(`Lỗi: ${errorMessage}`);
+    }
+  }, 0); // Đẩy xử lý vào hàng đợi sự kiện
+};
 </script>
 
 <style lang="scss" scoped></style>
