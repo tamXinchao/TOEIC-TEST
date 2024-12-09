@@ -10,9 +10,10 @@ public class TestOfClass : BaseEnity
     
     [ForeignKey("Test")]
     public int TestId { get; set; }
-    public Test test { get; set; }
+
+    public Test test { get; set; } 
     
     [ForeignKey("Class")]
     public int ClassId { get; set; }
-    public Class classRef { get; set; }
+    public Class classRef { get; set; } 
 }

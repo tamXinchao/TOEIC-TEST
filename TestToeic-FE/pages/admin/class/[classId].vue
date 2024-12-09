@@ -6,7 +6,7 @@
     </div>
     <!-- Component ClassDetail nằm bên phải -->
     <div class="flex-2 p-4">
-      <ClassDetail :classes="classes" />
+      <ClassDetail :classes="classes" :stickers="stickers" />
     </div>
   </div>
 </template>
@@ -18,6 +18,7 @@ import axios from "axios";
 
 const classes = ref({});
 const members = ref([]);
+const stickers = ref([]);
 
 const route = useRoute();
 const classId = route.params.classId;
@@ -29,13 +30,17 @@ onMounted(async () => {
       `http://localhost:5082/api/TestApi/listByClass?id=${classId}`
     );
     classes.value = data;
-    console.log(data);
     // Lấy danh sách thành viên
     const { data: memberData } = await axios.get(
       `http://localhost:5082/api/MemberOfClassApi/getByClass?classId=${classId}`
     );
-    members.value = memberData; // Gán dữ liệu cho members
-  } catch (error) {
+    members.value = memberData;
+    const { data: stickerData } = await axios.get(
+      `http://localhost:5082/api/StickerApi`
+    );
+    stickers.value = stickerData;
+    console.log(data); // Gán dữ liệu cho members
+  } catch (stickerData) {
     console.error("Error fetching data:", error);
   }
 });

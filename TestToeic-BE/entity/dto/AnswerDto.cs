@@ -7,4 +7,6 @@ public class AnswerDto
     public Boolean Correct { get; set; }
     public string? AnswerContent { get; set; }
     public string? Explain { get; set; }
+    public bool IsDelete { get; set; } = false; 
+    public bool IsActive { get; set; } = true;  
 }

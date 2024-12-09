@@ -258,7 +258,7 @@
                   clip-rule="evenodd"
                 ></path>
               </svg>
-              Thêm lớp mới
+              Thêm lịch mới
             </button>
 
             <button
@@ -376,6 +376,7 @@ const closeModal = () => {
   testNameInput.value = "";
   dayOpenTest.value = "";
   dayCloseTest.value = "";
+  selectedTestId.value = "";
 };
 console.log(schedules);
 const filteredClasses = computed(() => {

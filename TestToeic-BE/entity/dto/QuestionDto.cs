@@ -12,4 +12,6 @@ public class QuestionDto
     public string LabelOfPrimaryQuestion { get; set; } = "Phần";
     public string? Image { get; set; }
     public List<AnswerDto>? Answers { get; set; }
+    public bool IsDelete { get; set; } = false; 
+    public bool IsActive { get; set; } = true;  
 }

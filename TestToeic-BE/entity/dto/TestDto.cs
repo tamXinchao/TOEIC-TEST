@@ -8,8 +8,9 @@ public class TestDto
     public int Id { get; set; }
     public string UserCreate { get; set; }          
     public string? Title { get; set; }
-    
-    public string TestName { get; set; }
+    public int ClassId { get; set; }
+
+    public string TestName { get; set; } = "Chưa có tên bài kiểm tra";
     public DateTime? DateCreate { get; set; }    
     
 
@@ -18,10 +19,10 @@ public class TestDto
     public float? Point { get; set; }             
     public TimeOnly? TestTime { get; set; }     
 
-    public List<StickerDto> Stickers { get; set; } = new List<StickerDto>(); // Khởi tạo mặc định là danh sách rỗng
-
+    public List<StickerDto> Stickers { get; set; } = new List<StickerDto>(); 
+    public List<StickerOfTestDto> StickersOfTests { get; set; } = new List<StickerOfTestDto>(); 
     public bool? IsDelete { get; set; } 
-    public bool? IsActive { get; set; }
+    public bool IsActive { get; set; }
 
     public List<TestOfClassDto> TestOfClasss { get; set; } = new List<TestOfClassDto>();
 
@@ -42,7 +43,16 @@ public class TestDto
         }
         set
         {
-            TestTime = value != null ? TimeOnly.ParseExact(value, "t", CultureInfo.CurrentCulture) : null;
+            if (int.TryParse(value, out int minutes))
+            {
+                var hour = minutes / 60;
+                var minute = minutes % 60;
+                TestTime = new TimeOnly(hour, minute);
+            }
+            else
+            {
+                TestTime = null;
+            }
         }
     }
 

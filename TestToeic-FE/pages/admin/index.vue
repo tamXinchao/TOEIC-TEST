@@ -14,7 +14,7 @@
                 v-model="name"
                 type="text"
                 class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Tìm theo tài khoản, email hoặc số điện thoại"
+                placeholder="Tìm theo người tạo, tên bài thi hoặc id..."
               />
             </td>
             <td class="px-4 py-2 text-right">
@@ -52,10 +52,10 @@
           <!-- Lặp qua dữ liệu tìm kiếm để hiển thị -->
           <tr
             v-for="(user, index) in users"
-            :key="index"
+            :key="user.id"
             class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600"
           >
-            <td class="px-6 py-4">1</td>
+            <td class="px-6 py-4">{{ index + 1 }}</td>
             <th
               scope="row"
               class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white"

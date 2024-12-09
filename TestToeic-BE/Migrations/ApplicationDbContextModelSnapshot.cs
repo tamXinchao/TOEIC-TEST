@@ -184,7 +184,7 @@ namespace TestToeic.Migrations
 
                     b.HasIndex("QuestionId");
 
-                    b.ToTable("Answers");
+                    b.ToTable("Answers", (string)null);
                 });
 
             modelBuilder.Entity("TestToeic.entity.AnswerOfStudent", b =>
@@ -227,7 +227,7 @@ namespace TestToeic.Migrations
 
                     b.HasIndex("StudentPointId");
 
-                    b.ToTable("AnswerOfStudents");
+                    b.ToTable("AnswerOfStudents", (string)null);
                 });
 
             modelBuilder.Entity("TestToeic.entity.ApplicationUser", b =>
@@ -314,7 +314,7 @@ namespace TestToeic.Migrations
 
                     b.HasKey("ClassId");
 
-                    b.ToTable("Classes");
+                    b.ToTable("Classes", (string)null);
                 });
 
             modelBuilder.Entity("TestToeic.entity.MemberOfClass", b =>
@@ -347,7 +347,7 @@ namespace TestToeic.Migrations
 
                     b.HasIndex("ClassId");
 
-                    b.ToTable("MemberOfClasses");
+                    b.ToTable("MemberOfClasses", (string)null);
                 });
 
             modelBuilder.Entity("TestToeic.entity.Notice", b =>
@@ -386,7 +386,7 @@ namespace TestToeic.Migrations
 
                     b.HasIndex("TestId");
 
-                    b.ToTable("Notices");
+                    b.ToTable("Notices", (string)null);
                 });
 
             modelBuilder.Entity("TestToeic.entity.PointOfQuestion", b =>
@@ -418,7 +418,7 @@ namespace TestToeic.Migrations
 
                     b.HasIndex("TestId");
 
-                    b.ToTable("PointOfQuestions");
+                    b.ToTable("PointOfQuestions", (string)null);
                 });
 
             modelBuilder.Entity("TestToeic.entity.Question", b =>
@@ -459,7 +459,7 @@ namespace TestToeic.Migrations
 
                     b.HasIndex("ParentQuestionId");
 
-                    b.ToTable("Questions");
+                    b.ToTable("Questions", (string)null);
                 });
 
             modelBuilder.Entity("TestToeic.entity.Schedule", b =>
@@ -489,7 +489,7 @@ namespace TestToeic.Migrations
 
                     b.HasIndex("TestId");
 
-                    b.ToTable("Schedules");
+                    b.ToTable("Schedules", (string)null);
                 });
 
             modelBuilder.Entity("TestToeic.entity.Sticker", b =>
@@ -515,7 +515,7 @@ namespace TestToeic.Migrations
 
                     b.HasKey("StickerId");
 
-                    b.ToTable("Stickers");
+                    b.ToTable("Stickers", (string)null);
                 });
 
             modelBuilder.Entity("TestToeic.entity.StickerOfTest", b =>
@@ -544,7 +544,7 @@ namespace TestToeic.Migrations
 
                     b.HasIndex("TestId");
 
-                    b.ToTable("StickerOfTests");
+                    b.ToTable("StickerOfTests", (string)null);
                 });
 
             modelBuilder.Entity("TestToeic.entity.StudentPoint", b =>
@@ -583,7 +583,7 @@ namespace TestToeic.Migrations
 
                     b.HasIndex("TestId");
 
-                    b.ToTable("StudentPoints");
+                    b.ToTable("StudentPoints", (string)null);
                 });
 
             modelBuilder.Entity("TestToeic.entity.Test", b =>
@@ -621,7 +621,7 @@ namespace TestToeic.Migrations
 
                     b.HasIndex("ApplicationUserId");
 
-                    b.ToTable("Tests");
+                    b.ToTable("Tests", (string)null);
                 });
 
             modelBuilder.Entity("TestToeic.entity.TestOfClass", b =>
@@ -650,7 +650,7 @@ namespace TestToeic.Migrations
 
                     b.HasIndex("TestId");
 
-                    b.ToTable("TestOfClasses");
+                    b.ToTable("TestOfClasses", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>

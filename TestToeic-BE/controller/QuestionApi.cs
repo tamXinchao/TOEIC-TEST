@@ -32,8 +32,7 @@ public class QuestionApi : ControllerBase
             .Where(q => q.IsDelete == false)
             .Include(q => q.Answers)
             .ToList();
-
-        // Chuyển đổi câu hỏi sang DTO
+        
         var questionDtos = questions.Select(q => new QuestionDto
         {
             QuestionId = q.QuestionId,
@@ -46,13 +45,12 @@ public class QuestionApi : ControllerBase
                 Explain = a.Explain
             }).ToList()
         }).ToList();
-
-        // Nếu `id` có giá trị, lọc theo `TestId`
+        
         if (id != null)
         {
             var filteredQuestions = _context.PointOfQuestions
                 .Where(q => q.QuestionId == id)
-                .Include(q => q.question) // Bao gồm câu trả lời cho mỗi câu hỏi
+                .Include(q => q.question)
                 .ToList();
 
             questionDtos = filteredQuestions.Select(q => new QuestionDto
@@ -92,7 +90,6 @@ public ActionResult<Answer> Post(List<QuestionDto> questionDtos, int testId)
     List<PointOfQuestion> listPointToAverage = new List<PointOfQuestion>();
     var primaryQuestionIds = new Dictionary<string, int>();
 
-    // Bắt đầu giao dịch
     using (var transaction = _context.Database.BeginTransaction())
     {
         try
