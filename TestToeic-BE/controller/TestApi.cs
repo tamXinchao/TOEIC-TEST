@@ -29,7 +29,7 @@ public class TestApi : ControllerBase
     {
         bool mutipleSection = false;
         int primaryCount = 0;
-        var testDto = _context.Tests.Where(t => t.TestId == id)
+        var testDto = _context.Tests.Where(t => t.TestId == id && !t.IsDelete && t.IsActive)
             .Select(dto => new TestDto
             {
                 Id = dto.TestId,
@@ -37,7 +37,7 @@ public class TestApi : ControllerBase
                 DateCreate = dto.TestDateCreated,
                 Point = dto.PointOfTest,
                 TestTime = dto.TestTime,
-                UserCreate = dto.applicationUser.UserName,
+                UserCreate = dto.applicationUser.UserName?? "Chưa có tên người tạo",
                 StickersOfTests = dto.StickerOfTests
                     .Where(soc => soc.IsActive && !soc.IsDelete)
                     .Select(sticker => new StickerOfTestDto
@@ -49,6 +49,7 @@ public class TestApi : ControllerBase
                        StickerOfTestId = sticker.StickerOfTestId
                     }).ToList(),
                 QuestionDtos = dto.PointOfQuestions
+                    .Where(poq => !poq.IsDelete && poq.IsActive)
                     .Select(q => new QuestionDto
                 {
                     QuestionId = q.QuestionId,
@@ -60,7 +61,9 @@ public class TestApi : ControllerBase
                     PointOfQuestion = q.Point,
                     Image = q.question.Image,
                     GroupOfQuestion = q.question.ParentQuestionId,
-                    Answers = q.question.Answers.Select(a => new AnswerDto
+                    Answers = q.question.Answers
+                        .Where(aoq => aoq.IsActive && !aoq.IsDelete)
+                        .Select(a => new AnswerDto
                     {
                         AnswerId = a.AnswerId,
                         AnswerContent = a.AnswerContent,
@@ -69,16 +72,20 @@ public class TestApi : ControllerBase
                     }).ToList()
                 }).ToList()
             }).FirstOrDefault();
-        var questions = testDto.QuestionDtos;
-
-        foreach (var question in questions)
+        if (testDto != null)
         {
-            if (question.Primary)
+            var questions = testDto.QuestionDtos;
+
+            foreach (var question in questions)
             {
-                question.GroupOfQuestion = question.QuestionId;
-                primaryCount++;
+                if (question.Primary)
+                {
+                    question.GroupOfQuestion = question.QuestionId;
+                    primaryCount++;
+                }
             }
         }
+
         mutipleSection = primaryCount > 1;
 
         return Ok(new
@@ -130,7 +137,7 @@ public class TestApi : ControllerBase
         var tests = _context.Tests.AsNoTracking().Select(t => new TestDto
         {
             Id = t.TestId,
-            UserCreate = t.applicationUser.UserName,
+            UserCreate = t.applicationUser.UserName ?? "Chưa có người tạo",
             Title = t.TestName,
             TestTime = t.TestTime,
             DateCreate = t.TestDateCreated,

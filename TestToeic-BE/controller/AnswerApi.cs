@@ -80,4 +80,19 @@ public class AnswerApi : ControllerBase
         return Ok(new { Message = "Xóa câu trả lời thành công" });
     }
     
+    [HttpDelete("deleteByQuestion")]
+    public IActionResult DeleteByQuestion(int id)
+    {
+        var existAnswer = _context.Answers.Find(id);
+        if (existAnswer == null)
+        {
+            return NotFound(new{Message = "Không tìm thấy câu trả lời cần xóa"});
+        }
+
+        existAnswer.IsDelete = true;
+        _context.Answers.Update(existAnswer);
+        _context.SaveChanges();
+        return Ok(new { Message = "Xóa câu trả lời thành công" });
+    }
+    
 }

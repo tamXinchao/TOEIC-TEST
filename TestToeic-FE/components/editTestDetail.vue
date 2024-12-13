@@ -438,6 +438,7 @@ export default {
         labelOfPrimaryQuestion: "", // Nhãn của câu hỏi chính
         groupOfQuestion: `${Math.floor(1000 + Math.random() * 9000)}`, // ID nhóm
         primary: true, // Đây là câu hỏi chính
+        new: true,
         questionContent: "",
         labelOfPrimaryQuestion: "",
         multipleAnswer: false,
@@ -449,6 +450,7 @@ export default {
       // Thêm một câu hỏi phụ vào nhóm
       this.testDetail.testDto.questionDtos.push({
         groupOfQuestion: groupOfQuestion,
+        new: true,
         primary: false,
         multipleAnswer: false,
         parentQuestionId: null,
@@ -461,6 +463,7 @@ export default {
       const group = this.groupedQuestions[groupIndex];
       if (group && group.questions[questionIndex]) {
         group.questions[questionIndex].answers.push({
+          new: true,
           answerContent: "",
           correct: false,
           explain: "",
@@ -471,20 +474,68 @@ export default {
       const group = this.groupedQuestions[groupIndex];
       if (group) {
         const groupOfQuestion = group.groupOfQuestion;
-        this.testDetail.testDto.questionDtos =
-          this.testDetail.testDto.questionDtos.filter(
-            (question) => question.groupOfQuestion !== groupOfQuestion
-          );
+        const isConfirm = confirm("Bạn có chắc chắn muốn xóa câu hỏi này?");
+        if (!confirm) return;
+        if (isConfirm) {
+          if (group.primary.new) {
+            console.log(group.primary.new);
+            this.testDetail.testDto.questionDtos =
+              this.testDetail.testDto.questionDtos.filter(
+                (question) => question.groupOfQuestion !== groupOfQuestion
+              );
+            return;
+          }
+          axios
+            .delete(
+              `http://localhost:5082/api/questionApi/${groupOfQuestion}?testId=${this.testId}`
+            )
+            .then(
+              (res) => {
+                console.log(res.data);
+                alert(res.data.message);
+                this.testDetail.testDto.questionDtos =
+                  this.testDetail.testDto.questionDtos.filter(
+                    (question) => question.groupOfQuestion !== groupOfQuestion
+                  );
+              },
+              (err) => {
+                console.error(err);
+              }
+            );
+        }
       }
     },
     deleteQuestion(groupIndex, questionIndex) {
       const group = this.groupedQuestions[groupIndex];
-      const questionId = group.questions[questionIndex].questionId;
-
-      this.testDetail.testDto.questionDtos =
-        this.testDetail.testDto.questionDtos.filter(
-          (q) => q.questionId !== questionId
-        );
+      const question = group.questions[questionIndex];
+      const questionId = question.questionId;
+      const isConfirm = confirm("Bạn có chắc chắn muốn xóa câu hỏi này?");
+      if (isConfirm) {
+        if (group.questions[questionIndex].new) {
+          this.testDetail.testDto.questionDtos =
+            this.testDetail.testDto.questionDtos.filter((q) => q !== question);
+          // Xóa câu hỏi khỏi nhóm hiện tại
+          group.questions.splice(questionIndex, 1);
+          return;
+        }
+        axios
+          .delete(
+            `http://localhost:5082/api/questionApi/${questionId}?testId=${this.testId}`
+          )
+          .then(
+            (res) => {
+              console.log(res.data);
+              alert(res.data.message);
+              this.testDetail.testDto.questionDtos =
+                this.testDetail.testDto.questionDtos.filter(
+                  (q) => q.questionId !== questionId
+                );
+            },
+            (err) => {
+              console.error(err);
+            }
+          );
+      }
     },
 
     deleteAnswer(groupIndex, questionIndex, answerIndex) {
@@ -492,7 +543,14 @@ export default {
       if (group && group.questions[questionIndex]) {
         const question = group.questions[questionIndex];
         if (question.answers[answerIndex]) {
-          question.answers.splice(answerIndex, 1);
+          console.log(group.questions);
+          const isConfirm = confirm("Bạn có chắc chắn muốn xóa đáp án này?");
+          if (isConfirm) {
+            axios.delete(
+              `http://localhost:5082/api/answerApi?id=${question.answers[answerIndex].answerId}`
+            );
+            question.answers.splice(answerIndex, 1);
+          }
         }
       }
     },

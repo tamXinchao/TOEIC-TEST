@@ -83,9 +83,8 @@ public class QuestionApi : ControllerBase
             .Select(t => t.PointOfTest)
             .FirstOrDefault();
         var existingPoints = _context.PointOfQuestions
-            .Where(q => q.TestId == testId)
+            .Where(q => q.TestId == testId && !q.IsDelete)
             .ToList();
-        var questionsInTest = _context.PointOfQuestions.Where(p => p.TestId == testId).ToList();
         var listPointToAverage = new List<PointOfQuestion>();
         var primaryQuestionIds = new Dictionary<string, int>();
         
@@ -110,7 +109,8 @@ public class QuestionApi : ControllerBase
                     foreach (var questionDto in primaryQuestions)
                     {
                         var existQuestion =
-                            _context.Questions.FirstOrDefault(q => q.QuestionId == questionDto.QuestionId);
+                            _context.Questions.FirstOrDefault(q => q.QuestionId == questionDto.QuestionId 
+                            && !q.IsDelete);
                         if (existQuestion == null)
                         {
                             var newQuestion = new Question
@@ -181,7 +181,9 @@ public class QuestionApi : ControllerBase
                         var existNonQuestion =
                             _context.Questions
                                 .Include(q => q.Answers)
-                                .FirstOrDefault(q => q.QuestionId == questionDto.QuestionId);
+                                .FirstOrDefault(q => q.QuestionId == questionDto.QuestionId
+                                && !q.IsDelete
+                                );
 
                         if (existNonQuestion == null)
                         {
@@ -254,7 +256,8 @@ public class QuestionApi : ControllerBase
                                 foreach (var answerDto in questionDto.Answers)
                                 {
                                     var existAnswer =
-                                        _context.Answers.FirstOrDefault(a => a.AnswerId == answerDto.AnswerId);
+                                        _context.Answers.FirstOrDefault(a => a.AnswerId == answerDto.AnswerId
+                                            && !a.IsDelete);
                                     if (existAnswer != null)
                                     {
                                         existAnswer.AnswerContent = answerDto.AnswerContent;
@@ -282,7 +285,9 @@ public class QuestionApi : ControllerBase
 
                                 var existPointOfQuestion = _context.PointOfQuestions
                                     .FirstOrDefault(p =>
-                                        p.TestId == testId && p.QuestionId == existNonQuestion.QuestionId);
+                                        p.TestId == testId && p.QuestionId == existNonQuestion.QuestionId
+                                                           && !p.IsDelete
+                                        );
 
                                 if (existPointOfQuestion != null)
                                 {
@@ -317,7 +322,9 @@ public class QuestionApi : ControllerBase
                 var averagePointCalculator = new GetAveragePoint();
                 var averagePoint = averagePointCalculator.AveragePointOfQuestion(listPointToAverage, testPoint);
                 Console.WriteLine("TB: " + averagePoint);
-                foreach (var point in listPointToAverage.Where(point => point.Point == 0 && !point.question.Primary))
+                foreach (var point in listPointToAverage.Where(point => point.Point == 0 
+                                                                        && !point.question.Primary
+                                                                        && !point.IsDelete ))
                 {
                     if (point.question.Primary)
                     {
@@ -359,13 +366,36 @@ public class QuestionApi : ControllerBase
     }
 
     [HttpDelete("{id}")]
-    public IActionResult Delete(int id)
+    public IActionResult Delete(int id, int testId)
     {
         var existQuestion = _context.Questions.Find(id);
         if (existQuestion == null) return NotFound();
-
+        var listOfChildQuestion = _context.Questions.Where(l => l.ParentQuestionId == existQuestion.QuestionId).ToList();
+        foreach (var child in listOfChildQuestion)
+        {
+            var childPointQuestion =
+                _context.PointOfQuestions.FirstOrDefault(l => l.QuestionId == child.QuestionId && l.TestId == testId);
+            if(childPointQuestion == null)
+            {
+                return NotFound();
+            }
+            child.IsDelete = true;
+            childPointQuestion.IsDelete = true;
+            _context.PointOfQuestions.Update(childPointQuestion);
+        }
+        var existPointOfQuestion = _context.PointOfQuestions
+            .FirstOrDefault(p => p.QuestionId == existQuestion.QuestionId
+            && p.TestId == testId
+            );
+        if (existPointOfQuestion == null)
+        {
+            return NotFound();
+        }
+        existPointOfQuestion.IsDelete = true;
         existQuestion.IsDelete = true;
         _context.Questions.Update(existQuestion);
+        _context.Questions.UpdateRange(listOfChildQuestion);
+        _context.PointOfQuestions.Update(existPointOfQuestion);
         _context.SaveChanges();
 
         return Ok(new { Message = "Đã đánh dấu câu hỏi là đã xóa thành công." });
