@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using TestToeic.Db;
@@ -32,7 +33,7 @@ public class QuestionApi : ControllerBase
             .Where(q => q.IsDelete == false)
             .Include(q => q.Answers)
             .ToList();
-        
+
         var questionDtos = questions.Select(q => new QuestionDto
         {
             QuestionId = q.QuestionId,
@@ -45,7 +46,7 @@ public class QuestionApi : ControllerBase
                 Explain = a.Explain
             }).ToList()
         }).ToList();
-        
+
         if (id != null)
         {
             var filteredQuestions = _context.PointOfQuestions
@@ -71,169 +72,272 @@ public class QuestionApi : ControllerBase
     }
 
     [HttpPost]
-public ActionResult<Answer> Post(List<QuestionDto> questionDtos, int testId)
-{
-    if (!ModelState.IsValid)
+    public ActionResult Post(List<QuestionDto> questionDtos, int testId)
     {
-        return BadRequest(ModelState);
-    }
+        if (!ModelState.IsValid) return BadRequest(ModelState);
 
-    var groupedQuestions = questionDtos.GroupBy(q => q.GroupOfQuestion);
-    float totalPointsOfNewQuestions = 0;
-    var testPoint = _context.Tests.AsNoTracking()
-        .Where(t => t.TestId == testId)
-        .Select(t => t.PointOfTest) 
-        .FirstOrDefault(); 
-    var existingPoints = _context.PointOfQuestions
-        .Where(q => q.TestId == testId)
-        .ToList(); 
-    List<PointOfQuestion> listPointToAverage = new List<PointOfQuestion>();
-    var primaryQuestionIds = new Dictionary<string, int>();
-
-    using (var transaction = _context.Database.BeginTransaction())
-    {
-        try
+        var groupedQuestions = questionDtos.GroupBy(q => q.GroupOfQuestion);
+        float totalPointsOfNewQuestions = 0;
+        var testPoint = _context.Tests.AsNoTracking()
+            .Where(t => t.TestId == testId)
+            .Select(t => t.PointOfTest)
+            .FirstOrDefault();
+        var existingPoints = _context.PointOfQuestions
+            .Where(q => q.TestId == testId)
+            .ToList();
+        var questionsInTest = _context.PointOfQuestions.Where(p => p.TestId == testId).ToList();
+        var listPointToAverage = new List<PointOfQuestion>();
+        var primaryQuestionIds = new Dictionary<string, int>();
+        
+        using (var transaction = _context.Database.BeginTransaction())
         {
-            foreach (var group in groupedQuestions)
+            try
             {
-                var groupOfQuestion = group.Key;
-                var questionsInGroup = group.ToList();
 
-                var primaryQuestions = questionsInGroup.Where(q => q.Primary).ToList();
-                var nonPrimaryQuestions = questionsInGroup.Where(q => !q.Primary).ToList();
-
-                if (!primaryQuestions.Any() && nonPrimaryQuestions.Any())
+                _context.SaveChanges();
+                
+                foreach (var group in groupedQuestions)
                 {
-                    return BadRequest($"Nhóm {groupOfQuestion} không có câu hỏi Primary nhưng có các câu hỏi con. Vui lòng kiểm tra lại.");
-                }
+                    var groupOfQuestion = group.Key;
+                    var questionsInGroup = group.ToList();
 
-                // Lưu các câu hỏi Primary trước
-                foreach (var questionDto in primaryQuestions)
-                {
-                    var newQuestion = new Question
+                    var primaryQuestions = questionsInGroup.Where(q => q.Primary).ToList();
+                    var nonPrimaryQuestions = questionsInGroup.Where(q => !q.Primary).ToList();
+                    if (!primaryQuestions.Any() && nonPrimaryQuestions.Any())
+                        return BadRequest(
+                            $"Nhóm {groupOfQuestion} không có câu hỏi Primary nhưng có các câu hỏi con. Vui lòng kiểm tra lại.");
+
+                    foreach (var questionDto in primaryQuestions)
                     {
-                        Image = questionDto.Image,
-                        QuestionContent = questionDto.QuestionContent,
-                        MultipleAnswer = false,
-                        Primary = true,
-                        ParentQuestionId = null,
-                        LabelOfPrimaryQuestion = questionDto.LabelOfPrimaryQuestion,
-                        IsDelete = false,
-                        IsActive = true,
-                        Answers = new List<Answer>(),
-                        PointOfQuestions = new List<PointOfQuestion>()
-                    };
-                    _context.Questions.Add(newQuestion);
-                    if (questionDto.PointOfQuestion.HasValue)
-                    {
-                        var pointOfQuestion = new PointOfQuestion
+                        var existQuestion =
+                            _context.Questions.FirstOrDefault(q => q.QuestionId == questionDto.QuestionId);
+                        if (existQuestion == null)
                         {
-                            Point = 0,
-                            QuestionId = newQuestion.QuestionId,
-                            TestId = testId,
-                        };
+                            var newQuestion = new Question
+                            {
+                                Image = questionDto.Image,
+                                QuestionContent = questionDto.QuestionContent ?? "Chưa có câu hỏi",
+                                MultipleAnswer = false,
+                                Primary = true,
+                                ParentQuestionId = null,
+                                LabelOfPrimaryQuestion = questionDto.LabelOfPrimaryQuestion,
+                                IsDelete = false,
+                                IsActive = true,
+                                Answers = new List<Answer>(),
+                                PointOfQuestions = new List<PointOfQuestion>()
+                            };
+                            _context.Questions.Add(newQuestion);
 
-                        newQuestion.PointOfQuestions.Add(pointOfQuestion);
-                    }
-                    _context.SaveChanges();
+                            var pointOfQuestion = new PointOfQuestion
+                            {
+                                Point = 0,
+                                QuestionId = newQuestion.QuestionId,
+                                TestId = testId
+                            };
 
-                    // Lưu QuestionId vào Dictionary sau khi đã lưu
-                    var key = $"{groupOfQuestion}_{testId}";
-                    // Trước khi tạo key, kiểm tra giá trị của GroupOfQuestion
-                    Console.WriteLine($"GroupOfQuestion: {groupOfQuestion}, questionDto.GroupOfQuestion: {questionDto.GroupOfQuestion}");
+                            newQuestion.PointOfQuestions.Add(pointOfQuestion);
 
-                    primaryQuestionIds[key] = newQuestion.QuestionId;
-                }
 
-                // Lưu các câu hỏi không phải Primary
-                foreach (var questionDto in nonPrimaryQuestions)
-                {
-                    var key = $"{groupOfQuestion}_{testId}";
+                            _context.SaveChanges();
 
-                    if (primaryQuestionIds.ContainsKey(key))
-                    {
-                        // Gán ParentQuestionId là Id của câu hỏi Primary
-                        questionDto.ParentQuestionId = primaryQuestionIds[key];
-                    }
-                    else
-                    {
-                        return BadRequest($"Không tìm thấy câu hỏi Primary cho Label {questionDto.LabelOfPrimaryQuestion} trong nhóm {groupOfQuestion}");
-                    }
+                            var key = $"{groupOfQuestion}_{testId}";
+                            Console.WriteLine(
+                                $"GroupOfQuestion: {groupOfQuestion}, questionDto.GroupOfQuestion: {questionDto.GroupOfQuestion}");
 
-                    var newQuestion = new Question
-                    {
-                        Image = questionDto.Image,
-                        QuestionContent = questionDto.QuestionContent,
-                        MultipleAnswer = questionDto.MultipleAnswer,
-                        Primary = false,
-                        ParentQuestionId = questionDto.ParentQuestionId, // Gán ParentQuestionId
-                        LabelOfPrimaryQuestion = questionDto.LabelOfPrimaryQuestion,
-                        IsDelete = false,
-                        IsActive = true,
-                        Answers = questionDto.Answers.Select(answer => new Answer
+                            primaryQuestionIds[key] = newQuestion.QuestionId;
+                        }
+                        else
                         {
-                            AnswerContent = answer.AnswerContent,
-                            Correct = answer.Correct,
-                            Explain = answer.Explain,
-                        }).ToList(),
-                        PointOfQuestions = new List<PointOfQuestion>()
-                    };
+                            existQuestion.QuestionId = questionDto.QuestionId;
+                            existQuestion.QuestionContent = questionDto.QuestionContent ?? "Chưa có câu hỏi";
+                            existQuestion.MultipleAnswer = questionDto.MultipleAnswer;
+                            existQuestion.LabelOfPrimaryQuestion = questionDto.LabelOfPrimaryQuestion;
+                            existQuestion.Primary = true;
+                            existQuestion.IsActive = questionDto.IsActive;
+                            existQuestion.IsDelete = questionDto.IsDelete;
+                            existQuestion.Image = questionDto.Image;
+                            existQuestion.Answers = new List<Answer>();
 
-                    if (questionDto.PointOfQuestion.HasValue)
-                    {
-                        var pointOfQuestion = new PointOfQuestion
-                        {
-                            Point = questionDto.PointOfQuestion.Value,
-                            QuestionId = newQuestion.QuestionId,
-                            TestId = testId,
-                        };
+                            _context.Questions.Update(existQuestion);
+                            _context.SaveChanges();
+                            var key = $"{groupOfQuestion}_{testId}";
+                            Console.WriteLine(
+                                $"GroupOfQuestion: {groupOfQuestion}, questionDto.GroupOfQuestion: {questionDto.GroupOfQuestion}");
 
-                        newQuestion.PointOfQuestions.Add(pointOfQuestion);
-
-                        listPointToAverage.Add(pointOfQuestion);
-                        totalPointsOfNewQuestions += questionDto.PointOfQuestion.Value;
-                        var totalPointsWithNew = existingPoints.Sum(p => p.Point) + totalPointsOfNewQuestions;
-                        if (totalPointsWithNew > testPoint)
-                        {
-                            return BadRequest("Điểm của các câu hỏi đang nhiều hơn điểm của bài kiểm tra. Vui lòng kiểm tra lại");
+                            primaryQuestionIds[key] = existQuestion.QuestionId;
                         }
                     }
 
-                    _context.Questions.Add(newQuestion);
+                    foreach (var questionDto in nonPrimaryQuestions)
+                    {
+                        var key = $"{groupOfQuestion}_{testId}";
+                        if (primaryQuestionIds.ContainsKey(key))
+                            questionDto.ParentQuestionId = primaryQuestionIds[key];
+
+                        else
+                            return BadRequest(
+                                $"Không tìm thấy câu hỏi Primary cho Label {questionDto.LabelOfPrimaryQuestion} trong nhóm {groupOfQuestion}");
+
+                        var existNonQuestion =
+                            _context.Questions
+                                .Include(q => q.Answers)
+                                .FirstOrDefault(q => q.QuestionId == questionDto.QuestionId);
+
+                        if (existNonQuestion == null)
+                        {
+                            var newQuestion = new Question
+                            {
+                                Image = questionDto.Image,
+                                QuestionContent = questionDto.QuestionContent ?? "Chưa có câu hỏi",
+                                MultipleAnswer = questionDto.MultipleAnswer,
+                                Primary = false,
+                                ParentQuestionId = questionDto.ParentQuestionId,
+                                LabelOfPrimaryQuestion = questionDto.LabelOfPrimaryQuestion,
+                                IsDelete = false,
+                                IsActive = true,
+                                Answers = questionDto.Answers?.Select(answer => new Answer
+                                {
+                                    AnswerContent = answer.AnswerContent,
+                                    Correct = answer.Correct,
+                                    Explain = answer.Explain
+                                }).ToList() ?? new List<Answer>(),
+                                PointOfQuestions = new List<PointOfQuestion>()
+                            };
+
+                            if (questionDto.PointOfQuestion.HasValue)
+                            {
+                                var pointOfQuestion = new PointOfQuestion
+                                {
+                                    Point = questionDto.PointOfQuestion.Value,
+                                    QuestionId = newQuestion.QuestionId,
+                                    TestId = testId
+                                };
+
+                                newQuestion.PointOfQuestions.Add(pointOfQuestion);
+
+                                listPointToAverage.Add(pointOfQuestion);
+                                Console.WriteLine(pointOfQuestion.Point);
+                                totalPointsOfNewQuestions += questionDto.PointOfQuestion.Value;
+                                if (existingPoints.Sum(p => p.Point) >= testPoint)
+                                {
+                                    return BadRequest(new
+                                        {
+                                            Message = "Điểm hiện tại của bài kiểm tra đã đạt tối đa. Hãy điều chỉnh lại để có thể tính điểm cho câu hỏi!",
+                                            Suggest = "Hãy chỉnh điểm các câu hỏi về 0 để tự tính điểm cho toàn bộ câu hỏi. Hoặc điều chỉnh điểm các câu hỏi cũ thấp xuống"
+                                        }
+                                        );
+                                }
+                                var totalPointsWithNew = existingPoints.Sum(p => p.Point) + totalPointsOfNewQuestions;
+                                if (totalPointsWithNew > testPoint)
+                                    return BadRequest(
+                                        "Điểm của các câu hỏi đang nhiều hơn điểm của bài kiểm tra. Vui lòng kiểm tra lại");
+                            }
+                            else
+                            {
+                                return BadRequest();
+                            }
+
+                            _context.Questions.Add(newQuestion);
+                        }
+                        else
+                        {
+                            existNonQuestion.QuestionId = questionDto.QuestionId;
+                            existNonQuestion.QuestionContent = questionDto.QuestionContent ?? "Chưa có câu hỏi";
+                            existNonQuestion.MultipleAnswer = questionDto.MultipleAnswer;
+                            existNonQuestion.Primary = questionDto.Primary;
+                            existNonQuestion.IsActive = questionDto.IsActive;
+                            existNonQuestion.IsDelete = questionDto.IsDelete;
+                            existNonQuestion.Image = questionDto.Image;
+
+                            if (questionDto.Answers != null)
+                            {
+                                foreach (var answerDto in questionDto.Answers)
+                                {
+                                    var existAnswer =
+                                        _context.Answers.FirstOrDefault(a => a.AnswerId == answerDto.AnswerId);
+                                    if (existAnswer != null)
+                                    {
+                                        existAnswer.AnswerContent = answerDto.AnswerContent;
+                                        existAnswer.Explain = answerDto.Explain;
+                                        existAnswer.Correct = answerDto.Correct;
+                                        existAnswer.IsActive = answerDto.IsActive;
+                                        existAnswer.IsDelete = answerDto.IsDelete;
+                                        _context.Answers.Update(existAnswer);
+                                        Console.WriteLine("Answer");
+                                    }
+                                    else
+                                    {
+                                        var newAnswer = new Answer
+                                        {
+                                            AnswerContent = answerDto.AnswerContent,
+                                            Explain = answerDto.Explain,
+                                            Correct = answerDto.Correct,
+                                            IsActive = true,
+                                            IsDelete = false
+                                        };
+                                        existNonQuestion.Answers.Add(newAnswer);
+                                    }
+                                }
+
+
+                                var existPointOfQuestion = _context.PointOfQuestions
+                                    .FirstOrDefault(p =>
+                                        p.TestId == testId && p.QuestionId == existNonQuestion.QuestionId);
+
+                                if (existPointOfQuestion != null)
+                                {
+                                    if (questionDto.PointOfQuestion != null)
+                                        existPointOfQuestion.Point = questionDto.PointOfQuestion;
+                                    _context.PointOfQuestions.Update(existPointOfQuestion);
+                                    _context.SaveChanges();
+                                }
+                                else
+                                {
+                                    return BadRequest(new { Message = "Sai rồi" });
+                                }
+
+                                Console.WriteLine("Diem" + existPointOfQuestion.Point);
+                            }
+                            _context.SaveChanges();
+                        }
+                    }
                 }
-            }
-            foreach (var point in existingPoints)
-            {
-                listPointToAverage.Add(point);
-            }
-            var averagePointCalculator = new GetAveragePoint();
-            float averagePoint = averagePointCalculator.AveragePointOfQuestion(listPointToAverage, testPoint);
-            Console.WriteLine("TB: " + averagePoint);
-            foreach (var point in listPointToAverage)
-            {
-                if (point.Point == 0)
+
+                listPointToAverage.AddRange(existingPoints);
+                if (!listPointToAverage.Any())
                 {
+                    return BadRequest("Danh sách điểm trống hoặc không hợp lệ.");
+                }
+
+                if (listPointToAverage.Any(p => p == null))
+                {
+                    return BadRequest("Danh sách điểm chứa phần tử null.");
+                }
+                Console.WriteLine(listPointToAverage);
+                var averagePointCalculator = new GetAveragePoint();
+                var averagePoint = averagePointCalculator.AveragePointOfQuestion(listPointToAverage, testPoint);
+                Console.WriteLine("TB: " + averagePoint);
+                foreach (var point in listPointToAverage.Where(point => point.Point == 0 && !point.question.Primary))
+                {
+                    if (point.question.Primary)
+                    {
+                        point.Point = 0;
+                    }
                     point.Point = averagePoint;
                 }
+
+                _context.SaveChanges();
+                transaction.Commit();
+
+                return Ok(new { Message = "Lưu thành công rồi má" });
             }
-
-            // Nếu tất cả các câu hỏi đã được thêm thành công, commit giao dịch
-            _context.SaveChanges();
-            transaction.Commit();
-
-            return Ok();
-        }
-        catch (Exception ex)
-        {
-            // Nếu có lỗi, rollback giao dịch và xóa các câu hỏi đã lưu
-            transaction.Rollback();
-            return BadRequest($"Có lỗi xảy ra: {ex.Message}");
+            catch (Exception ex)
+            {
+                transaction.Rollback();
+                return BadRequest($"Có lỗi xảy ra: {ex.Message}");
+            }
         }
     }
-}
-
-
-
 
 
     [HttpPut]

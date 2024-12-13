@@ -25,8 +25,10 @@ public class TestApi : ControllerBase
     }
 
     [HttpGet("{id}")]
-    public ActionResult<Test> GetByTittle(int id)
+    public ActionResult<Test> GetById(int id)
     {
+        bool mutipleSection = false;
+        int primaryCount = 0;
         var testDto = _context.Tests.Where(t => t.TestId == id)
             .Select(dto => new TestDto
             {
@@ -36,7 +38,18 @@ public class TestApi : ControllerBase
                 Point = dto.PointOfTest,
                 TestTime = dto.TestTime,
                 UserCreate = dto.applicationUser.UserName,
-                QuestionDtos = dto.PointOfQuestions.Select(q => new QuestionDto
+                StickersOfTests = dto.StickerOfTests
+                    .Where(soc => soc.IsActive && !soc.IsDelete)
+                    .Select(sticker => new StickerOfTestDto
+                    {
+                       StickerId = sticker.sticker.StickerId,
+                       IsDelete = sticker.sticker.IsDelete,
+                       IsActive = sticker.sticker.IsActive,
+                       TestId = sticker.TestId,
+                       StickerOfTestId = sticker.StickerOfTestId
+                    }).ToList(),
+                QuestionDtos = dto.PointOfQuestions
+                    .Select(q => new QuestionDto
                 {
                     QuestionId = q.QuestionId,
                     Primary = q.question.Primary,
@@ -46,6 +59,7 @@ public class TestApi : ControllerBase
                     QuestionContent = q.question.QuestionContent,
                     PointOfQuestion = q.Point,
                     Image = q.question.Image,
+                    GroupOfQuestion = q.question.ParentQuestionId,
                     Answers = q.question.Answers.Select(a => new AnswerDto
                     {
                         AnswerId = a.AnswerId,
@@ -54,8 +68,25 @@ public class TestApi : ControllerBase
                         Correct = a.Correct
                     }).ToList()
                 }).ToList()
-            });
-        return Ok(testDto);
+            }).FirstOrDefault();
+        var questions = testDto.QuestionDtos;
+
+        foreach (var question in questions)
+        {
+            if (question.Primary)
+            {
+                question.GroupOfQuestion = question.QuestionId;
+                primaryCount++;
+            }
+        }
+        mutipleSection = primaryCount > 1;
+
+        return Ok(new
+        {
+            MutipleSection = mutipleSection,
+            PrimaryCount = primaryCount,
+            TestDto = testDto,
+        });
     }
 
     [HttpGet("list")]
@@ -153,7 +184,7 @@ public class TestApi : ControllerBase
                         }).ToList()
                     }).ToList();
 
-                return Ok(testBySchedule); // Return the list of TestDto for all the tests in the schedule
+                return Ok(testBySchedule);
             }
 
             return BadRequest("Invalid day format"); // If the date format is invalid

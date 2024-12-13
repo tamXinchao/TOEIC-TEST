@@ -194,7 +194,10 @@
       class="fixed inset-0 bg-gray-500 bg-opacity-75 z-50 flex justify-center items-center w-full h-full"
     >
       <div class="relative p-4 w-full max-w-md max-h-full">
-        <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
+        <div
+          style="min-height: 70vh"
+          class="relative bg-white rounded-lg shadow dark:bg-gray-700"
+        >
           <div
             class="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-gray-600"
           >
@@ -626,7 +629,7 @@ const add = async () => {
     if (response.status === 200) {
       const { message, newTest } = response.data;
       alert(message || "Đã thêm lớp mới thành công!");
-      localTests.value.push(newTest);
+      classes.testOfClasses.push(newTest);
       closeModal();
     } else {
       alert("Đã xảy ra lỗi thêm lớp mới!");

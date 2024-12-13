@@ -164,9 +164,9 @@ export default {
       selectedAnswers: {},
       submittedAnswers: [],
       showSubmittedAnswers: null,
-      currentPage: 1, // Trang hiện tại của non-primary questions
-      currentPagePrimary: 1, // Trang hiện tại của primary questions
-      itemsPerPage: 1, // Số câu hỏi non-primary hiển thị mỗi trang
+      currentPage: 1,
+      currentPagePrimary: 1,
+      itemsPerPage: 1,
       itemsPerPagePrimary: 1,
       remainingTime: 0,
       timerInterval: null,
@@ -224,9 +224,8 @@ export default {
       this.currentPage = 1;
     },
 
-    // Hàm lấy ID câu hỏi trên trang hiện tại
     getCurrentQuestionIds() {
-      const test = this.tests[0]; // Chỉ có một bài kiểm tra
+      const test = this.tests[0];
       if (!test || !test.questionDtos) return [];
 
       const primaryQuestions = test.questionDtos.filter(

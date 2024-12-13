@@ -19,8 +19,14 @@ public class GetAveragePoint
 
         foreach (var pointOfQuestion in pointOfQuestions)
         {
+            if (pointOfQuestion?.question == null) 
+            {
+                Console.WriteLine("pointOfQuestion or question is null.");
+                continue;
+            }
             if (pointOfQuestion.question.Primary)
             {
+                questionNoNeedAverage++;
                 continue;
             }
             if (pointOfQuestion.Point != 0)
