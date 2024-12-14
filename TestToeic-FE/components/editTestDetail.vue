@@ -1,11 +1,40 @@
 <template>
   <div class="max-w-4xl mx-auto p-6 bg-white shadow-md rounded-lg">
-    <button @click.prevent="openModal">Thêm câu hỏi</button>
+    <!-- <button @click.prevent="openModal">Thêm câu hỏi</button> -->
     <!-- Tiêu đề bài kiểm tra -->
-    <div class="text-center">
-      <h1 class="text-3xl font-bold text-gray-800 mb-6">
+    <div class="max-w-3xl mx-auto p-6">
+      <h1 class="text-4xl font-semibold text-gray-800 text-center mb-6">
         {{ testDetail.testDto.title }}
       </h1>
+
+      <!-- Thông tin bài kiểm tra -->
+      <div class="grid grid-cols-1 mt-7 sm:grid-cols-2 gap-6">
+        <div class="space-y-4">
+          <p class="text-lg text-gray-600">
+            <span class="font-semibold">Người tạo:</span>
+            {{ testDetail.testDto.userCreate }}
+          </p>
+          <p class="text-lg text-gray-600">
+            <span class="font-semibold">Số câu hỏi:</span>
+            {{ testDetail.testDto.questionDtos.length }}
+          </p>
+          <p class="text-lg text-gray-600">
+            <span class="font-semibold">Ngày tạo:</span>
+            {{ testDetail.testDto.stringDateCreateTest }}
+          </p>
+        </div>
+
+        <div class="space-y-4">
+          <p class="text-lg text-gray-600">
+            <span class="font-semibold">Điểm bài kiểm tra:</span>
+            {{ testDetail.testDto.point }}
+          </p>
+          <p class="text-lg text-gray-600">
+            <span class="font-semibold">Thời gian làm bài:</span>
+            {{ testDetail.testDto.testTimeMinutes }} phút
+          </p>
+        </div>
+      </div>
     </div>
 
     <!-- Danh sách câu hỏi -->
@@ -30,12 +59,12 @@
         <div class="mb-4">
           <input
             v-model="group.primary.labelOfPrimaryQuestion"
-            class="w-full p-2 border rounded-lg text-gray-800 mb-2"
+            class="w-full p-3 border rounded-lg text-gray-800 mb-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
             placeholder="Nhập nhãn của câu hỏi chính"
           />
           <textarea
             v-model="group.primary.questionContent"
-            class="w-full p-2 border rounded-lg mt-2 bg-white resize-none"
+            class="w-full p-3 border rounded-lg mt-2 bg-white resize-none focus:outline-none focus:ring-2 focus:ring-blue-400"
             placeholder="Nhập câu hỏi chính"
             @input="autoResize"
           ></textarea>
@@ -51,13 +80,13 @@
             <div class="flex justify-between items-center mb-3">
               <input
                 v-model="question.questionContent"
-                class="flex-grow p-2 border rounded-lg text-gray-800"
+                class="flex-grow p-3 border rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-400"
                 placeholder="Nhập câu hỏi phụ"
               />
               <input
                 v-model="question.pointOfQuestion"
                 type="number"
-                class="w-24 p-2 border rounded-lg text-blue-600"
+                class="w-24 p-3 border rounded-lg text-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400"
                 placeholder="Điểm"
                 min="0"
               />
@@ -78,12 +107,12 @@
               >
                 <input
                   v-model="answer.answerContent"
-                  class="flex-grow p-2 border rounded-lg text-gray-800"
+                  class="flex-grow p-3 border rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-400"
                   placeholder="Nhập đáp án"
                 />
                 <input
                   v-model="answer.explain"
-                  class="flex-grow p-2 border rounded-lg text-gray-600 italic"
+                  class="flex-grow p-3 border rounded-lg text-gray-600 italic focus:outline-none focus:ring-2 focus:ring-blue-400"
                   placeholder="Giải thích (nếu có)"
                 />
                 <label class="flex items-center space-x-2">
@@ -127,7 +156,7 @@
       </div>
 
       <!-- Nút thêm nhóm và lưu -->
-      <div class="flex justify-between">
+      <div class="flex justify-between mt-8">
         <button
           @click="addGroup"
           class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
@@ -181,176 +210,14 @@
               </svg>
             </button>
           </div>
+
           <!-- Modal body -->
           <div class="p-4 overflow-y-auto flex-grow">
             <form>
-              <div class="grid gap-4 mb-4">
-                <div class="col-span-2">
-                  <label
-                    for="TypeOfQuestionInput"
-                    class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-                  >
-                    Thể loại
-                  </label>
-                  <select
-                    id="TypeOfQuestionInput"
-                    v-model="typeOfQuestionInput"
-                    class="w-full p-2.5 bg-gray-50 border border-gray-300 rounded-lg text-gray-900 dark:bg-gray-600 dark:border-gray-500 dark:text-white focus:ring-blue-500 focus:border-blue-500"
-                  >
-                    <option :value="true">Câu hỏi chính</option>
-                    <option :value="false">Câu hỏi phụ</option>
-                  </select>
-                </div>
-                <div v-if="!isMainQuestion" class="col-span-2">
-                  <label
-                    for="ParentOfQuestionInput"
-                    class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-                  >
-                    Câu hỏi chính
-                  </label>
-                  <select
-                    id="ParentOfQuestionInput"
-                    v-model="parentOfQuestionInput"
-                    class="w-full p-2.5 bg-gray-50 border border-gray-300 rounded-lg text-gray-900 dark:bg-gray-600 dark:border-gray-500 dark:text-white focus:ring-blue-500 focus:border-blue-500"
-                  >
-                    <option
-                      v-for="group in groupedQuestions"
-                      :key="group.groupOfQuestion"
-                      :value="group.groupOfQuestion"
-                    >
-                      {{ group.primary.labelOfPrimaryQuestion }}
-                    </option>
-                  </select>
-                </div>
-                <div class="col-span-2">
-                  <label
-                    for="QuestionInput"
-                    class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-                  >
-                    Câu hỏi
-                  </label>
-                  <input
-                    type="text"
-                    id="QuestionInput"
-                    class="w-full p-2.5 bg-gray-50 border border-gray-300 rounded-lg text-gray-900 dark:bg-gray-600 dark:border-gray-500 dark:text-white focus:ring-blue-500 focus:border-blue-500"
-                    placeholder="Nhập câu hỏi..."
-                    required
-                    v-model="questionInput"
-                  />
-                </div>
-                <div class="col-span-2">
-                  <label
-                    for="LabelOfPrimaryQuestionInput"
-                    class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-                  >
-                    Nhãn của câu hỏi chính
-                  </label>
-                  <input
-                    type="text"
-                    id="LabelOfPrimaryQuestionInput"
-                    class="w-full p-2.5 bg-gray-50 border border-gray-300 rounded-lg text-gray-900 dark:bg-gray-600 dark:border-gray-500 dark:text-white focus:ring-blue-500 focus:border-blue-500"
-                    placeholder="Nhập nhãn của câu hỏi chính..."
-                    required
-                    v-model="labelOfPrimaryQuestionInput"
-                  />
-                </div>
-                <div class="col-span-2">
-                  <label
-                    for="ImageInput"
-                    class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-                  >
-                    Thêm ảnh
-                  </label>
-                  <input
-                    type="file"
-                    id="ImageInput"
-                    accept="image/*"
-                    class="w-full p-2.5 bg-gray-50 border border-gray-300 rounded-lg text-gray-900 dark:bg-gray-600 dark:border-gray-500 dark:text-white focus:ring-blue-500 focus:border-blue-500"
-                  />
-                </div>
-                <div class="col-span-2">
-                  <label
-                    for="AudioInput"
-                    class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-                  >
-                    Thêm âm thanh
-                  </label>
-                  <input
-                    type="file"
-                    id="AudioInput"
-                    accept="audio/*"
-                    class="w-full p-2.5 bg-gray-50 border border-gray-300 rounded-lg text-gray-900 dark:bg-gray-600 dark:border-gray-500 dark:text-white focus:ring-blue-500 focus:border-blue-500"
-                  />
-                </div>
-                <div class="col-span-2">
-                  <label
-                    for="UrlInput"
-                    class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-                  >
-                    Đường dẫn URL
-                  </label>
-                  <input
-                    type="text"
-                    id="UrlInput"
-                    class="w-full p-2.5 bg-gray-50 border border-gray-300 rounded-lg text-gray-900 dark:bg-gray-600 dark:border-gray-500 dark:text-white focus:ring-blue-500 focus:border-blue-500"
-                    placeholder="Nhập đường dẫn..."
-                    required
-                    v-model="UrlInput"
-                  />
-                </div>
-                <div v-if="!isMainQuestion" class="col-span-2 space-y-6">
-                  <!-- Nhóm Đáp án và Giải thích 1 -->
-                  <div class="flex items-center space-x-4">
-                    <div class="w-2/3">
-                      <label
-                        for="answerInput1"
-                        class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-                      >
-                        Đáp án
-                      </label>
-                      <input
-                        type="text"
-                        id="answerInput1"
-                        class="w-full p-2.5 bg-gray-50 border border-gray-300 rounded-lg text-gray-900 dark:bg-gray-600 dark:border-gray-500 dark:text-white focus:ring-blue-500 focus:border-blue-500"
-                        placeholder="Nhập đáp án..."
-                        required
-                        v-model="answer1"
-                      />
-                    </div>
-
-                    <!-- Checkbox nằm bên phải -->
-                    <div class="ml-auto flex items-center space-x-2">
-                      <input
-                        type="checkbox"
-                        id="correctAnswer1"
-                        class="form-checkbox h-5 w-5 text-white bg-green-600 border-green-600 rounded-lg checked:bg-green-700 focus:outline-none"
-                      />
-                      <label for="correctAnswer1" class="text-sm text-white"
-                        >Đúng</label
-                      >
-                    </div>
-                  </div>
-
-                  <div class="w-full">
-                    <label
-                      for="explanationInput1"
-                      class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-                    >
-                      Giải thích
-                    </label>
-                    <input
-                      type="text"
-                      id="explanationInput1"
-                      class="w-full p-2.5 bg-gray-50 border border-gray-300 rounded-lg text-gray-900 dark:bg-gray-600 dark:border-gray-500 dark:text-white focus:ring-blue-500 focus:border-blue-500"
-                      placeholder="Nhập giải thích..."
-                      required
-                      v-model="explanation1"
-                    />
-                  </div>
-                </div>
-              </div>
+              <!-- Form Fields Here -->
             </form>
           </div>
+
           <!-- Modal footer -->
           <div
             class="flex justify-end p-4 border-t dark:border-gray-600 bg-gray-100 dark:bg-gray-700"
@@ -360,12 +227,6 @@
               class="px-4 py-2 text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:ring-2 focus:ring-blue-400"
             >
               {{ isEditMode ? "Lưu chỉnh sửa" : "Thêm mới" }}
-            </button>
-            <button
-              @click="closeModal"
-              class="ml-2 px-4 py-2 text-gray-600 bg-gray-200 rounded-lg hover:bg-gray-300 dark:bg-gray-600 dark:text-gray-200"
-            >
-              Đóng
             </button>
           </div>
         </div>
@@ -571,9 +432,16 @@ export default {
         )
         .then((res) => {
           console.log(res.data);
+          alert(res.data.message);
         })
         .catch((err) => {
           console.error(err);
+
+          if (err.response) {
+            alert(err.response.data.message);
+          } else {
+            alert("Có lỗi xảy ra. Vui lòng thử lại sau.");
+          }
         });
     },
     openModal(classToEdit = null) {
@@ -594,5 +462,48 @@ export default {
 }
 button {
   cursor: pointer;
+}
+/* Custom Styles */
+.text-gray-600 {
+  color: #4a5568;
+}
+.text-gray-800 {
+  color: #2d3748;
+}
+.bg-gray-100 {
+  background-color: #f7fafc;
+}
+.bg-white {
+  background-color: white;
+}
+.bg-blue-600 {
+  background-color: #3182ce;
+}
+.bg-orange-500 {
+  background-color: #f6ad55;
+}
+.bg-red-500 {
+  background-color: #f56565;
+}
+.bg-green-500 {
+  background-color: #48bb78;
+}
+.bg-opacity-75 {
+  background-color: rgba(0, 0, 0, 0.75);
+}
+.shadow-md {
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+.shadow-sm {
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+.text-sm {
+  font-size: 0.875rem;
+}
+.text-lg {
+  font-size: 1.125rem;
+}
+.font-semibold {
+  font-weight: 600;
 }
 </style>

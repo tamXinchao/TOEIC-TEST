@@ -111,12 +111,12 @@ public class TestApi : ControllerBase
 
             if (existUser.Count == 0) return NotFound($"Không tìm thấy người dùng {id}");
             var test = _context.Tests.AsNoTracking()
-                .Where(t => existUser.Select(u => u.TestId).Contains(t.TestId) && t.IsDelete == false)
+                .Where(t => existUser.Select(u => u.TestId).Contains(t.TestId) && !t.IsDelete )
                 .Select(t => new TestDto
                 {
                     Id = t.TestId,
                     Point = t.PointOfTest,
-                    UserCreate = t.applicationUser.UserName,
+                    UserCreate = t.applicationUser.UserName ?? "Chưa có tên người tạo",
                     Title = t.TestName,
                     TestTime = t.TestTime,
                     DateCreate = t.TestDateCreated,
@@ -135,7 +135,9 @@ public class TestApi : ControllerBase
             return Ok(test);
         }
 
-        var tests = _context.Tests.AsNoTracking().Select(t => new TestDto
+        var tests = _context.Tests.AsNoTracking()
+            .Where(c => !c.IsDelete)
+            .Select(t => new TestDto
         {
             Id = t.TestId,
             UserCreate = t.applicationUser.UserName ?? "Chưa có người tạo",

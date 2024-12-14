@@ -264,7 +264,7 @@ export default {
         if (this.remainingTime > 0) {
           this.remainingTime -= 1;
         } else {
-          clearInterval(this.timerInterval);
+          this.submitTest();
           alert("Hết thời gian làm bài!");
         }
       }, 1000);

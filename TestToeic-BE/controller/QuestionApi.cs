@@ -293,6 +293,15 @@ public class QuestionApi : ControllerBase
                                 {
                                     if (questionDto.PointOfQuestion != null)
                                         existPointOfQuestion.Point = questionDto.PointOfQuestion;
+                                    if (existingPoints.Sum(p => p.Point) > testPoint)
+                                    {
+                                        return BadRequest(new
+                                            {
+                                                Message = "Điểm hiện tại của bài kiểm tra đã đạt tối đa. Hãy điều chỉnh lại để có thể tính điểm cho câu hỏi!",
+                                                Suggest = "Hãy chỉnh điểm các câu hỏi về 0 để tự tính điểm cho toàn bộ câu hỏi. Hoặc điều chỉnh điểm các câu hỏi cũ thấp xuống"
+                                            }
+                                        );
+                                    }
                                     _context.PointOfQuestions.Update(existPointOfQuestion);
                                     _context.SaveChanges();
                                 }

@@ -1,6 +1,8 @@
 <template>
   <div class="max-w-4xl mx-auto bg-white p-6 rounded-lg shadow-lg">
-    <h2 class="text-2xl font-semibold mb-4 text-center">Tìm kiếm thông tin</h2>
+    <h2 class="text-2xl font-semibold mb-4 text-center">
+      Tìm kiếm thông tin bài kiểm tra
+    </h2>
 
     <form @submit.prevent="submitForm">
       <table class="min-w-full table-auto">
@@ -55,7 +57,7 @@
             :key="user.id"
             class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600"
           >
-            <td class="px-6 py-4">{{ index + 1 }}</td>
+            <td class="px-6 py-4">{{ user.id }}</td>
             <th
               scope="row"
               class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white"
