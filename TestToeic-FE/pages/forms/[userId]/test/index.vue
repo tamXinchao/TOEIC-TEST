@@ -8,6 +8,7 @@ import axios from "axios";
 const { data: tests } = await axios.get(
   `http://localhost:5082/api/testApi/listBySchedule`
 );
+console.log(tests);
 </script>
 
 <style lang="scss" scoped></style>

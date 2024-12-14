@@ -7,7 +7,7 @@ export default {
   data() {
     return {
       testId: this.$route.params.testId, // Lấy testId từ URL
-      userId: this.$route.params.userId, // Lấy userId từ URL
+      userId: this.$route.params.userId,
     };
   },
   watch: {

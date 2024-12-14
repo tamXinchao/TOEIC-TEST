@@ -104,50 +104,51 @@
           >
             Sao chép
           </button>
+          <NuxtLink :to="`/admin/class/test/${test.id}`">
+            <h3 class="text-lg font-semibold text-gray-800">
+              {{ test.title || "Chưa có tiêu đề" }}
+            </h3>
+            <p class="text-gray-500 text-sm">
+              <span class="font-bold">Số lượng câu hỏi:</span>
+              {{ test.questionDtos?.length || 0 }}
+            </p>
+            <p class="text-gray-500 text-sm">
+              <span class="font-bold">Thời gian làm bài:</span>
+              {{ test.testTimeMinutes || "Chưa có thông tin" }} phút
+            </p>
+            <p class="text-gray-500 text-sm">
+              <span class="font-bold me-2">Trạng thái:</span>
+              <span :class="test.isActive ? 'text-green-500' : 'text-red-500'">
+                {{
+                  test.isActive !== undefined
+                    ? test.isActive
+                      ? "Đang mở"
+                      : "Đã đóng"
+                    : "Không xác định"
+                }}
+              </span>
+            </p>
 
-          <h3 class="text-lg font-semibold text-gray-800">
-            {{ test.title || "Chưa có tiêu đề" }}
-          </h3>
-          <p class="text-gray-500 text-sm">
-            <span class="font-bold">Số lượng câu hỏi:</span>
-            {{ test.questionDtos?.length || 0 }}
-          </p>
-          <p class="text-gray-500 text-sm">
-            <span class="font-bold">Thời gian làm bài:</span>
-            {{ test.testTimeMinutes || "Chưa có thông tin" }} phút
-          </p>
-          <p class="text-gray-500 text-sm">
-            <span class="font-bold me-2">Trạng thái:</span>
-            <span :class="test.isActive ? 'text-green-500' : 'text-red-500'">
-              {{
-                test.isActive !== undefined
-                  ? test.isActive
-                    ? "Đang mở"
-                    : "Đã đóng"
-                  : "Không xác định"
-              }}
-            </span>
-          </p>
-
-          <!-- Display sticker if available -->
-          <div v-if="test.stickers && test.stickers.length > 0" class="mt-4">
-            <div class="flex flex-wrap space-x-2">
-              <div
-                v-for="sticker in test.stickers"
-                :key="sticker.stickerId"
-                class="flex items-center"
-              >
-                <NuxtLink :to="'#'">
-                  <p
-                    class="text-sm text-gray-600 bg-gray-200 my-1 px-3 py-1 rounded-full inline-flex items-center transition-all duration-300 ease-in-out hover:bg-blue-200 hover:text-white"
-                  >
-                    <span class="font-semibold text-gray-700">#</span>
-                    {{ sticker.stickerName }}
-                  </p>
-                </NuxtLink>
+            <!-- Display sticker if available -->
+            <div v-if="test.stickers && test.stickers.length > 0" class="mt-4">
+              <div class="flex flex-wrap space-x-2">
+                <div
+                  v-for="sticker in test.stickers"
+                  :key="sticker.stickerId"
+                  class="flex items-center"
+                >
+                  <NuxtLink :to="'#'">
+                    <p
+                      class="text-sm text-gray-600 bg-gray-200 my-1 px-3 py-1 rounded-full inline-flex items-center transition-all duration-300 ease-in-out hover:bg-blue-200 hover:text-white"
+                    >
+                      <span class="font-semibold text-gray-700">#</span>
+                      {{ sticker.stickerName }}
+                    </p>
+                  </NuxtLink>
+                </div>
               </div>
             </div>
-          </div>
+          </NuxtLink>
           <div class="flex mt-2 justify-end space-x-2" v-if="isAdminPath">
             <!-- Nút chỉnh sửa -->
             <button
@@ -693,7 +694,7 @@ const deleteTest = async (TestIdDelete) => {
     try {
       // Gửi yêu cầu DELETE đến API
       const response = await axios.delete(
-        `http://localhost:5082/api/testApi?id=${TestIdDelete}`
+        `http://localhost:5082/api/testApi?id=${TestIdDelete}&classId=${classes.idOfClass}`
       );
 
       // Kiểm tra phản hồi từ API

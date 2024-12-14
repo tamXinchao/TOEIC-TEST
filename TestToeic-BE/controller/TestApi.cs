@@ -88,12 +88,13 @@ public class TestApi : ControllerBase
 
         mutipleSection = primaryCount > 1;
 
-        return Ok(new
-        {
-            MutipleSection = mutipleSection,
-            PrimaryCount = primaryCount,
-            TestDto = testDto,
-        });
+        return Ok(
+           new
+           { MutipleSection = mutipleSection,
+               PrimaryCount = primaryCount,
+               TestDto = testDto
+           }        
+        );
     }
 
     [HttpGet("list")]
@@ -104,7 +105,7 @@ public class TestApi : ControllerBase
         {
             var existUser = _context.Tests.AsNoTracking()
                 .Where(u => u.TestId == parsedId || u.TestName.ToLower().Contains(id.ToLower()) ||
-                            u.applicationUser.UserName.ToLower().Contains(id.ToLower())
+                            u.applicationUser.UserName.ToLower().Contains(id.ToLower()) && !u.IsDelete
                 )
                 .ToList();
 
@@ -174,7 +175,7 @@ public class TestApi : ControllerBase
                     .Select(s => s.TestId)
                     .ToList();
                 testBySchedule = _context.Tests.AsNoTracking()
-                    .Where(t => schedule.Contains(t.TestId) && t.IsActive == true && t.IsDelete == false)
+                    .Where(t => schedule.Contains(t.TestId) && t.IsActive && !t.IsDelete )
                     .Select(t => new TestDto
                     {
                         Id = t.TestId,
@@ -183,6 +184,8 @@ public class TestApi : ControllerBase
                         Title = t.TestName,
                         TestTime = t.TestTime,
                         DateCreate = t.TestDateCreated,
+                        IsDelete = t.IsDelete,
+                        IsActive = t.IsActive,
                         QuestionDtos = t.PointOfQuestions.Select(q => new QuestionDto
                         {
                             QuestionId = q.QuestionId,
@@ -217,7 +220,9 @@ public class TestApi : ControllerBase
                 {
                     QuestionId = q.QuestionId,
                     QuestionContent = q.question.QuestionContent,
-                    PointOfQuestion = q.Point
+                    PointOfQuestion = q.Point,
+                    IsDelete = q.IsDelete,
+                    IsActive = q.IsActive
                 }).ToList()
             }).ToList();
 
@@ -312,7 +317,7 @@ public class TestApi : ControllerBase
             {
                 Id = t.test.TestId,
                 Point = t.test.PointOfTest,
-                UserCreate = t.test.applicationUser.UserName,
+                UserCreate = t.test.applicationUser.UserName ?? "Chưa có tên người tạo",
                 Title = t.test.TestName,
                 TestTime = t.test.TestTime,
                 Stickers = t.test.StickerOfTests
@@ -755,15 +760,23 @@ public class TestApi : ControllerBase
     }
 
     [HttpDelete]
-    public IActionResult DeleteTest(int id)
+    public IActionResult DeleteTest(int id ,int classId)
     {
         var existTest = _context.Tests.FirstOrDefault(c => c.TestId == id);
         if (existTest == null) return NotFound(new { Message = "Không tìm thấy bài kiểm tra cần xóa" });
+        var existTestInClass = _context.TestOfClasses.FirstOrDefault(t => t.TestId == id 
+        && t.ClassId == classId);
 
+        if (existTestInClass == null)
+        {
+            return NotFound();
+        }
+
+        existTestInClass.IsDelete = true;
         existTest.IsDelete = true;
-
         _context.Tests.Update(existTest);
+        _context.TestOfClasses.Update(existTestInClass);
         _context.SaveChanges();
-        return Ok(new { Message = "Xóa thành công lớp" });
+        return Ok(new { Message = "Xóa thành công bài kiểm tra" });
     }
 }

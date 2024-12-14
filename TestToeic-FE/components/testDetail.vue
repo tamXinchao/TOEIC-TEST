@@ -317,8 +317,8 @@ export default {
       const response = await axios.get(
         `http://localhost:5082/api/testApi/${this.testId}`
       );
-      if (response.data && Array.isArray(response.data)) {
-        this.tests = response.data;
+      if (response.data && response.data.testDto) {
+        this.tests = [response.data.testDto];
         console.log("Dữ liệu bài kiểm tra:", this.tests);
         if (this.tests.length > 0) {
           this.startTimer(this.tests[0].testTimeMinutes);
