@@ -1,5 +1,9 @@
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
 using TestToeic.Db;
 using TestToeic.entity;
 using TestToeic.entity.dto;
@@ -23,7 +27,7 @@ public class UserApi : ControllerBase
         return _context.Users.ToList();
     }
     
-    [HttpGet("getByUsername")]
+    [HttpGet("{username}")]
     public ActionResult<ApplicationUser> GetByUsername(string username)
     {
         var existUser = _context.Users.FirstOrDefault(u => u.UserName == username);
@@ -32,7 +36,24 @@ public class UserApi : ControllerBase
             return NotFound();
         }
 
-        return Ok(existUser);
+        var token = GenerateJwtToken(existUser.Id);
+        return Ok(token);
+    }
+    public string GenerateJwtToken(string userId)
+    {
+        var tokenHandler = new JwtSecurityTokenHandler();
+        var key = Encoding.UTF8.GetBytes("ForTheLoveOfGodStoreAndLoadThisSecurely");
+        var tokenDescriptor = new SecurityTokenDescriptor
+        {
+            Subject = new ClaimsIdentity(new[] { new Claim("id", userId) }),
+            Expires = DateTime.Now.AddDays(7).ToUniversalTime(),
+            Issuer = "http://id.nickchapsas.com",
+            Audience=  "http://movies.nickchapsas.com",
+            SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+        };
+        var token = tokenHandler.CreateToken(tokenDescriptor);
+        Console.WriteLine(token);
+        return tokenHandler.WriteToken(token);
     }
 
     [HttpPost]

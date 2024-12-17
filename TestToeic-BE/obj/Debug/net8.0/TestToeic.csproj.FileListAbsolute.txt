@@ -251,3 +251,11 @@ C:\DuAnCaNhan\CV\Pmedia\workspace\TestToeic\TestToeic-BE\bin\Debug\net8.0\Newton
 C:\DuAnCaNhan\CV\Pmedia\workspace\TestToeic\TestToeic-BE\bin\Debug\net8.0\BouncyCastle.Cryptography.dll
 C:\DuAnCaNhan\CV\Pmedia\workspace\TestToeic\TestToeic-BE\bin\Debug\net8.0\itext.bouncy-castle-adapter.dll
 C:\DuAnCaNhan\CV\Pmedia\workspace\TestToeic\TestToeic-BE\bin\Debug\net8.0\itext.html2pdf.dll
+C:\DuAnCaNhan\CV\Pmedia\workspace\TestToeic\TestToeic-BE\bin\Debug\net8.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll
+C:\DuAnCaNhan\CV\Pmedia\workspace\TestToeic\TestToeic-BE\bin\Debug\net8.0\Microsoft.IdentityModel.Abstractions.dll
+C:\DuAnCaNhan\CV\Pmedia\workspace\TestToeic\TestToeic-BE\bin\Debug\net8.0\Microsoft.IdentityModel.JsonWebTokens.dll
+C:\DuAnCaNhan\CV\Pmedia\workspace\TestToeic\TestToeic-BE\bin\Debug\net8.0\Microsoft.IdentityModel.Logging.dll
+C:\DuAnCaNhan\CV\Pmedia\workspace\TestToeic\TestToeic-BE\bin\Debug\net8.0\Microsoft.IdentityModel.Protocols.dll
+C:\DuAnCaNhan\CV\Pmedia\workspace\TestToeic\TestToeic-BE\bin\Debug\net8.0\Microsoft.IdentityModel.Protocols.OpenIdConnect.dll
+C:\DuAnCaNhan\CV\Pmedia\workspace\TestToeic\TestToeic-BE\bin\Debug\net8.0\Microsoft.IdentityModel.Tokens.dll
+C:\DuAnCaNhan\CV\Pmedia\workspace\TestToeic\TestToeic-BE\bin\Debug\net8.0\System.IdentityModel.Tokens.Jwt.dll

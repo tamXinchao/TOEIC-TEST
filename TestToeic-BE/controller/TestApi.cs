@@ -1,4 +1,5 @@
 using System.Runtime.InteropServices;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using TestToeic.Db;
@@ -23,7 +24,8 @@ public class TestApi : ControllerBase
     {
         return _context.Tests.ToList();
     }
-
+    
+    [Authorize]
     [HttpGet("{id}")]
     public ActionResult<Test> GetById(int id)
     {
