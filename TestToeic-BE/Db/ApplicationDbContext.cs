@@ -21,4 +21,5 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     public DbSet<Sticker> Stickers { get; set; }
     public DbSet<StickerOfTest> StickerOfTests { get; set; }
     public DbSet<Notice> Notices { get; set; }
+    public DbSet<LevelOfClass> LevelOfClasses { get; set; }
 }

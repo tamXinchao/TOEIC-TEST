@@ -177,7 +177,7 @@ public class TestApi : ControllerBase
                 utcDateTime = new DateTime(parsedDay.Year, parsedDay.Month, parsedDay.Day, vietnamTime.Hour,
                     vietnamTime.Minute, vietnamTime.Second, DateTimeKind.Utc);
                 schedule = _context.Schedules.AsNoTracking()
-                    .Where(s => s.DayOpenTest <= utcDateTime && s.DayCloseTest >= utcDateTime)
+                    .Where(s => s.DayOpenTest <= utcDateTime && s.DayCloseTest >= utcDateTime && s.IsActive && !s.IsDelete)
                     .Select(s => s.TestId)
                     .ToList();
                 testBySchedule = _context.Tests.AsNoTracking()
@@ -209,11 +209,11 @@ public class TestApi : ControllerBase
         utcDateTime = new DateTime(vietnamTime.Year, vietnamTime.Month, vietnamTime.Day, vietnamTime.Hour,
             vietnamTime.Minute, vietnamTime.Second, DateTimeKind.Utc);
         schedule = _context.Schedules.AsNoTracking()
-            .Where(s => s.DayOpenTest <= utcDateTime && s.DayCloseTest >= utcDateTime)
+            .Where(s => s.DayOpenTest <= utcDateTime && s.DayCloseTest >= utcDateTime && s.IsActive && !s.IsDelete)
             .Select(s => s.TestId)
             .ToList();
         testBySchedule = _context.Tests.AsNoTracking()
-            .Where(t => schedule.Contains(t.TestId) && t.IsActive == true && t.IsDelete == false)
+            .Where(t => schedule.Contains(t.TestId) && t.IsActive && !t.IsDelete)
             .Select(t => new TestDto
             {
                 Id = t.TestId,

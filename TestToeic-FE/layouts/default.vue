@@ -5,7 +5,9 @@
         <NuxtLink to="/" class="font-bold">Thi đầu vào Toeic</NuxtLink>
         <ul class="flex gap-4">
           <li><NuxtLink to="/" class="text-blue-500">Home</NuxtLink></li>
-          <li><NuxtLink to="/admin">Admin</NuxtLink></li>
+          <li v-if="user && role == 'teacher'">
+            <NuxtLink to="/admin">Admin</NuxtLink>
+          </li>
           <li>
             <NuxtLink to="/classes">Lớp dành cho học viên</NuxtLink>
           </li>
@@ -23,6 +25,12 @@
     </div>
   </div>
 </template>
+
+<script setup>
+const { $auth } = useNuxtApp();
+const user = $auth.user;
+const role = $auth.role;
+</script>
 
 <style scoped>
 /* Thêm kiểu CSS cho các link đang active */

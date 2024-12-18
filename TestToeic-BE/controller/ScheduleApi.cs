@@ -26,7 +26,7 @@ public class ScheduleApi : ControllerBase
             .Select(s => new ScheduleDto
         {
             ScheduleId = s.ScheduleId,
-            TestId = s.test.TestId, // Lấy ID bài test
+            TestId = s.test.TestId,
             TestName = s.test.TestName,
             ClassName = _context.TestOfClasses
                 .Where(tc => tc.TestId == s.test.TestId)
@@ -42,6 +42,39 @@ public class ScheduleApi : ControllerBase
         return Ok(scheduleDtos);
     }
 
+    [HttpGet("{userId}")]
+    public ActionResult<IEnumerable<ScheduleDto>> GetByUsername(string userId)
+    {
+        var classOfUser = _context.MemberOfClasses
+            .Where(m => m.ApplicationUserId == userId)
+            .Select(h => h.ClassId)
+            .ToList();
+        var testOfClassIds = _context.TestOfClasses
+            .Where(tc => classOfUser.Contains(tc.ClassId))
+            .Select(tc => tc.TestId)
+            .ToList();
+
+        var scheduleDtos = _context.Schedules
+            .Where(s => s.IsActive == true && s.IsDelete == false && testOfClassIds.Contains(s.TestId)) 
+            .Select(s => new ScheduleDto
+            {
+                ScheduleId = s.ScheduleId,
+                TestId = s.test.TestId,
+                TestName = s.test.TestName,
+                ClassName = _context.TestOfClasses
+                    .Where(tc => tc.TestId == s.test.TestId)
+                    .Select(tc => tc.classRef.ClassName)
+                    .FirstOrDefault() ?? "Chưa có lớp",
+                ClassId = _context.TestOfClasses
+                    .Where(tc => tc.TestId == s.test.TestId)
+                    .Select(tc => tc.classRef.ClassId)
+                    .FirstOrDefault(),
+                DayCloseTest = s.DayCloseTest,
+                DayOpenTest = s.DayOpenTest,
+            }).ToList();
+        return Ok(scheduleDtos);
+    }
+    
     [HttpPost]
     public ActionResult<ScheduleDto> Post(ScheduleDto scheduleDto)
     {

@@ -55,23 +55,23 @@ export default {
         password: "",
       }),
       $toast: useNuxtApp(),
+      $auth: useNuxtApp(),
     };
   },
   methods: {
     async submitForm() {
       const request = this.form;
       console.log(request);
-      axios
-        .post("http://localhost:5082/api/userApi/login", request)
-        .then((response) => {
-          console.log(response.data);
-          localStorage.setItem("token", response.data);
-          this.$router.push({ name: "index" });
-        })
-        .catch((error) => {
-          console.log(error);
-          alert(error.response.data);
-        });
+      const success = await this.$auth.login(
+        this.form.username,
+        this.form.password
+      );
+      if (success) {
+        console.log("Login thành công");
+        this.$router.push("/");
+      } else {
+        console.log("Login thất bại");
+      }
     },
   },
 };

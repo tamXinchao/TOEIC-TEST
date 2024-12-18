@@ -1,6 +1,7 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
@@ -60,13 +61,17 @@ public class UserApi : ControllerBase
             dto.Permission = hasTeacherRole;
             dto.RoleName = hasTeacherRole ? "teacher" : string.Join(", ", role);
             var token = GenerateJwtToken(dto);
-            return Ok(token);
+            return Ok(new
+            {
+                Token = token,
+                UserId = existUser.Id,
+                Role  = dto.RoleName
+            });
         }
         else
         {
             return Unauthorized("Tên đăng nhập hoặc mật khẩu không chính xác");
         }
-        
     }
     public string GenerateJwtToken(UserDto dto)
     {
@@ -84,7 +89,7 @@ public class UserApi : ControllerBase
         var tokenDescriptor = new SecurityTokenDescriptor
         {
             Subject = new ClaimsIdentity(claims),
-            Expires = DateTime.Now.AddDays(7).ToUniversalTime(),
+            Expires = DateTime.Now.AddDays(1).ToUniversalTime(),
             Issuer = _configuration["JwtSetting:Issuer"],
             Audience=  _configuration["JwtSetting:Audience"],
             SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
@@ -132,4 +137,73 @@ public class UserApi : ControllerBase
             return Ok();
         }
     }
+
+    [Authorize]
+    [HttpGet("verify")]
+    public ActionResult CheckProfile()
+    {
+        var token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "").Trim(); // Sửa từ Beare thành Bearer và xóa khoảng trắng dư
+        if (string.IsNullOrEmpty(token))
+        {
+            return Unauthorized("Bạn không có quyền truy cập trang này");
+        }
+
+        try
+        {
+            var handler = new JwtSecurityTokenHandler();
+        
+            var jsonToken = handler.ReadToken(token) as JwtSecurityToken;
+        
+            // Kiểm tra nếu không phải là token hợp lệ
+            if (jsonToken == null)
+            {
+                return Unauthorized("Token không hợp lệ");
+            }
+
+            // Truy xuất claim từ token
+            var userId = jsonToken.Claims.FirstOrDefault(c => c.Type == "UserId")?.Value;
+            var role = jsonToken.Claims.FirstOrDefault(c => c.Type == "Role").Value;
+            var nbf = jsonToken.Payload.Nbf;
+            var exp = jsonToken.Payload.Exp;
+            var iat = jsonToken.Payload.Iat;
+
+            // Kiểm tra ngày tháng (time check)
+            var currentTime = DateTime.UtcNow;
+
+            // Kiểm tra xem token có còn hợp lệ không
+            if (nbf.HasValue && currentTime < DateTimeOffset.FromUnixTimeSeconds(nbf.Value).UtcDateTime)
+            {
+                return Unauthorized("Token chưa đến thời điểm có hiệu lực (nbf)");
+            }
+
+            if (exp.HasValue && currentTime > DateTimeOffset.FromUnixTimeSeconds(exp.Value).UtcDateTime)
+            {
+                return Unauthorized("Token đã hết hạn (exp)");
+            }
+
+            // Kiểm tra token có bị thay đổi không (iat)
+            if (iat.HasValue && currentTime < DateTimeOffset.FromUnixTimeSeconds(iat.Value).UtcDateTime)
+            {
+                return Unauthorized("Token bị phát hành trong quá khứ không hợp lệ (iat)");
+            }
+        
+            if (string.IsNullOrEmpty(userId))
+            {
+                return Unauthorized("Không tìm thấy thông tin người dùng trong token");
+            }
+
+            Console.WriteLine("UserId: " + userId);
+            Console.WriteLine("UserId: " + role);
+        
+            // Trả về kết quả OK nếu mọi thứ ổn
+            return Ok(new { message = "Token hợp lệ", UserId = userId, Role = role});
+        }
+        catch (Exception ex)
+        {
+            // Nếu có lỗi trong việc giải mã token
+            Console.WriteLine("Lỗi giải mã token: " + ex.Message);
+            return Unauthorized("Token không hợp lệ");
+        }
+    }
+
 }

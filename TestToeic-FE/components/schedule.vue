@@ -38,6 +38,7 @@
           </div>
         </form>
         <button
+          v-if="isAdmin"
           @click="openModal(null)"
           class="text-white bg-indigo-600 hover:bg-indigo-700 focus:ring-4 focus:outline-none focus:ring-indigo-300 font-medium rounded-lg text-sm px-6 py-3"
         >
@@ -57,7 +58,7 @@
                 <th class="px-4 py-3">Ngày bắt đầu</th>
                 <th class="px-4 py-3">Ngày kết thúc</th>
                 <th class="px-4 py-3">Kết thúc sau</th>
-                <th class="px-4 py-3">Hành động</th>
+                <th v-if="isAdmin" class="px-4 py-3">Hành động</th>
               </tr>
             </thead>
             <tbody class="bg-white">
@@ -112,7 +113,7 @@
                 >
                   {{ Schedule.timeRemaining }}
                 </td>
-                <td class="px-4 py-3 text-xs border">
+                <td v-if="isAdmin" class="px-4 py-3 text-xs border">
                   <button @click="openModal(Schedule)">
                     <span
                       class="mx-2 px-2 py-1 font-semibold leading-tight text-green-700 bg-green-100 rounded-sm"
@@ -289,7 +290,9 @@
 
 <script setup>
 import { ref, computed } from "vue";
+import { useRoute } from "vue-router";
 const { schedules, tests } = defineProps(["schedules", "tests"]);
+const route = useRoute();
 const searchQuery = ref("");
 const isModalOpen = ref(false);
 const isEditMode = ref(false);
@@ -300,6 +303,7 @@ const localSchedules = ref([...schedules]);
 const scheduleId = ref("");
 const testNames = ref([]);
 const selectedTestId = ref("");
+const isAdmin = route.path.includes("/admin");
 import axios from "axios";
 
 // Hàm để cập nhật selectedTestId khi testNameInput thay đổi
@@ -339,15 +343,12 @@ const updateSelectedTestId = () => {
         selectedTestId.value = "#" + selectedTest.testId;
         testNameInput.value = cleanInput;
       } else {
-        // Nếu không tìm thấy bài kiểm tra có ID khớp, xóa selectedTestId
         selectedTestId.value = "Không tìm thấy bài kiểm tra";
       }
     } else {
-      // Nếu không tìm thấy #ID trong input, xóa selectedTestId
       selectedTestId.value = "Không tìm thấy bài kiểm tra";
     }
   } else {
-    // Nếu không tìm thấy bài kiểm tra nào trùng tên, xóa selectedTestId
     selectedTestId.value = "Không tìm thấy bài kiểm tra";
   }
 };

@@ -10,17 +10,17 @@ namespace TestToeic.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropForeignKey(
-                name: "FK_Tests_Classes_ClassId",
-                table: "Tests");
+            // migrationBuilder.DropForeignKey(
+            //     name: "FK_Tests_Classes_ClassId",
+            //     table: "Tests");
 
-            migrationBuilder.DropIndex(
-                name: "IX_Tests_ClassId",
-                table: "Tests");
-
-            migrationBuilder.DropColumn(
-                name: "ClassId",
-                table: "Tests");
+            // migrationBuilder.DropIndex(
+            //     name: "IX_Tests_ClassId",
+            //     table: "Tests");
+            //
+            // migrationBuilder.DropColumn(
+            //     name: "ClassId",
+            //     table: "Tests");
         }
 
         /// <inheritdoc />

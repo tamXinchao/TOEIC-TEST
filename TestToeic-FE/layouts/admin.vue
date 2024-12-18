@@ -24,6 +24,11 @@
   </div>
 </template>
 
+<script setup>
+definePageMeta({
+  middleware: "auth",
+});
+</script>
 <style scoped>
 .router-link-active {
   color: green;

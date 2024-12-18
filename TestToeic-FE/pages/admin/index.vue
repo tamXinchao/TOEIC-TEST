@@ -89,6 +89,7 @@
 import axios from "axios";
 definePageMeta({
   layout: "admin",
+  middleware: "auth",
 });
 export default {
   data() {
