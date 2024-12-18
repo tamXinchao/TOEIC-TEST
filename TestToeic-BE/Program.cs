@@ -23,7 +23,8 @@ builder.Services.AddAuthentication(x =>
         ValidIssuer = config["JwtSetting:Issuer"],
         ValidAudience = config["JwtSetting:Audience"],
         IssuerSigningKey = new SymmetricSecurityKey
-            (Encoding.UTF8.GetBytes(config["JwtSetting:Key"]!))
+            (Encoding.UTF8.GetBytes(config["JwtSetting:Key"]!)),
+        RoleClaimType = "Role"
     };
 });
 builder.Services.AddAuthorization();

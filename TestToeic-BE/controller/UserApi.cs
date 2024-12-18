@@ -15,10 +15,12 @@ namespace TestToeic.controller;
 public class UserApi : ControllerBase
 {
     private readonly ApplicationDbContext _context;
+    private readonly IConfiguration _configuration;
 
-    public UserApi(ApplicationDbContext context)
+    public UserApi(ApplicationDbContext context, IConfiguration configuration)
     {
         _context = context;
+        _configuration = configuration;
     }
 
     [HttpGet]
@@ -27,28 +29,64 @@ public class UserApi : ControllerBase
         return _context.Users.ToList();
     }
     
-    [HttpGet("{username}")]
-    public ActionResult<ApplicationUser> GetByUsername(string username)
+    [HttpPost("login")]
+    public ActionResult GetByUsername(UserDto loginUser)
     {
-        var existUser = _context.Users.FirstOrDefault(u => u.UserName == username);
+        var existUser = _context.Users.FirstOrDefault(u => u.UserName == loginUser.Username);
         if (existUser == null)
         {
-            return NotFound();
+            return NotFound("Tài khoản hoặc mật khẩu không đúng vui lòng thử lại");
         }
 
-        var token = GenerateJwtToken(existUser.Id);
-        return Ok(token);
+        var passwordHasher = new PasswordHasher<ApplicationUser>();
+        var checkPass = passwordHasher.VerifyHashedPassword(existUser, existUser.PasswordHash, loginUser.Password);
+        if (checkPass == PasswordVerificationResult.Success)
+        {
+            var dto = new UserDto
+            {
+                UserId = existUser.Id,
+                Email = existUser.Email,
+                Username = existUser.UserName ?? "Chưa có tên người dùng"
+            };
+            var userRoles = _context.UserRoles
+                .Where(ur => ur.UserId == existUser.Id)
+                .Select(ur => ur.RoleId)
+                .ToList();
+            var role = _context.Roles.Where(r => userRoles.Contains(r.Id))
+                .Select(r => r.Name)
+                .ToList();
+
+            bool hasTeacherRole = role.Contains("teacher");
+            dto.Permission = hasTeacherRole;
+            dto.RoleName = hasTeacherRole ? "teacher" : string.Join(", ", role);
+            var token = GenerateJwtToken(dto);
+            return Ok(token);
+        }
+        else
+        {
+            return Unauthorized("Tên đăng nhập hoặc mật khẩu không chính xác");
+        }
+        
     }
-    public string GenerateJwtToken(string userId)
+    public string GenerateJwtToken(UserDto dto)
     {
+        var claims = new[]
+        {
+            new Claim(JwtRegisteredClaimNames.Sub, _configuration["JwtSetting:Subject"]!),
+            new Claim("UserId" ,dto.UserId),
+            new Claim("Username", dto.Username),
+            new Claim("Permission", dto.Permission ? "Yes" : "No"),
+            new Claim("Role", dto.RoleName)
+        };
+        
         var tokenHandler = new JwtSecurityTokenHandler();
-        var key = Encoding.UTF8.GetBytes("ForTheLoveOfGodStoreAndLoadThisSecurely");
+        var key = Encoding.UTF8.GetBytes(_configuration["JwtSetting:Key"]!);
         var tokenDescriptor = new SecurityTokenDescriptor
         {
-            Subject = new ClaimsIdentity(new[] { new Claim("id", userId) }),
+            Subject = new ClaimsIdentity(claims),
             Expires = DateTime.Now.AddDays(7).ToUniversalTime(),
-            Issuer = "http://id.nickchapsas.com",
-            Audience=  "http://movies.nickchapsas.com",
+            Issuer = _configuration["JwtSetting:Issuer"],
+            Audience=  _configuration["JwtSetting:Audience"],
             SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
         };
         var token = tokenHandler.CreateToken(tokenDescriptor);
@@ -66,38 +104,30 @@ public class UserApi : ControllerBase
         }
         try
         {
-            // Tạo đối tượng người dùng mới
             var user = new ApplicationUser
             {
-                Id = userDto.Id,
                 UserName = userDto.UserName,
-                NormalizedUserName = userDto.UserName.ToUpper(),
                 Email = userDto.Email,
-                NormalizedEmail = userDto.Email.ToUpper(),
                 EmailConfirmed = true,
-                SecurityStamp = Guid.NewGuid().ToString(), // Tự động tạo SecurityStamp
-                ConcurrencyStamp = Guid.NewGuid().ToString(),
                 PhoneNumber = userDto.PhoneNumber,
                 PhoneNumberConfirmed = true,
                 TwoFactorEnabled = false,
                 LockoutEnd = null,
                 LockoutEnabled = false,
-                AccessFailedCount = 0
+                AccessFailedCount = 0,
+                NormalizedUserName = userDto.UserName?.ToUpper(),
+                NormalizedEmail = userDto.Email?.ToUpper()
             };
-
-            // Sử dụng PasswordHasher để mã hóa mật khẩu
             var passwordHasher = new PasswordHasher<ApplicationUser>();
             user.PasswordHash = passwordHasher.HashPassword(user, userDto.PasswordHash);
 
-            // Thêm người dùng vào bảng AspNetUsers
             _context.Users.Add(user);
             _context.SaveChanges();
 
-            return Ok(user.Id); // Thành công
+            return Ok(user.Id);
         }
         catch (Exception ex)
         {
-            // Log lỗi nếu cần
             Console.WriteLine($"Error adding user: {ex.Message}");
             return Ok();
         }

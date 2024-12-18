@@ -1,6 +1,8 @@
 <template>
   <div class="max-w-4xl mx-auto bg-white p-6 rounded-lg shadow-lg">
-    <h2 class="text-2xl font-semibold mb-4 text-center">Tìm kiếm thông tin</h2>
+    <h2 class="text-2xl font-semibold mb-4 text-center">
+      Tìm kiếm thông tin bài thi
+    </h2>
 
     <form @submit.prevent="submitForm">
       <table class="min-w-full table-auto">

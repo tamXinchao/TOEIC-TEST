@@ -25,7 +25,7 @@ public class TestApi : ControllerBase
         return _context.Tests.ToList();
     }
     
-    [Authorize]
+  
     [HttpGet("{id}")]
     public ActionResult<Test> GetById(int id)
     {
@@ -99,6 +99,7 @@ public class TestApi : ControllerBase
         );
     }
 
+    
     [HttpGet("list")]
     public ActionResult<TestDto> GetList(string? id)
     {
@@ -160,6 +161,7 @@ public class TestApi : ControllerBase
         return Ok(tests);
     }
 
+    
     [HttpGet("listBySchedule")]
     public ActionResult<TestDto> GetListBySchedule(string? day)
     {
