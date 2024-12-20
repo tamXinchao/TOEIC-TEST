@@ -18,19 +18,18 @@ definePageMeta({
 });
 import { ref, onMounted } from "vue";
 import axios from "axios";
-
 const classes = ref({});
 const members = ref([]);
 const stickers = ref([]);
-
 const route = useRoute();
-const classId = route.params.classId;
+const classId = route.params.id;
+const { $auth } = useNuxtApp();
 
 onMounted(async () => {
   try {
     // Lấy thông tin lớp
     const { data } = await axios.get(
-      `http://localhost:5082/api/TestApi/listByClass?id=${classId}`
+      `http://localhost:5082/api/TestApi/${$auth.user.value}/listByClass?id=${classId}`
     );
     classes.value = data;
 

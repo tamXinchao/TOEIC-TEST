@@ -2,6 +2,11 @@
   <div><EditTestDetail /></div>
 </template>
 
-<script setup></script>
+<script setup>
+definePageMeta({
+  layout: "admin",
+  middleware: "auth",
+});
+</script>
 
 <style scoped></style>

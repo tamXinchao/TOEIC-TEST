@@ -43,7 +43,6 @@
 </template>
 
 <script>
-import axios from "axios";
 import { ref } from "vue";
 export default {
   data() {
@@ -68,7 +67,7 @@ export default {
       );
       if (success) {
         console.log("Login thành công");
-        this.$router.push("/");
+        this.$router.push("/dashboard");
       } else {
         console.log("Login thất bại");
       }

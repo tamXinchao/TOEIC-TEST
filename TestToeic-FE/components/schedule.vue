@@ -45,29 +45,37 @@
           Thêm mới
         </button>
       </div>
-      <div class="w-full mb-8 overflow-hidden rounded-lg shadow-lg">
-        <div class="w-full overflow-x-auto">
-          <table class="w-full">
+      <div
+        class="w-full mb-8 overflow-hidden rounded-lg shadow-lg max-h-[400px]"
+      >
+        <div class="w-full overflow-x-auto overflow-y-auto max-h-[400px]">
+          <table class="w-full table-auto">
             <thead>
               <tr
                 class="text-md font-semibold tracking-wide text-left text-gray-900 bg-gray-100 uppercase border-b border-gray-600"
               >
-                <th class="px-4 py-3">#</th>
+                <th v-if="isAdmin" class="px-4 py-3">#</th>
                 <th class="px-4 py-3">Id</th>
                 <th class="px-4 py-3">Tên</th>
-                <th class="px-4 py-3">Ngày bắt đầu</th>
+                <th v-if="isAdmin" class="px-4 py-3">Ngày bắt đầu</th>
                 <th class="px-4 py-3">Ngày kết thúc</th>
                 <th class="px-4 py-3">Kết thúc sau</th>
-                <th v-if="isAdmin" class="px-4 py-3">Hành động</th>
+                <th class="px-4 py-3">Hành động</th>
               </tr>
             </thead>
             <tbody class="bg-white">
               <tr
-                class="text-gray-700"
                 v-for="(Schedule, index) in filteredClasses"
                 :key="Schedule.id"
+                :v-if="
+                  new Date(Schedule.dayOpenTest).getTime() <=
+                  new Date(new Date().getTime() + 7 * 60 * 60 * 1000)
+                    .toISOString()
+                    .slice(0, 16)
+                "
+                class="text-gray-700"
               >
-                <td class="px-4 py-3 border">{{ index + 1 }}</td>
+                <td v-if="isAdmin" class="px-4 py-3 border">{{ index + 1 }}</td>
                 <td class="px-4 py-3 text-ms font-semibold border">
                   #{{ Schedule.testId }}
                 </td>
@@ -97,7 +105,7 @@
                     </div>
                   </div>
                 </td>
-                <td class="px-4 py-3 text-sm border">
+                <td v-if="isAdmin" class="px-4 py-3 text-sm border">
                   {{ Schedule.stringDayOpenTest }}
                 </td>
                 <td class="px-4 py-3 text-sm border">
@@ -127,6 +135,25 @@
                     >
                       Xóa
                     </span>
+                  </button>
+                </td>
+                <td
+                  v-if="!isAdmin"
+                  class="px-4 py-3 text-xs border whitespace-nowrap"
+                >
+                  <NuxtLink
+                    v-if="Schedule.timeRemaining !== 'Đã kết thúc'"
+                    :to="`/forms/${$auth.user.value}/test/${Schedule.testId}`"
+                    class="inline-flex items-center justify-center px-2 py-1 bg-green-100 text-green-700 font-semibold rounded-sm"
+                  >
+                    Làm bài
+                  </NuxtLink>
+                  <button
+                    v-else
+                    disabled
+                    class="inline-flex items-center justify-center px-2 py-1 bg-gray-300 text-gray-500 font-semibold rounded-sm cursor-not-allowed"
+                  >
+                    Đã kết thúc
                   </button>
                 </td>
               </tr>
@@ -303,6 +330,7 @@ const localSchedules = ref([...schedules]);
 const scheduleId = ref("");
 const testNames = ref([]);
 const selectedTestId = ref("");
+const { $auth } = useNuxtApp();
 const isAdmin = route.path.includes("/admin");
 import axios from "axios";
 

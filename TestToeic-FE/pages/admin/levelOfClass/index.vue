@@ -1,5 +1,5 @@
 <template>
-  <div><ClassList :classes="classes" /></div>
+  <div><LevelOfClass :levelOfClasses="levelOfClasses" /></div>
 </template>
 
 <script setup>
@@ -8,9 +8,9 @@ definePageMeta({
   middleware: "auth",
 });
 import axios from "axios";
-
-const { data: classes } = await axios.get(`http://localhost:5082/api/classApi`);
-console.log(classes);
+const { data: levelOfClasses } = await axios.get(
+  `http://localhost:5082/api/LevelOfClassApi`
+);
 </script>
 
 <style scoped></style>

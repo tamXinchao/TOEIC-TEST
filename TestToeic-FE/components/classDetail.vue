@@ -96,7 +96,6 @@
           :key="test.id"
           class="relative bg-gray-100 p-4 rounded-lg shadow-sm hover:bg-gray-200 transition"
         >
-          <!-- Nút sao chép, chỉ hiển thị nếu là /admin -->
           <button
             v-if="isAdminPath"
             @click="copyTestLink(test.id, test.classId)"
@@ -104,7 +103,7 @@
           >
             Sao chép
           </button>
-          <NuxtLink :to="`/admin/class/test/${test.id}`">
+          <NuxtLink :to="generateLink(test.id)">
             <h3 class="text-lg font-semibold text-gray-800">
               {{ test.title || "Chưa có tiêu đề" }}
             </h3>
@@ -446,6 +445,7 @@ const testNameInput = ref("");
 const testTimeMinutesInput = ref("");
 const testPointInput = ref("");
 const testIdInput = ref("");
+const { $auth } = useNuxtApp();
 
 const { classes, stickers } = defineProps({
   classes: Object,
@@ -502,7 +502,7 @@ const copyTestLink = async (testId, classId) => {
     // Định nghĩa payload
     const clone = {
       Id: testId,
-      UserCreate: "5a8f41cb-b4f4-435a-6991-63e7be71b6d4", // Thay bằng ID người dùng thật nếu cần
+      UserCreate: $auth.user.value, // Thay bằng ID người dùng thật nếu cần
       ClassId: classId,
     };
 
@@ -527,9 +527,8 @@ const copyTestLink = async (testId, classId) => {
 };
 const joinClass = async (classId) => {
   try {
-    // Định nghĩa payload
     const memberInfo = {
-      MemberId: "1a2b3c4d-5678-90ab-cdef-1334567890ab",
+      MemberId: $auth.user.value,
       ClassId: classId,
     };
 
@@ -556,7 +555,7 @@ const leaveClass = async (classId) => {
   try {
     // Định nghĩa payload
     const memberInfo = {
-      MemberId: "1a2b3c4d-5678-90ab-cdef-1334567890ab",
+      MemberId: $auth.user.value,
       ClassId: classId,
     };
 
@@ -578,7 +577,15 @@ const leaveClass = async (classId) => {
     alert("Không thể rời lớp. Vui lòng thử lại!");
   }
 };
-
+const generateLink = (classId) => {
+  if (route.path.includes("/admin")) {
+    return `/admin/class/test/${classId}`;
+  }
+  if (route.path.includes("/levelOfClass")) {
+    return `/forms/${$auth.user.value}/test/${classId}`;
+  }
+  return `/testDetail/${classId}`;
+};
 const openModal = (test) => {
   isModalOpen.value = true;
   if (test) {
@@ -614,7 +621,7 @@ const add = async () => {
     const formattedData = selectedIds.value.map((id) => ({ stickerId: id }));
     // Tạo request
     const request = {
-      UserCreate: "f4a25ce5-bae1-471c-b506-a0a218cf32a6",
+      UserCreate: $auth.user.value,
       TestName: testNameInput.value,
       TestTimeMinutes: testTimeMinutesInput.value,
       Point: testPointInput.value,
@@ -647,7 +654,7 @@ const edit = async () => {
     const formattedData = selectedIds.value.map((id) => ({ stickerId: id }));
 
     const request = {
-      UserCreate: "f4a25ce5-bae1-471c-b506-a0a218cf32a6", // User đang chỉnh sửa
+      UserCreate: $auth.user.value,
       TestName: testNameInput.value,
       TestTimeMinutes: testTimeMinutesInput.value,
       Point: testPointInput.value,

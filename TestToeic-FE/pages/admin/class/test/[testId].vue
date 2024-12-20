@@ -4,7 +4,10 @@
 
 <script setup>
 import axios from "axios";
-definePageMeta({ layout: "admin" });
+definePageMeta({
+  layout: "admin",
+  middleware: "auth",
+});
 const route = useRoute();
 const TestDetail = ref(null);
 const testId = route.params.testId;

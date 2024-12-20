@@ -8,6 +8,7 @@
 import axios from "axios";
 definePageMeta({
   layout: "admin",
+  middleware: "auth",
 });
 const { data: schedules } = await axios.get(
   "http://localhost:5082/api/ScheduleApi"

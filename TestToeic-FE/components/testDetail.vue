@@ -146,7 +146,6 @@
 
 <script>
 import axios from "axios";
-
 export default {
   props: {
     testId: {
@@ -171,6 +170,7 @@ export default {
       remainingTime: 0,
       timerInterval: null,
       isSubmitted: false,
+      unsavedChanges: true,
     };
   },
   computed: {
@@ -306,13 +306,32 @@ export default {
           }
 
           this.isSubmitted = true;
+          this.unsavedChanges = false;
         })
         .catch((error) => {
           console.error("Có lỗi xảy ra khi nộp bài:", error);
         });
     },
   },
+  beforeRouteLeave(to, from, next) {
+    if (this.unsavedChanges) {
+      const answer = window.confirm(
+        "Bạn có chắc muốn rời khỏi trang này? Thay đổi sẽ không được lưu lại."
+      );
+      if (answer) {
+        next();
+      } else {
+        next(false);
+      }
+    } else {
+      next();
+    }
+  },
   async mounted() {
+    if (this.userId == "null") {
+      this.$router.push("/forms");
+    }
+
     try {
       const response = await axios.get(
         `http://localhost:5082/api/testApi/${this.testId}`

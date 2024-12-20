@@ -56,7 +56,7 @@
                 type="submit"
                 class="px-6 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
-                Lưu Thông Tin
+                Bắt đầu làm bài
               </button>
             </td>
           </tr>
@@ -72,9 +72,10 @@ import axios from "axios";
 export default {
   data() {
     return {
-      name: "", // Họ và tên
-      email: "", // Email
-      phone: "", // Số điện thoại
+      name: "",
+      email: "",
+      phone: "",
+      $auth: useNuxtApp(),
     };
   },
   methods: {
@@ -87,6 +88,11 @@ export default {
           return uuid.toString(16);
         }
       );
+    },
+    checkAuth() {
+      if (this.$auth.user.value) {
+        this.$router.push(`/forms/${this.$auth.user.value}/test`);
+      }
     },
     async submitForm() {
       const userId = this.generate_uuidv4();
@@ -109,10 +115,8 @@ export default {
         );
 
         if (response.status === 200) {
-          // If the user exists, the response will contain their userId
-          const userId = response.data; // The userId will be returned from the backend
+          const userId = response.data;
 
-          // Redirect to the next page with the user's ID
           this.$router.push(`/forms/${userId}/test`);
         } else {
           alert("Unexpected response: " + response.data);
@@ -134,6 +138,9 @@ export default {
         }
       }
     },
+  },
+  mounted() {
+    this.checkAuth(); // Gọi hàm checkAuth khi component được mounted
   },
 };
 </script>

@@ -233,6 +233,77 @@ public class StudentApi : ControllerBase
         return poq;
     }
     
+   [HttpGet("getByUserId")]
+public ActionResult GetByUserId(string userId, string? info)
+{
+    // Kiểm tra nếu User ID không hợp lệ
+    if (string.IsNullOrEmpty(userId))
+    {
+        return NotFound("User ID is required.");
+    }
+
+    // Lấy danh sách điểm của người dùng
+    var existUser = _context.StudentPoints
+        .Include(u => u.test)
+        .Include(u => u.applicationUser)
+        .Where(u => u.ApplicationUserId == userId)
+        .ToList();
+
+    if (existUser.Count == 0)
+    {
+        return NotFound("Người dùng chưa làm bài kiểm tra nào.");
+    }
+
+    // Nếu có thông tin tìm kiếm (info), lọc danh sách bài kiểm tra theo tên
+    if (!string.IsNullOrWhiteSpace(info))
+    {
+        var studentPointByInfo = existUser
+            .Where(u => u.test != null && 
+                        u.test.TestName.Trim().ToLower().Contains(info.Trim().ToLower()))
+            .ToList();
+
+        if (studentPointByInfo.Count == 0)
+        {
+            return NotFound($"Không tìm thấy thông tin bài kiểm tra phù hợp với '{info}'.");
+        }
+
+        // Chuyển đổi sang DTO
+        var poqByInfo = studentPointByInfo
+            .Select(p => new StudentAnswerDto
+            {
+                Id = p.StudentPointId,
+                Title = p.test.TestName,
+                StudentName = p.applicationUser.UserName,
+                Completion = p.Completion,
+                Duration = p.Duration,
+                PointOfStudent = p.PointOfStudent,
+            })
+            .OrderByDescending(p => p.Completion) // Sắp xếp theo ngày hoàn thành
+            .ToList();
+
+        return Ok(poqByInfo);
+    }
+
+    // Trường hợp không có info, trả về tất cả bài kiểm tra của người dùng
+    var poq = existUser
+        .Select(p => new StudentAnswerDto
+        {
+            Id = p.StudentPointId,
+            Title = p.test.TestName,
+            StudentName = p.applicationUser.UserName,
+            Completion = p.Completion,
+            Duration = p.Duration,
+            PointOfStudent = p.PointOfStudent,
+        })
+        .OrderByDescending(p => p.Completion) // Sắp xếp theo ngày hoàn thành
+        .ToList();
+
+    return Ok(poq);
+}
+
+
+    
+    
     [HttpPost]
 public ActionResult SaveStudentAnswer(StudentPointDto studentPointDto)
 {

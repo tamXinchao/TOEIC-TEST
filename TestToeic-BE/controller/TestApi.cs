@@ -31,7 +31,9 @@ public class TestApi : ControllerBase
     {
         bool mutipleSection = false;
         int primaryCount = 0;
-        var testDto = _context.Tests.Where(t => t.TestId == id && !t.IsDelete && t.IsActive)
+        var testDto = _context.Tests
+            .AsNoTracking()
+            .Where(t => t.TestId == id && !t.IsDelete)
             .Select(dto => new TestDto
             {
                 Id = dto.TestId,
@@ -40,15 +42,14 @@ public class TestApi : ControllerBase
                 Point = dto.PointOfTest,
                 TestTime = dto.TestTime,
                 UserCreate = dto.applicationUser.UserName?? "Chưa có tên người tạo",
-                StickersOfTests = dto.StickerOfTests
+                Stickers = dto.StickerOfTests
                     .Where(soc => soc.IsActive && !soc.IsDelete)
-                    .Select(sticker => new StickerOfTestDto
+                    .Select(sticker => new StickerDto
                     {
                        StickerId = sticker.sticker.StickerId,
                        IsDelete = sticker.sticker.IsDelete,
                        IsActive = sticker.sticker.IsActive,
-                       TestId = sticker.TestId,
-                       StickerOfTestId = sticker.StickerOfTestId
+                       StickerName = sticker.sticker.StickerName,
                     }).ToList(),
                 QuestionDtos = dto.PointOfQuestions
                     .Where(poq => !poq.IsDelete && poq.IsActive)
@@ -140,6 +141,7 @@ public class TestApi : ControllerBase
 
         var tests = _context.Tests.AsNoTracking()
             .Where(c => !c.IsDelete)
+            .Include(st => st.StickerOfTests)
             .Select(t => new TestDto
         {
             Id = t.TestId,
@@ -150,6 +152,14 @@ public class TestApi : ControllerBase
             IsDelete = t.IsDelete,
             IsActive = t.IsActive,
             Point = t.PointOfTest,
+            Stickers = t.StickerOfTests
+                .Where(sticker => sticker.IsActive && !sticker.IsDelete)
+                .Select(sticker => new StickerDto
+                {
+                    StickerId = sticker.sticker.StickerId,
+                    StickerName = sticker.sticker.StickerName,
+                    Note = sticker.sticker.Note
+                }).ToList(),
             QuestionDtos = t.PointOfQuestions.Select(q => new QuestionDto
             {
                 QuestionId = q.QuestionId,
@@ -219,7 +229,7 @@ public class TestApi : ControllerBase
                 Id = t.TestId,
                 Point = t.PointOfTest,
                 UserCreate = t.applicationUser.UserName,
-                Title = t.TestName,
+                Title = t.TestName,   
                 TestTime = t.TestTime,
                 DateCreate = t.TestDateCreated,
                 QuestionDtos = t.PointOfQuestions.Select(q => new QuestionDto
@@ -257,7 +267,7 @@ public class TestApi : ControllerBase
             });
         var tests = _context.TestOfClasses
             .AsNoTracking()
-            .Where(t => t.ClassId == id && t.IsActive && !t.IsDelete)
+            .Where(t => t.ClassId == id && t.IsActive && !t.IsDelete && t.test.IsActive && !t.test.IsDelete)
             .Include(s => s.test.StickerOfTests)
             .Select(t => new TestDto
             {

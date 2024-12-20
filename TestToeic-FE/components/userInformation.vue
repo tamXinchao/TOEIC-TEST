@@ -1,13 +1,17 @@
 <template>
   <div>
     <div>
-      <p>Name</p>
-      <p>Email</p>
-      <p>Phone Number</p>
+      <p>Tên: {{ userInfo.userName }}</p>
+      <p>Email: {{ userInfo.normalizedEmail }}</p>
+      <p>Số điện thoại: {{ userInfo.phoneNumber }}</p>
     </div>
   </div>
 </template>
 
-<script setup></script>
+<script setup>
+const { $auth } = useNuxtApp();
+console.log($auth.userInfo.value);
+const userInfo = $auth.userInfo.value;
+</script>
 
 <style scoped></style>

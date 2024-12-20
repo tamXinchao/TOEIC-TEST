@@ -65,7 +65,8 @@ public class UserApi : ControllerBase
             {
                 Token = token,
                 UserId = existUser.Id,
-                Role  = dto.RoleName
+                Role  = dto.RoleName,
+                UserInfo = existUser
             });
         }
         else
@@ -191,12 +192,12 @@ public class UserApi : ControllerBase
             {
                 return Unauthorized("Không tìm thấy thông tin người dùng trong token");
             }
-
+            var existUser = _context.Users.FirstOrDefault(u => u.Id == userId);
             Console.WriteLine("UserId: " + userId);
             Console.WriteLine("UserId: " + role);
         
             // Trả về kết quả OK nếu mọi thứ ổn
-            return Ok(new { message = "Token hợp lệ", UserId = userId, Role = role});
+            return Ok(new { message = "Token hợp lệ", UserId = userId, Role = role, UserInfo = existUser});
         }
         catch (Exception ex)
         {

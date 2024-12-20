@@ -1,5 +1,5 @@
 <template>
-  <div class="max-w-4xl mx-auto bg-white p-6 rounded-lg shadow-lg">
+  <div class="max-w-7xl mx-auto bg-white p-6 rounded-lg shadow-lg">
     <h2 class="text-2xl font-semibold mb-4 text-center">
       Tìm kiếm thông tin bài kiểm tra
     </h2>
@@ -33,7 +33,9 @@
     </form>
 
     <!-- Bảng dữ liệu kết quả tìm kiếm -->
-    <div class="relative overflow-x-auto shadow-md sm:rounded-lg mt-4">
+    <div
+      class="relative overflow-x-auto overflow-y-auto max-h-[400px] shadow-md sm:rounded-lg mt-4"
+    >
       <table
         class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400"
       >

@@ -9,7 +9,10 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
   console.log("User role:", isTeacher);
   console.log(3);
 
-  if (!isAuthenticated || isTeacher != "teacher") {
+  if (!isAuthenticated) {
     return navigateTo("/login");
+  }
+  if (isTeacher != "teacher") {
+    return navigateTo("/");
   }
 });
