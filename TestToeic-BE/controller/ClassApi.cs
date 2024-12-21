@@ -18,26 +18,48 @@ public class ClassApi : ControllerBase
     }
 
     [HttpGet]
-    public ActionResult<IEnumerable<ClassDto>> GetAll()
+    public ActionResult<IEnumerable<ClassDto>> GetAll(bool? isAdmin)
     {
-        return _context.Classes
-            .Where(c => c.IsDelete == false && c.IsActive)
-            .Select(a => new ClassDto
+        if (isAdmin == true)
         {
-            ClassId = a.ClassId,
-            ClassName = a.ClassName,
-            IsDelete = a.IsDelete,
-            IsActive = a.IsActive,
-            MemberCount = _context.MemberOfClasses
-                .Where(a => a.IsActive == true && a.IsDelete == false)
-                .Count(m => m.ClassId == a.ClassId),
-            MemberRequest = _context.MemberOfClasses
-                .Where(a => a.IsActive == true && a.IsDelete == false)
-                .Count(m => m.ClassId == a.ClassId ),
-            TestCount = _context.TestOfClasses
-                .Where(ab => ab.IsActive == true && ab.IsDelete == false)
-                .Count(m => m.ClassId == a.ClassId )
-        }).ToList();
+            return _context.Classes
+                .Where(c => !c.IsDelete)
+                .Select(a => new ClassDto
+                {
+                    ClassId = a.ClassId,
+                    ClassName = a.ClassName,
+                    IsDelete = a.IsDelete,
+                    IsActive = a.IsActive,
+                    MemberCount = _context.MemberOfClasses
+                        .Where(a => a.IsActive == true && a.IsDelete == false)
+                        .Count(m => m.ClassId == a.ClassId),
+                    MemberRequest = _context.MemberOfClasses
+                        .Where(a => a.IsActive == true && a.IsDelete == false)
+                        .Count(m => m.ClassId == a.ClassId ),
+                    TestCount = _context.TestOfClasses
+                        .Where(ab => ab.IsActive == true && ab.IsDelete == false)
+                        .Count(m => m.ClassId == a.ClassId )
+                }).ToList();
+        }
+        return _context.Classes
+            .Where(c => !c.IsDelete && c.IsActive )
+            .Select(a => new ClassDto
+            {
+                ClassId = a.ClassId,
+                ClassName = a.ClassName,
+                IsDelete = a.IsDelete,
+                IsActive = a.IsActive,
+                MemberCount = _context.MemberOfClasses
+                    .Where(a => a.IsActive == true && a.IsDelete == false)
+                    .Count(m => m.ClassId == a.ClassId),
+                MemberRequest = _context.MemberOfClasses
+                    .Where(a => a.IsActive == true && a.IsDelete == false)
+                    .Count(m => m.ClassId == a.ClassId ),
+                TestCount = _context.TestOfClasses
+                    .Where(ab => ab.IsActive == true && ab.IsDelete == false)
+                    .Count(m => m.ClassId == a.ClassId )
+            }).ToList();
+        
     }
     
     [HttpGet("getByLevel/{userId}")]

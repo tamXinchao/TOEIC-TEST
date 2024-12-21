@@ -44,6 +44,7 @@
 
 <script>
 import { ref } from "vue";
+
 export default {
   data() {
     return {
@@ -58,6 +59,12 @@ export default {
     };
   },
   methods: {
+    checkLogin() {
+      if (this.$auth.checkAuth()) {
+        this.$router.push("/dashboard");
+      }
+    },
+
     async submitForm() {
       const request = this.form;
       console.log(request);
@@ -67,11 +74,14 @@ export default {
       );
       if (success) {
         console.log("Login thành công");
-        this.$router.push("/dashboard");
+        this.$router.push("/");
       } else {
         console.log("Login thất bại");
       }
     },
+  },
+  mounted() {
+    this.checkLogin();
   },
 };
 </script>

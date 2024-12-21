@@ -1,6 +1,6 @@
 <template>
   <div class="form-container" v-for="test in tests" :key="test.id">
-    <NuxtLink :to="`/forms/${userId}/test/${test.id}`" class="block">
+    <NuxtLink :to="`/testDetail/${test.id}`" class="block">
       <div><span class="font-bold">Đề thi:</span> {{ test.title }}</div>
       <div>Số lượng câu hỏi: {{ test.questionDtos.length }}</div>
       <div>Thời gian làm bài: {{ test.testTimeMinutes }} phút</div>

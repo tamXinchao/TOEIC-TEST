@@ -13,7 +13,7 @@
           </li>
           <li v-if="user">
             <NuxtLink to="/dashboard" class="hover:text-blue-500"
-              >Dashboard</NuxtLink
+              >Khóa học của bạn</NuxtLink
             >
           </li>
           <li>
@@ -23,7 +23,7 @@
           </li>
           <li>
             <NuxtLink to="/forms" class="hover:text-blue-500"
-              >Làm bài thi thử</NuxtLink
+              >Đề thi online</NuxtLink
             >
           </li>
 

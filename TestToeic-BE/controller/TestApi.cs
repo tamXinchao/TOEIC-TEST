@@ -333,6 +333,7 @@ public class TestApi : ControllerBase
             {
                 Id = t.test.TestId,
                 Point = t.test.PointOfTest,
+                ClassId = t.ClassId,
                 UserCreate = t.test.applicationUser.UserName ?? "Chưa có tên người tạo",
                 Title = t.test.TestName,
                 TestTime = t.test.TestTime,
@@ -365,8 +366,10 @@ public class TestApi : ControllerBase
     }
 
     [HttpPost]
-    public ActionResult CloneTest(TestDto testDto)
+    public ActionResult CloneTest(List<TestDto> testDtos)
     {
+        foreach (var testDto in testDtos)
+        {
         if (testDto == null || string.IsNullOrEmpty(testDto.UserCreate) || testDto.Id <= 0)
             return BadRequest(new { Message = "Dữ liệu đầu vào không hợp lệ!" });
 
@@ -410,7 +413,7 @@ public class TestApi : ControllerBase
             var newTestOfClass = new TestOfClass
             {
                 TestId = newTest.TestId, // Gán TestId của bài kiểm tra mới
-                ClassId = testOfClass.ClassId,
+                ClassId = testDto.ClassId,
                 IsActive = testOfClass.IsActive,
                 IsDelete = testOfClass.IsDelete
             };
@@ -578,9 +581,9 @@ public class TestApi : ControllerBase
                     _context.Questions.Add(newQuestion);
                 }
             }
-
+        }
         _context.SaveChanges();
-        return Ok(new { Message = "Sao chép bài kiểm tra thành công!", NewTestId = newTest.TestId });
+        return Ok(new { Message = "Sao chép bài kiểm tra thành công!" });
     }
 
     [HttpPost("create")]

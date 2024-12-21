@@ -20,9 +20,6 @@
 
     <!-- Right Side: User Info and Search -->
     <div class="bg-white p-4 rounded-lg shadow-md space-y-6">
-      <h2 class="text-xl font-semibold text-gray-800 mb-4">
-        Thông tin người dùng
-      </h2>
       <UserInformation />
 
       <h2 class="text-2xl font-semibold mb-4 text-center">

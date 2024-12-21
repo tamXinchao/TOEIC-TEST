@@ -81,9 +81,15 @@ export default {
         username: "",
         passwordHash: "",
       }),
+      $auth: useNuxtApp(),
     };
   },
   methods: {
+    checkAuth() {
+      if (this.$auth.checkAuth()) {
+        this.$router.push({ name: "dashboard" });
+      }
+    },
     async submitForm() {
       const request = this.form;
       axios
@@ -98,6 +104,9 @@ export default {
           alert(error.response.data);
         });
     },
+  },
+  mounted() {
+    this.checkAuth();
   },
 };
 </script>

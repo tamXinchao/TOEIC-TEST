@@ -8,10 +8,10 @@
             <NuxtLink to="/admin" class="text-blue-500">Admin</NuxtLink>
           </li>
           <li>
-            <NuxtLink to="/admin/levelOfClass">Class</NuxtLink>
+            <NuxtLink to="/admin/levelOfClass">Khóa học</NuxtLink>
           </li>
           <li>
-            <NuxtLink to="/admin/schedule">Schedules</NuxtLink>
+            <NuxtLink to="/admin/schedule">Lịch trình</NuxtLink>
           </li>
           <!-- Dropdown User -->
           <li class="relative" ref="dropdown">

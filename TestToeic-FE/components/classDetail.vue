@@ -84,6 +84,13 @@
       >
         Thêm mới
       </button>
+      <button
+        v-if="isAdminPath"
+        @click="openCloneModal(null)"
+        class="text-white bg-indigo-600 hover:bg-indigo-700 focus:ring-4 focus:outline-none focus:ring-indigo-300 font-medium rounded-lg text-sm px-6 py-3"
+      >
+        Sao chép bài kiểm tra
+      </button>
     </div>
     <!-- Check if there are tests available -->
     <div
@@ -104,9 +111,11 @@
             Sao chép
           </button>
           <NuxtLink :to="generateLink(test.id)">
-            <h3 class="text-lg font-semibold text-gray-800">
+            <h3 class="text-lg font-semibold text-gray-800 mt-5">
               {{ test.title || "Chưa có tiêu đề" }}
+              <span class="text-xs text-gray-500 mb-2">#{{ test.id }}</span>
             </h3>
+
             <p class="text-gray-500 text-sm">
               <span class="font-bold">Số lượng câu hỏi:</span>
               {{ test.questionDtos?.length || 0 }}
@@ -425,18 +434,168 @@
         </div>
       </div>
     </div>
+    <div
+      v-if="isModalCloneOpen"
+      class="fixed inset-0 bg-gray-200 bg-opacity-75 z-50 flex justify-center items-center w-full h-full"
+    >
+      <div class="relative p-4 w-full max-w-md max-h-full">
+        <div
+          style="min-height: 70vh"
+          class="relative bg-white rounded-lg shadow-lg dark:bg-gray-100"
+        >
+          <div
+            class="flex items-center justify-between p-4 md:p-5 border-b rounded-t border-gray-300"
+          >
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-900">
+              Sao chép bài kiểm tra
+            </h3>
+            <button
+              type="button"
+              @click="closeCloneModal"
+              class="text-gray-500 bg-transparent hover:bg-gray-300 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center"
+            >
+              <svg
+                class="w-3 h-3"
+                aria-hidden="true"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 14 14"
+              >
+                <path
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
+                />
+              </svg>
+            </button>
+          </div>
+
+          <form class="p-4 md:p-5">
+            <!-- Chọn lớp -->
+            <div class="grid gap-4 mb-4">
+              <div class="col-span-2">
+                <label
+                  for="class-select"
+                  class="block text-sm font-medium text-gray-900 mb-2"
+                >
+                  Chọn lớp:
+                </label>
+                <select
+                  id="class-select"
+                  v-model="classIdModal"
+                  class="block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white max-h-40 overflow-y-auto"
+                >
+                  <option disabled value="">Chọn một lớp</option>
+                  <option
+                    v-for="classs in classesModal"
+                    :key="classs.classId"
+                    :value="classs.classId"
+                  >
+                    {{ classs.className }} #{{ classs.classId }}
+                  </option>
+                </select>
+              </div>
+
+              <!-- Danh sách bài test -->
+              <div class="col-span-2 max-h-40 overflow-y-auto">
+                <h2 class="text-xl font-semibold text-gray-800 mb-4">
+                  Danh sách bài test:
+                </h2>
+                <div
+                  v-for="test in testsModal.testOfClasses"
+                  :key="test.id"
+                  class="flex items-center space-x-4 border-b border-gray-300 py-2"
+                >
+                  <input
+                    type="checkbox"
+                    :value="{
+                      id: test.id,
+                      classId: classIdModal,
+                      UserCreate: $auth.user.value,
+                      title: test.title,
+                    }"
+                    v-model="selectedTestsModal"
+                    class="h-5 w-5 text-blue-600 border-gray-300 rounded focus:ring-2 focus:ring-blue-500"
+                  />
+                  <label class="text-gray-700 font-medium"
+                    >{{ test.title }} #{{ test.id }}</label
+                  >
+                </div>
+              </div>
+
+              <!-- Danh sách bài test đã chọn với con lăn chuột -->
+              <div
+                class="col-span-2 max-h-40 overflow-y-auto"
+                v-if="selectedTestsModal.length"
+              >
+                <h3 class="text-lg font-medium text-gray-800 mb-2">
+                  Danh sách bài test đã chọn:
+                </h3>
+                <ul class="list-disc list-inside text-gray-700">
+                  <li
+                    v-for="(selected, index) in selectedTestsModal"
+                    :key="selected.id"
+                    class="flex items-center space-x-2 py-2"
+                  >
+                    <span class="text-gray-800"
+                      >{{ selected.title }} #{{ selected.id }}</span
+                    >
+                    <button
+                      @click="removeSelectedTest(index)"
+                      class="text-red-500 hover:text-red-700 font-bold transition duration-300"
+                    >
+                      Xóa
+                    </button>
+                  </li>
+                </ul>
+              </div>
+            </div>
+
+            <!-- Buttons -->
+            <div class="flex justify-end mt-6 space-x-4">
+              <button
+                v-if="!isEditMode"
+                @click="copyTestLink(selectedTestsModal, null)"
+                class="text-white inline-flex items-center bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
+              >
+                <svg
+                  class="me-1 -ms-1 w-5 h-5"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    fill-rule="evenodd"
+                    d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"
+                    clip-rule="evenodd"
+                  ></path>
+                </svg>
+                Sao chép bài kiểm tra
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup>
 import { useRoute } from "vue-router";
-import { ref, computed, onMounted, onBeforeUnmount } from "vue";
+import { ref, computed, onMounted, onBeforeUnmount, watch } from "vue";
 import axios from "axios";
 const isEditMode = ref(false);
 const searchQuery = ref("");
 const isActiveInput = ref(true);
 const isModalOpen = ref(false);
+const isModalCloneOpen = ref(false);
 const idEditMode = ref(false);
+const testsModal = ref([]);
+const selectedTestsModal = ref([]);
+const classIdModal = ref(""); // Giá trị mặc định là chuỗi rỗng
+const classesModal = ref([]);
 const selectedIds = ref([]);
 const dropdownOpen = ref(false);
 const searchTerm = ref("");
@@ -494,17 +653,60 @@ onMounted(() => {
 onBeforeUnmount(() => {
   document.removeEventListener("click", closeDropdown);
 });
+onMounted(async () => {
+  // Lấy danh sách các lớp
+  const responseClass = await axios.get(
+    "http://localhost:5082/api/classApi?isAdmin=true"
+  );
+  if (responseClass.status === 200) {
+    classesModal.value = responseClass.data;
+  }
+});
+
+watch(classIdModal, async (newClassId) => {
+  // Lấy danh sách bài test khi thay đổi lớp
+  if (newClassId) {
+    const responseTest = await axios.get(
+      `http://localhost:5082/api/TestApi/listByClass?id=${newClassId}`
+    );
+
+    if (responseTest.status === 200) {
+      testsModal.value = responseTest.data;
+    }
+  } else {
+    tests.value = []; // Xóa danh sách test nếu không có lớp được chọn
+  }
+});
+
+// Hàm xóa bài test khỏi danh sách đã chọn
+const removeSelectedTest = (index) => {
+  selectedTestsModal.value.splice(index, 1);
+};
 const isAdminPath = route.path.startsWith("/admin");
 
 // Hàm gửi yêu cầu POST để sao chép bài kiểm tra
 const copyTestLink = async (testId, classId) => {
   try {
     // Định nghĩa payload
-    const clone = {
-      Id: testId,
-      UserCreate: $auth.user.value, // Thay bằng ID người dùng thật nếu cần
-      ClassId: classId,
-    };
+    const clone = Array.isArray(testId)
+      ? testId.map((test) => ({
+          Id: test.id,
+          UserCreate: $auth.user.value,
+          ClassId: classes.idOfClass,
+        }))
+      : [
+          {
+            Id: testId,
+            UserCreate: $auth.user.value,
+            ClassId: classId,
+          },
+        ];
+    console.log(clone);
+    if (clone.length === 0) {
+      alert("Không có gì để sao chép!");
+
+      return; // Dừng hàm nếu không có gì để sao chép
+    }
 
     // Gửi yêu cầu POST tới API và chờ phản hồi
     const response = await axios.post(
@@ -606,6 +808,9 @@ const openModal = (test) => {
     isActiveInput.value = true;
   }
 };
+const openCloneModal = (test) => {
+  isModalCloneOpen.value = true;
+};
 const closeModal = () => {
   isModalOpen.value = false;
   idEditMode.value = false;
@@ -614,6 +819,9 @@ const closeModal = () => {
   testPointInput.value = "";
   testTimeMinutesInput.value = "";
   isActiveInput.value = true;
+};
+const closeCloneModal = () => {
+  isModalCloneOpen.value = false;
 };
 
 const add = async () => {
